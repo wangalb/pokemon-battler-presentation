@@ -7,7 +7,8 @@ Project repo: <https://github.com/aman-a-shah/pokemon-battler>
 
 ## Running it
 
-No build step, no dependencies, no server needed.
+No build step, no dependencies, no server needed. The three typefaces are self-hosted under
+`assets/fonts/`, so the deck looks the same on a projector with no internet.
 
 ```bash
 start index.html

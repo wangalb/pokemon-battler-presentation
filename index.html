@@ -19,7 +19,7 @@
 
   <div class="roster">
     <div class="member">Yiming Xu <span>accounts &amp; roles</span></div>
-    <div class="member">Aman Shah <span>Pokédex</span></div>
+    <div class="member">Aman Shah <span>Pokédex &amp; frontend architecture</span></div>
     <div class="member">Edison Cai <span>data layer</span></div>
     <div class="member">Cindy Liu <span>custom Pokémon</span></div>
     <div class="member">Albert Wang <span>battles</span></div>
@@ -471,18 +471,19 @@
       <div class="card accent-gold">
         <h3>What the use case does</h3>
         <ul class="tight" style="margin-bottom:0">
-          <li>Loads the full species list and renders it as a browsable grid</li>
-          <li>Search by name, filter by type</li>
-          <li>Detail view: HP, attack, defense, speed, weight, types, move pool, artwork</li>
-          <li>Add to a personal library from the detail view</li>
+          <li>Loads all ~1,300 Pokémon — every form PokéAPI knows — live, in <strong>19 requests</strong></li>
+          <li>Search by name or dex number (<code>"15"</code> finds #150); type-chip filters that <strong>can never produce an empty grid</strong></li>
+          <li>Detail page: stat bars against the real 255 ceiling, moves, flavour text — and <strong>weaknesses computed from the type chart</strong>, not stored</li>
+          <li>Grid pages 120 cards at a time and says how many matches remain — no keystroke hitch</li>
+          <li>Add to your library from the detail view; owned entries are marked</li>
         </ul>
       </div>
       <div class="card">
         <h3>Terminology worth landing</h3>
-        <p style="margin-bottom:0"><span class="pill">Presentation vs domain split</span>
-        <span class="pill">Pure functions in <code>domain/</code></span>
-        <span class="pill">Custom hooks as adapters</span>
-        <span class="pill">Component composition</span></p>
+        <p style="margin-bottom:0"><span class="pill">Pure use case layer</span>
+        <span class="pill">Two-tier entity</span>
+        <span class="pill">Hook as interface adapter</span>
+        <span class="pill">Humble views</span></p>
       </div>
     </div>
 
@@ -508,8 +509,12 @@
   <div class="notes-source">
     <ul>
       <li>Filter by type live; it is the fastest way to show the data is real, not a fixture.</li>
+      <li>The 19-requests number is worth saying: one list call plus the 18 <code>/type</code>
+        endpoints colours in the whole grid, instead of 1,300 per-Pokémon lookups.</li>
+      <li>Weaknesses are <em>computed</em> from <code>domain/typeChart.ts</code> — the same table the
+        battle engine uses. One source of truth for type effectiveness.</li>
       <li>Mention the retro GBA styling briefly; the rubric rewards visuals, but don't dwell.</li>
-      <li>Hand off to Edison by asking "so where does all this data actually come from?"</li>
+      <li>Two more Aman slides follow — keep this one under 90 seconds.</li>
     </ul>
   </div>
 </section>
@@ -517,66 +522,132 @@
 <!-- ===================================================== 9. AMAN — CODE -->
 <section class="slide" data-section="Aman — Code">
   <div class="speaker-tag"><span class="avatar a1">AS</span> Aman Shah</div>
-  <p class="eyebrow">Interactor &amp; class diagram</p>
-  <h2>The frontend has a use case layer too</h2>
+  <p class="eyebrow">Use case &amp; class diagram</p>
+  <h2>The use case layer is pure functions — and that is the design</h2>
 
   <div class="cols side">
-    <div class="stack">
-      <div>
-        <div class="code-label">frontend/src/usecases/ports.ts — the boundary</div>
-        <pre><code><span class="cm">// Ports — the boundaries the use cases depend on. Declared here, in the use
-// case layer, and implemented outward in `services`, so the dependency rule
-// points inward: nothing in this file knows a battle is resolved over HTTP.</span>
-
-<span class="kw">export type</span> <span class="typ">BattleAction</span> =
-  | { type: <span class="str">"move"</span>; move: <span class="typ">Move</span> }
-  | { type: <span class="str">"switch"</span>; pokemon: <span class="typ">Pokemon</span> }
-  | { type: <span class="str">"item"</span>; item: <span class="typ">Item</span>; target: <span class="typ">Pokemon</span> };
-
-<span class="kw">export interface</span> <span class="typ">BattleGateway</span> {
-<span class="hl">  <span class="fn">resolveTurn</span>(battle: <span class="typ">BattleState</span>, action: <span class="typ">BattleAction</span>): <span class="typ">Promise</span>&lt;<span class="typ">TurnOutcome</span>&gt;;</span>
+    <div>
+      <div class="code-label">frontend/src/usecases/pokedex.ts</div>
+      <pre style="max-height:none"><code><span class="cm">// Pokédex use cases — pure functions over species data, no React, no storage.</span>
+<span class="cm">// A numeric query matches on dex number prefix, so "15" finds #150.</span>
+<span class="kw">export function</span> <span class="fn">searchSpecies</span>&lt;T <span class="kw">extends</span> <span class="typ">SpeciesSummary</span>&gt;(
+  entries: T[], query: <span class="typ">string</span>,
+): T[] {
+  <span class="kw">const</span> trimmed = query.<span class="fn">trim</span>().<span class="fn">toLowerCase</span>();
+  <span class="kw">if</span> (!trimmed) <span class="kw">return</span> entries;
+  <span class="kw">if</span> (/^\d+$/.<span class="fn">test</span>(trimmed)) {
+<span class="hl">    <span class="cm">// cards show "#006" zero-padded — strip zeros; all-zero matches nothing</span>
+    <span class="kw">const</span> significant = trimmed.<span class="fn">replace</span>(/^0+/, <span class="str">""</span>);
+    <span class="kw">if</span> (!significant) <span class="kw">return</span> [];</span>
+    <span class="kw">return</span> entries.<span class="fn">filter</span>((s) =&gt; <span class="typ">String</span>(s.dexNumber).<span class="fn">startsWith</span>(significant));
+  }
+  <span class="kw">return</span> entries.<span class="fn">filter</span>((s) =&gt; s.name.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(trimmed));
 }
-
-<span class="cm">/** Raised when a turn cannot be resolved. Message is safe to show the player. */</span>
-<span class="kw">export class</span> <span class="typ">BattleError</span> <span class="kw">extends</span> <span class="typ">Error</span> {}</code></pre>
-      </div>
-
-      <div class="card accent-purple">
-        <h3>Why this matters for the whole team</h3>
-        <p style="margin-bottom:0">
-          <code>App.tsx</code> is the composition root: it constructs the HTTP implementation and
-          injects it. Tests hand the same use cases a stub instead, which is why
-          <strong>311 frontend tests run with no server</strong>.
-        </p>
-      </div>
+<span class="hl"><span class="cm">// the whole pipeline: visibleSpecies = filterByTypes(searchSpecies(…), types)</span></span></code></pre>
     </div>
 
     <div class="stack">
       <div class="card">
         <h3>Full use case, layer by layer</h3>
         <div class="ca-flow" style="margin-top:0.55rem">
-          <div class="ca-node l-view"><span class="n-layer">View</span><span class="n-name">PokedexScreen<br>PokedexGrid · Card · Detail</span></div>
+          <div class="ca-node l-view"><span class="n-layer">View</span><span class="n-name">PokedexScreen<br>Grid · Card · Detail · StatBar</span></div>
           <div class="ca-arrow">→</div>
           <div class="ca-node l-adapter"><span class="n-layer">Adapter (hook)</span><span class="n-name">usePokedex<br>useLibraryPokedex</span></div>
         </div>
         <div class="ca-flow" style="margin-top:0.4rem">
-          <div class="ca-node l-usecase"><span class="n-layer">Use case</span><span class="n-name">usecases/pokedex.ts</span></div>
+          <div class="ca-node l-usecase"><span class="n-layer">Use case</span><span class="n-name">usecases/pokedex.ts<br>search · filter · toLibraryPokemon</span></div>
           <div class="ca-arrow">→</div>
-          <div class="ca-node l-entity"><span class="n-layer">Domain</span><span class="n-name">domain/pokedex.ts<br>domain/typeChart.ts</span></div>
+          <div class="ca-node l-entity"><span class="n-layer">Domain</span><span class="n-name">domain/pokedex.ts<br>weaknessesOf · typeChart</span></div>
         </div>
         <div class="ca-flow" style="margin-top:0.4rem">
-          <div class="ca-node l-usecase"><span class="n-layer">Port</span><span class="n-name">usecases/ports.ts</span></div>
-          <div class="ca-arrow">↑</div>
-          <div class="ca-node l-data"><span class="n-layer">Implements</span><span class="n-name">services/pokedexApi.ts<br>services/battleApi.ts</span></div>
+          <div class="ca-node l-data"><span class="n-layer">Frameworks &amp; drivers — called only by the hook</span><span class="n-name">services/pokedexApi.ts → PokéAPI</span></div>
         </div>
       </div>
 
-      <div class="card accent-blue">
-        <h3>Two languages, one rule</h3>
+      <div class="card accent-green">
+        <h3>What purity buys, measurably</h3>
         <p style="margin-bottom:0">
-          Java enforces the boundary with an <code>interface</code> in <code>use_case/</code>.
-          TypeScript enforces it with an exported <code>interface</code> in <code>usecases/ports.ts</code>.
-          Same rule, same direction, different keyword.
+          The inner two layers carry <strong>35 tests with zero mocks</strong> — no React, no DOM, no
+          network. Call the function, assert the value. The zero-padding branch on the left is the kind
+          of edge case that only gets pinned when testing costs nothing.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="notes-source">
+    <ul>
+      <li>The claim to land: <strong>the dependency rule needs no framework to enforce it</strong>.
+        The inner two layers are plain TypeScript; React appears only in the hook and the components.</li>
+      <li>The generic <code>T extends SpeciesSummary</code> is the two-tier entity design:
+        <code>SpeciesSummary</code> is what a grid tile shows, <code>PokemonSpecies</code> extends it
+        with the full dex page — they load on different schedules, but one implementation of
+        search/filter serves both tiers.</li>
+      <li><code>weaknessesOf</code> reads the same <code>typeChart</code> the battle engine uses —
+        the dex page and the damage formula cannot disagree about what beats what.</li>
+      <li><strong>Own the wrinkle before anyone greps:</strong> <code>usecases/pokedex.ts</code> has one
+        <em>type-only</em> import from <code>services/library.ts</code> (<code>LibraryPokemon</code>, in
+        <code>toLibraryPokemon</code>). Types flow at compile time; no call crosses outward. The honest
+        fix is moving that type into <code>domain/</code> — about five lines.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================== 9b. AMAN — FRONTEND ARCHITECTURE -->
+<section class="slide" data-section="Aman — Frontend architecture">
+  <div class="speaker-tag"><span class="avatar a1">AS</span> Aman Shah</div>
+  <p class="eyebrow">Foundation work</p>
+  <h2>The frontend's architecture landed before its first feature</h2>
+
+  <div class="cols two">
+    <div class="stack">
+      <div class="card accent-gold">
+        <h3>Four layers, committed first</h3>
+        <p style="margin-bottom:0.5rem; color:var(--muted)">
+          The first frontend commits bootstrapped Vite + React 19 + TypeScript, oxlint and vitest —
+          and the four-folder shape every later slice moved into:
+        </p>
+        <pre style="max-height:none"><code>domain/      <span class="cm">entities + pure rules   (innermost)</span>
+usecases/    <span class="cm">application logic, still pure</span>
+hooks/       <span class="cm">interface adapters — React starts here</span>
+components/  <span class="cm">humble views            (outermost)</span></code></pre>
+        <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
+          Proven against <strong>mock battle data before any backend endpoint existed</strong> — the
+          layering was the plan, not a retrofit. Every later slice moved into it.
+        </p>
+      </div>
+
+      <div class="card accent-purple">
+        <h3>Composition, the frontend way</h3>
+        <p style="margin-bottom:0">
+          <code>useLibraryPokedex</code> <em>wraps</em> <code>usePokedex</code>: browsing stays one
+          implementation; the library screen layers the add-action and "owned" markers on top.
+        </p>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="card accent-red">
+        <h3>The battle, as the player sees it</h3>
+        <ul class="tight" style="margin-bottom:0">
+          <li>Battle arena screen — <code>BattleArena</code>, <code>ActionPanel</code>,
+            <code>HpBar</code>, <code>StatusCard</code>, sprite service</li>
+          <li>Bag and Party as overlay screens over the arena</li>
+          <li>Choose-your-Pokémon setup before a single battle</li>
+          <li>The switch from mock turns to <strong>live resolution against the Java engine</strong>,
+            battle end, and the way out of a finished battle</li>
+          <li>The retro GBA look the whole app wears</li>
+        </ul>
+      </div>
+
+      <div class="card accent-green">
+        <h3>Why laying it early mattered</h3>
+        <p style="margin-bottom:0">
+          A dependency rule is cheap to follow when the folders already encode it and the first tests
+          already enforce it. The frontend's <strong>311 tests need no server</strong> in large part
+          because this shape kept <code>fetch</code> at the edge from day one — a component literally
+          has nowhere to put a network call.
         </p>
       </div>
     </div>
@@ -584,9 +655,13 @@
 
   <div class="notes-source">
     <ul>
-      <li>This is our strongest Clean Architecture evidence on the frontend: most teams treat React as
-        exempt from the Dependency Rule. We didn't.</li>
-      <li>The comment at the top of the file was written before the implementation, not after.</li>
+      <li>This is credit for invisible work — say it in one breath, don't lecture. 60–75 seconds.</li>
+      <li>The composition card is the frontend mirror of Cindy's slide: her interactor composes
+        Yiming's through a boundary; <code>useLibraryPokedex</code> composes <code>usePokedex</code>
+        the same way. Draw that parallel out loud.</li>
+      <li>If asked "who decided the frontend architecture": the first four frontend commits in the git
+        history are the answer — scaffold, domain types, components, hook — in that order, July 11–14.</li>
+      <li>Hand off to Edison by asking "so where does all this data actually come from?"</li>
     </ul>
   </div>
 </section>
@@ -1341,7 +1416,9 @@ grep -rn <span class="str">"import data_access"</span> backend/src/main/java/use
 <span class="cm"># frontend use cases never import an adapter</span>
 grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases</code></pre>
         <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted); font-size:var(--text-sm)">
-          All three return nothing. That is the evidence.
+          The first two return nothing. The third finds exactly one line — a <em>type-only</em> import
+          of <code>LibraryPokemon</code>, named and defended on the Pokédex code slide. No call ever
+          crosses the boundary.
         </p>
       </div>
     </div>
@@ -1378,6 +1455,10 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
             UI ship before the endpoints did. Switching over touches
             <code>services/auth.ts</code> and <code>services/library.ts</code> and nothing above them.</li>
           <li><strong>The Pokédex reaches PokéAPI directly</strong> — one file, already discussed.</li>
+          <li><strong>One type-only import crosses outward</strong> — <code>usecases/pokedex.ts</code>
+            imports the <code>LibraryPokemon</code> type from <code>services/library.ts</code>. Types
+            flow at compile time only; the honest fix is moving that type into <code>domain/</code>,
+            about five lines.</li>
         </ul>
       </div>
     </div>

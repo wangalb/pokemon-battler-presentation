@@ -1,0 +1,15 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Node, only if someone adds a static server
+node_modules/
+
+# Exported PDFs of the deck
+*.pdf

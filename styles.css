@@ -665,6 +665,54 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
 }
 .before-after .ba-label.after { color: var(--green); }
 
+/* One pre-recorded clip per use case. The slot is 16/9 because that is what a
+   screen recording produces; giving it the full column rather than half means
+   the app is legible from the back row. */
+.demo .ba-label {
+  font-size: var(--arcade-xs);
+  color: var(--gold);
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* A record dot, so the label reads as "a clip goes here" at a glance. */
+.demo .ba-label::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--red-bright);
+  border: 0.125rem solid var(--line);
+  flex: none;
+}
+
+.demo .media-slot { aspect-ratio: 16 / 9; }
+
+/* The beats the clip has to hit, so the slide still says something useful
+   before the recording exists and while it is paused on its first frame. */
+.demo-beats {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.45rem;
+  font-size: var(--text-xs);
+  color: var(--dim);
+}
+
+.demo-beats li {
+  background: var(--well);
+  border: 0.125rem solid var(--line-soft);
+  padding: 0.15rem 0.5rem;
+}
+
+.demo-beats li::before {
+  content: "\25B8 ";
+  color: var(--gold);
+}
+
 /* ------------------------------------------------------------------- metrics */
 
 .metrics {
@@ -700,6 +748,7 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
 .metric.green .m-value { color: var(--green); }
 .metric.blue  .m-value { color: var(--blue); }
 .metric.red   .m-value { color: var(--red); }
+.metric.gold  .m-value { color: var(--gold); }
 
 /* ---------------------------------------------------------------------- Q & A */
 
@@ -1152,17 +1201,30 @@ kbd {
 /* -------------------------------------------------------------------- print */
 
 @media print {
+  /* 13.333in x 7.5in is the standard 16:9 slide size. Without it the export
+     defaults to Letter portrait, which is the wrong shape for a widescreen
+     deck and paginates it into roughly twice as many pages. */
+  @page { size: 13.333in 7.5in; margin: 0; }
+
   html, body { overflow: visible; height: auto; background: #ffffff; }
   #chrome, #notes, #overview, #help { display: none !important; }
   .slide {
     display: flex !important;
     position: static;
     page-break-after: always;
-    min-height: 100vh;
+    min-height: 7.5in;
     box-shadow: none;
   }
+  .slide:last-child { page-break-after: auto; }
   pre { max-height: none; box-shadow: none; }
+
+  /* Autofit is a screen affordance: it shrinks a slide to fit the panel in the
+     room. In print the page IS the panel, so the same measurement does not
+     apply and zoom is reset — a slide that then runs long continues onto a
+     second page rather than being clipped, because the code slides and the Q&A
+     bank carry content the individual rubric is scored on. */
   .slide > * { zoom: 1; }
+
   /* The photo does not print; without this the title's white text sits on paper. */
   .slide.title-slide { background: var(--room); }
 }

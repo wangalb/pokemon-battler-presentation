@@ -1,9 +1,18 @@
 # assets/
 
-Screenshots and demo recordings for the deck. Drop files here using the names in the table in the
-[root README](../README.md#adding-the-demo-recordings-and-screenshots) and reload the page — each
-`.media-slot` in `index.html` hydrates itself if its file exists, and keeps its dashed placeholder if
-it does not.
+Demo recordings for the deck — **one clip per user story**, six in total:
+
+```
+will-demo.mp4     aman-demo.mp4     edison-demo.mp4
+cindy-demo.mp4    albert-demo.mp4   dorothy-demo.mp4
+```
+
+Drop them here and reload the page. Each `.media-slot` in `index.html` hydrates itself if its file
+exists and keeps its dashed placeholder if it does not, so the deck presents cleanly at any stage of
+recording. The beats each clip has to hit are in the table in the
+[root README](../README.md#adding-the-demo-recordings).
+
+Target **~45 seconds each**. The slots are 16:9, which is what a screen recording produces.
 
 Recording notes, carried over from `docs/presentation-plan.md` in the project repo:
 

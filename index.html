@@ -18,7 +18,7 @@
   <p class="subtitle">A tournament simulator built on real Pokédex data · CSC207 Team&nbsp;4</p>
 
   <div class="roster">
-    <div class="member">Yiming Xu <span>accounts &amp; roles</span></div>
+    <div class="member">Will Xu <span>accounts &amp; trainer panel</span></div>
     <div class="member">Aman Shah <span>Pokédex &amp; frontend architecture</span></div>
     <div class="member">Edison Cai <span>data layer</span></div>
     <div class="member">Cindy Liu <span>custom Pokémon</span></div>
@@ -58,7 +58,7 @@
     </div>
     <div class="card accent-blue">
       <h3>Battles you play</h3>
-      <p>Turn by turn: choose a move, use an item, switch a fainted Pokémon out. Speed decides who
+      <p>Turn by turn: choose a move or use an item. Speed decides who
       strikes first; type matchups decide how much it hurts.</p>
     </div>
     <div class="card accent-green">
@@ -106,7 +106,7 @@
         <li>Browse and search every Pokémon, and read its stats, types and moves</li>
         <li>Save Pokémon to a personal library that is theirs alone</li>
         <li>Invent a custom Pokémon with its own name, stats, moves and artwork</li>
-        <li>Fight a turn-based battle: attack, use an item, or switch a Pokémon out</li>
+        <li>Fight a turn-based battle: attack or use an item</li>
         <li>Run an eight-entrant knockout tournament, hand-picked or randomly filled</li>
         <li>See who won, and why — damage, type effectiveness, critical hits</li>
       </ul>
@@ -148,75 +148,63 @@
 <!-- =========================================================== 4. SCOPE -->
 <section class="slide" data-section="Scope">
   <p class="eyebrow">Scope</p>
-  <h2>Eight user stories, six people</h2>
+  <h2>Seven use cases, six people</h2>
 
   <table class="dense">
     <thead>
-      <tr><th style="width:44%">User story</th><th style="width:16%">Owner</th><th style="width:12%">Status</th><th>What shipped</th></tr>
+      <tr><th style="width:19%">Use case</th><th style="width:34%">User story</th><th style="width:13%">Owner</th><th>What shipped</th></tr>
     </thead>
     <tbody>
       <tr>
+        <td><strong>User Accounts</strong></td>
         <td>As a user, I want to log in.</td>
-        <td>Yiming Xu</td>
-        <td><span class="badge built">Built</span></td>
-        <td>Signup, login, four roles, invite codes, soft delete with 60-day restore</td>
+        <td>Will Xu</td>
+        <td>Signup, login, four roles, invite codes, guest mode, Google sign-in, soft delete with 60-day restore</td>
       </tr>
       <tr>
-        <td>As a user, I want to see Pokémon stats and battle information in a library.</td>
+        <td><strong>Trainer Panel</strong></td>
+        <td>As a trainer, I want my own library, and admins to be able to inspect one.</td>
+        <td>Will Xu</td>
+        <td>Per-user library over HTTP, role-gated menu entries, admin and dev inspection</td>
+      </tr>
+      <tr>
+        <td><strong>Pok&eacute;dex</strong></td>
+        <td>As a user, I want to see Pok&eacute;mon stats and battle information in a library.</td>
         <td>Aman Shah</td>
-        <td><span class="badge built">Built</span></td>
-        <td>Searchable Pokédex over live PokéAPI data, plus a per-user library</td>
+        <td>Searchable Pok&eacute;dex over live Pok&eacute;API data, with stats, types and move pools</td>
       </tr>
       <tr>
-        <td>As a user, I want battles to use the real stats of every Pokémon.</td>
+        <td><strong>Battling with Custom Pok&eacute;mon</strong></td>
+        <td>As a user, I want the Pok&eacute;mon I invented to be usable in a real battle.</td>
         <td>Edison Cai</td>
-        <td><span class="badge built">Built</span></td>
-        <td>Cached PokéAPI gateway, catalog paging, and the REST surface the app runs on</td>
+        <td>Owner-scoped custom Pok&eacute;mon storage and API, sprite uploads by opaque key, authorised sprite loading</td>
       </tr>
       <tr>
-        <td>As a user, I want to create my own Pokémon with custom stats and appearances.</td>
+        <td><strong>Build a Pok&eacute;mon</strong></td>
+        <td>As a user, I want to create my own Pok&eacute;mon with custom stats and appearances.</td>
         <td>Cindy Liu</td>
-        <td><span class="badge built">Built</span></td>
         <td>Creation screen, validation, image upload, auto-added to your library</td>
       </tr>
       <tr>
-        <td>As a user, I want to battle a single Pokémon because I want to see which one is stronger.</td>
+        <td><strong>Single Battle</strong></td>
+        <td>As a user, I want to battle a single Pok&eacute;mon because I want to see which one is stronger.</td>
         <td>Albert Wang</td>
-        <td><span class="badge built">Built</span></td>
-        <td>Turn resolution over HTTP: moves, items, switching, fainting, parties</td>
+        <td>Turn resolution over HTTP: moves, items, damage, fainting</td>
       </tr>
       <tr>
+        <td><strong>Tournament</strong></td>
         <td>As a professional player, I want to play in tournaments to test my battling skills.</td>
         <td>Dorothy Zheng</td>
-        <td><span class="badge built">Built</span></td>
-        <td>Eight-entrant knockout bracket, rounds simulated in parallel</td>
-      </tr>
-      <tr>
-        <td>As a user, I want to generate random Pokémon brackets.</td>
-        <td>Dorothy Zheng</td>
-        <td><span class="badge built">Built</span></td>
-        <td>Any slot left open is filled at random when the tournament starts</td>
-      </tr>
-      <tr>
-        <td>As a user, I want to hand-select a Pokémon bracket.</td>
-        <td>Dorothy Zheng</td>
-        <td><span class="badge built">Built</span></td>
-        <td>Setup screen places entrants into bracket order</td>
-      </tr>
-      <tr style="opacity:0.62">
-        <td>As a kid, I want to share the results of my battle with friends and family.</td>
-        <td>—</td>
-        <td><span class="badge cut">Cut</span></td>
-        <td>Cut on purpose: sharing needs hosting and public links, which buys no design depth</td>
+        <td>Eight-entrant knockout bracket, hand-picked or randomly filled, rounds simulated in parallel</td>
       </tr>
     </tbody>
   </table>
 
   <div class="card accent-gold" style="margin-top:1rem">
     <p style="margin:0">
-      <strong>Eight of nine shipped.</strong> Each of the six of us owns at least one distinct,
-      substantial slice — from a login system with roles to a parallel tournament runner. The one we
-      cut, we cut early and said so.
+      <strong>Seven use cases, all shipped.</strong> Each of the six of us owns at least one distinct,
+      substantial slice &mdash; a login system with roles, a cached catalog, a creation flow, a turn
+      engine, a parallel tournament runner. <em>Not</em> six variations on one CRUD screen.
     </p>
   </div>
 
@@ -226,9 +214,11 @@
         rubric subtotal, so this table is worth more than any single category.</li>
       <li>Point at the distinctness: roles &amp; access control, catalog &amp; caching, creation,
         turn engine, bracket runner. <em>Not</em> six variations on one CRUD screen.</li>
-      <li>Say the cut story <strong>ourselves</strong>, with the reason, before Q&amp;A finds it.</li>
-      <li><strong>Owners were reconstructed from commit history — confirm each row with its owner
-        before you present.</strong></li>
+      <li>Rows are in <strong>demo order</strong>, so this table previews the next six sections.
+        Will has two use cases and presents them together.</li>
+      <li>Owners confirmed by the team on 2026-08-08, and they match <code>PROJECT.md</code>. The two
+        story sentences without a blueprint quote — Trainer Panel and Battling with Custom Pokémon —
+        were written to match the shipped behaviour.</li>
     </ul>
   </div>
 </section>
@@ -307,10 +297,10 @@
   </div>
 </section>
 
-<!-- ================================================== 6. YIMING — STORY -->
-<section class="slide" data-section="Yiming — Accounts">
-  <div class="speaker-tag"><span class="avatar a2">YX</span> Yiming Xu</div>
-  <p class="eyebrow">User story 1 of 6</p>
+<!-- ==================================================== 6. WILL — STORY -->
+<section class="slide" data-section="Will — Accounts &amp; Panel">
+  <div class="speaker-tag"><span class="avatar a2">WX</span> Will Xu</div>
+  <p class="eyebrow">Use cases 1 &amp; 2 of 7 — User Accounts, Trainer Panel</p>
   <h2>Log in, and see only what you should</h2>
 
   <blockquote class="quote">"As a user, I want to log in."</blockquote>
@@ -337,21 +327,18 @@
     </div>
 
     <div>
-      <div class="before-after">
-        <div>
-          <div class="ba-label">Before</div>
-          <div class="media-slot" data-src="assets/yiming-before.png">
-            <div class="placeholder"><span class="ph-icon">▣</span>Login screen, signed out<span class="ph-file">assets/yiming-before.png</span></div>
-          </div>
+      <div class="demo">
+        <div class="ba-label">Recorded demo · ~45s</div>
+        <div class="media-slot" data-src="assets/will-demo.mp4">
+          <div class="placeholder"><span class="ph-icon">▶</span>Sign up, sign in, role-gated menu, trainer panel<span class="ph-file">assets/will-demo.mp4</span></div>
         </div>
-        <div>
-          <div class="ba-label after">After</div>
-          <div class="media-slot" data-src="assets/yiming-after.png">
-            <div class="placeholder"><span class="ph-icon">▣</span>Main menu, role-gated panels<span class="ph-file">assets/yiming-after.png</span></div>
-          </div>
-        </div>
+        <ol class="demo-beats">
+          <li>Sign up as a plain <code>USER</code></li>
+          <li>Menu shows only reachable panels</li>
+          <li>Sign in with a <code>TRAINER</code> invite code</li>
+          <li>Trainer panel, with that user's library</li>
+        </ol>
       </div>
-      <p class="media-caption">Before and after views, required by the individual rubric.</p>
     </div>
   </div>
 
@@ -364,9 +351,9 @@
   </div>
 </section>
 
-<!-- =================================================== 7. YIMING — CODE -->
-<section class="slide" data-section="Yiming — Code">
-  <div class="speaker-tag"><span class="avatar a2">YX</span> Yiming Xu</div>
+<!-- ===================================================== 7. WILL — CODE -->
+<section class="slide" data-section="Will — Code">
+  <div class="speaker-tag"><span class="avatar a2">WX</span> Will Xu</div>
   <p class="eyebrow">Interactor &amp; class diagram</p>
   <h2>Access is decided by a policy, not by a screen</h2>
 
@@ -461,7 +448,7 @@
 <!-- ==================================================== 8. AMAN — STORY -->
 <section class="slide" data-section="Aman — Pokédex">
   <div class="speaker-tag"><span class="avatar a1">AS</span> Aman Shah</div>
-  <p class="eyebrow">User story 2 of 6</p>
+  <p class="eyebrow">Use case 3 of 7 — Pokédex</p>
   <h2>Every Pokémon, searchable, with its real stats</h2>
 
   <blockquote class="quote">"As a user, I want to be able to see Pokémon stats and battle information in a library."</blockquote>
@@ -489,21 +476,18 @@
     </div>
 
     <div>
-      <div class="before-after">
-        <div>
-          <div class="ba-label">Before</div>
-          <div class="media-slot" data-src="assets/aman-before.png">
-            <div class="placeholder"><span class="ph-icon">▣</span>Main menu, before opening the Pokédex<span class="ph-file">assets/aman-before.png</span></div>
-          </div>
+      <div class="demo">
+        <div class="ba-label">Recorded demo · ~45s</div>
+        <div class="media-slot" data-src="assets/aman-demo.mp4">
+          <div class="placeholder"><span class="ph-icon">▶</span>Search the Pokédex, open a detail view, save to library<span class="ph-file">assets/aman-demo.mp4</span></div>
         </div>
-        <div>
-          <div class="ba-label after">After</div>
-          <div class="media-slot" data-src="assets/aman-after.png">
-            <div class="placeholder"><span class="ph-icon">▣</span>Pokédex grid + detail with stat bars<span class="ph-file">assets/aman-after.png</span></div>
-          </div>
-        </div>
+        <ol class="demo-beats">
+          <li>Open the Pokédex from the menu</li>
+          <li>Search and filter by type</li>
+          <li>Detail view with real stat bars</li>
+          <li>Save one to the library</li>
+        </ol>
       </div>
-      <p class="media-caption">Before and after views, required by the individual rubric.</p>
     </div>
   </div>
 
@@ -609,10 +593,12 @@
         search/filter serves both tiers.</li>
       <li><code>weaknessesOf</code> reads the same <code>typeChart</code> the battle engine uses —
         the dex page and the damage formula cannot disagree about what beats what.</li>
-      <li><strong>Own the wrinkle before anyone greps:</strong> <code>usecases/pokedex.ts</code> has one
-        <em>type-only</em> import from <code>services/library.ts</code> (<code>LibraryPokemon</code>, in
-        <code>toLibraryPokemon</code>). Types flow at compile time; no call crosses outward. The honest
-        fix is moving that type into <code>domain/</code> — about five lines.</li>
+      <li><strong>The wrinkle is now fixed, so do not volunteer it as a gap.</strong>
+        <code>usecases/pokedex.ts</code> used to take a type-only import from
+        <code>services/library.ts</code>; <code>LibraryPokemon</code> moved into <code>domain/</code>
+        in PR #40, and <code>frontend/src/__tests__/architecture.test.ts</code> now fails the build if
+        anything in <code>usecases/</code> imports an adapter again. Worth saying <em>that</em> instead:
+        we found it, moved the type, and pinned it with a test.</li>
     </ul>
   </div>
 </section>
@@ -684,7 +670,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         <h3>Why laying it early mattered</h3>
         <p style="margin-bottom:0">
           A dependency rule is cheap to follow when the folders already encode it and the first tests
-          already enforce it. The frontend's <strong>311 tests need no server</strong> in large part
+          already enforce it. The frontend's <strong>325 tests need no server</strong> in large part
           because this shape kept <code>fetch</code> at the edge from day one — a component literally
           has nowhere to put a network call.
         </p>
@@ -696,7 +682,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
     <ul>
       <li>This is credit for invisible work — say it in one breath, don't lecture. 75–90 seconds.</li>
       <li>The decorator card is the frontend mirror of Cindy's slide: her interactor composes
-        Yiming's through a boundary; <code>useLibraryPokedex</code> composes <code>usePokedex</code>
+        Will's through a boundary; <code>useLibraryPokedex</code> composes <code>usePokedex</code>
         the same way. Draw that parallel out loud.</li>
       <li>Credit Albert by name for <code>ports.ts</code> — the commit history says it is his, and
         crediting a teammate while naming your own violation reads as confidence, not weakness.</li>
@@ -712,58 +698,58 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 </section>
 
 <!-- ================================================= 10. EDISON — STORY -->
-<section class="slide" data-section="Edison — Data layer">
+<section class="slide" data-section="Edison — Custom Pokémon">
   <div class="speaker-tag"><span class="avatar a5">EC</span> Edison Cai</div>
-  <p class="eyebrow">User story 3 of 6</p>
-  <h2>Real stats for 1,300+ Pokémon, fetched once</h2>
+  <p class="eyebrow">Use case 4 of 7 — Battling with Custom Pokémon</p>
+  <h2>The Pokémon you invented, in a real fight</h2>
 
-  <blockquote class="quote">"As a user, I want battles to use the real stats of every Pokémon, not numbers we made up."</blockquote>
+  <blockquote class="quote">"As a user, I want the Pokémon I invented to be usable in a real battle."</blockquote>
 
   <div class="cols side">
     <div class="stack">
       <div class="card accent-cyan">
         <h3>What the use case does</h3>
         <ul class="tight" style="margin-bottom:0">
-          <li>Pages the PokéAPI catalog with validated <code>limit</code> and <code>offset</code></li>
-          <li>Loads one Pokémon with stats, types, sprites, cries, and up to four damaging moves</li>
-          <li>Writes every response to <code>backend/cache/</code>, so a repeat costs no network call</li>
-          <li>Turns upstream failures into typed <code>QueryFailure</code> values, never raw exceptions</li>
+          <li>Persists a custom Pokémon to its <strong>owner's</strong> files — one user cannot read another's</li>
+          <li>Stores uploaded sprites by <strong>opaque key</strong>, so a filename can never address someone else's image</li>
+          <li>Serves both back over a user-scoped API, with sprite loading behind authorisation</li>
+          <li>Feeds the same <code>Pokemon</code> entity the battle engine already takes, so a custom
+            entrant fights exactly like an official one</li>
         </ul>
       </div>
       <div class="card">
         <h3>Terminology worth landing</h3>
-        <p style="margin-bottom:0"><span class="pill">Caching proxy</span>
-        <span class="pill">Gateway / anti-corruption layer</span>
-        <span class="pill">Data mapper</span>
+        <p style="margin-bottom:0"><span class="pill">Repository</span>
+        <span class="pill">Owner-scoped storage</span>
+        <span class="pill">Opaque key</span>
         <span class="pill">Interface segregation</span></p>
       </div>
     </div>
 
     <div>
-      <div class="before-after">
-        <div>
-          <div class="ba-label">Before</div>
-          <div class="media-slot" data-src="assets/edison-before.png">
-            <div class="placeholder"><span class="ph-icon">▣</span>Empty <code>cache/</code>, cold request<span class="ph-file">assets/edison-before.png</span></div>
-          </div>
+      <div class="demo">
+        <div class="ba-label">Recorded demo · ~45s</div>
+        <div class="media-slot" data-src="assets/edison-demo.mp4">
+          <div class="placeholder"><span class="ph-icon">▶</span>A custom Pokémon taken into battle<span class="ph-file">assets/edison-demo.mp4</span></div>
         </div>
-        <div>
-          <div class="ba-label after">After</div>
-          <div class="media-slot" data-src="assets/edison-after.png">
-            <div class="placeholder"><span class="ph-icon">▣</span><code>curl /api/pokemon/pikachu</code> + warm cache<span class="ph-file">assets/edison-after.png</span></div>
-          </div>
-        </div>
+        <ol class="demo-beats">
+          <li>The Pokémon Cindy just created, in the library</li>
+          <li>Pick it as a battle entrant</li>
+          <li>Its uploaded sprite loads in the arena</li>
+          <li>It takes and deals damage like any other</li>
+        </ol>
       </div>
-      <p class="media-caption">Before and after views, required by the individual rubric.</p>
     </div>
   </div>
 
   <div class="notes-source">
     <ul>
-      <li>Best "after" shot: two <code>curl</code> calls side by side — the second one visibly instant,
-        with the JSON file now sitting in <code>backend/cache/</code>.</li>
-      <li>Say the number: a cold tournament of 8 Pokémon needs ~40 upstream calls; warm, it needs zero.</li>
-      <li>This slide sets up the <strong>API Usage</strong> rubric slide later — plant the endpoints here.</li>
+      <li>This section <strong>picks up exactly where Cindy's leaves off</strong> — she creates it, you
+        fight with it. Say that hand-off out loud; it makes two slices read as one product.</li>
+      <li>The security point is worth ten seconds: sprites are addressed by an <strong>opaque key</strong>,
+        not a filename, so guessing another user's URL does not work.</li>
+      <li>The catalog and cache work is <em>also</em> yours — it is on the next slide and on the
+        <strong>API Usage</strong> slide. Plant the endpoints there, not here.</li>
     </ul>
   </div>
 </section>
@@ -771,7 +757,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 <!-- ================================================== 11. EDISON — CODE -->
 <section class="slide" data-section="Edison — Code">
   <div class="speaker-tag"><span class="avatar a5">EC</span> Edison Cai</div>
-  <p class="eyebrow">Interactor &amp; class diagram</p>
+  <p class="eyebrow">Interactor &amp; class diagram — the catalog slice, also mine</p>
   <h2>The interactor validates. It does not know what HTTP is.</h2>
 
   <div class="cols side">
@@ -851,6 +837,9 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
   <div class="notes-source">
     <ul>
+      <li><strong>Open by saying this is the catalog slice, not the custom-Pokémon one.</strong> Both
+        are yours; this is the one with the cleanest interface-segregation story, which is why it is
+        the code on screen.</li>
       <li>Highlighted lines: the only field is an <strong>interface</strong>, and the only failure path
         produces a <strong>domain-level enum</strong>. No <code>ResponseEntity</code>, no
         <code>@Service</code>, no <code>HttpClient</code> anywhere in this file.</li>
@@ -863,7 +852,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 <!-- ================================================== 12. CINDY — STORY -->
 <section class="slide" data-section="Cindy — Create Pokémon">
   <div class="speaker-tag"><span class="avatar a3">CL</span> Cindy Liu</div>
-  <p class="eyebrow">User story 4 of 6</p>
+  <p class="eyebrow">Use case 5 of 7 — Build a Pokémon</p>
   <h2>Invent a Pokémon that never existed</h2>
 
   <blockquote class="quote">"As a user, I want to be able to create my own Pokémon with custom stats and appearances."</blockquote>
@@ -890,7 +879,19 @@ components/  <span class="cm">humble views            (outermost)</span></code><
     </div>
 
     <div>
-      <div class="before-after">
+      <div class="demo">
+        <div class="ba-label">Recorded demo · ~45s</div>
+        <div class="media-slot" data-src="assets/cindy-demo.mp4">
+          <div class="placeholder"><span class="ph-icon">▶</span>Create a Pokémon, watch it land in the library<span class="ph-file">assets/cindy-demo.mp4</span></div>
+        </div>
+        <ol class="demo-beats">
+          <li>Empty creation form</li>
+          <li>Validation rejects a bad stat</li>
+          <li>Upload a sprite, pick moves</li>
+          <li>It appears in the library</li>
+        </ol>
+      </div>
+      <div class="before-after" style="margin-top:0.6rem">
         <div>
           <div class="ba-label">Before</div>
           <div class="media-slot" data-src="assets/cindy-before.png">
@@ -904,7 +905,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
           </div>
         </div>
       </div>
-      <p class="media-caption">Before and after views, required by the individual rubric.</p>
+      <p class="media-caption">Stills already captured; the clip above replaces them once recorded.</p>
     </div>
   </div>
 
@@ -968,7 +969,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         <h3>Why the highlighted call is the interesting one</h3>
         <p style="margin-bottom:0">
           Creating a Pokémon also puts it in your library, but this interactor does not touch the
-          library store. It depends on <code>AddToLibraryInputBoundary</code>, Yiming's use case, as an
+          library store. It depends on <code>AddToLibraryInputBoundary</code>, Will's use case, as an
           <em>interface</em>. Two features composed with zero coupling between their implementations.
         </p>
       </div>
@@ -1018,7 +1019,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 <!-- ================================================= 14. ALBERT — STORY -->
 <section class="slide" data-section="Albert — Battle">
   <div class="speaker-tag"><span class="avatar a6">AW</span> Albert Wang</div>
-  <p class="eyebrow">User story 5 of 6</p>
+  <p class="eyebrow">Use case 6 of 7 — Single Battle</p>
   <h2>A battle you actually play</h2>
 
   <blockquote class="quote">"As a user, I want to battle a single Pokémon because I want to see which one is stronger."</blockquote>
@@ -1031,37 +1032,39 @@ components/  <span class="cm">humble views            (outermost)</span></code><
           <li>Choose a move; speed decides who strikes first, with a coin flip on a tie</li>
           <li>Damage = <code>floor(power × atk / def × STAB × type × crit)</code>, over the full 18-type chart</li>
           <li>Accuracy rolls, and a 1-in-24 critical hit at 1.5×</li>
-          <li>Use an item, or switch a Pokémon; both cost you the turn</li>
-          <li>A faint forces a switch, and that one is free — the knockout already cost the turn</li>
-          <li>You lose only when your <em>whole party</em> is down</li>
+          <li>Use an item — one that would do nothing is <em>refused rather than consumed</em></li>
+          <li>A faint ends the battle</li>
         </ul>
+        <p style="margin:0.5rem 0 0; color:var(--muted); font-size:var(--text-sm)">
+          <strong style="color:var(--green)">Built, not demoed:</strong> parties and
+          <code>SwitchPokemon</code> are real and tested, but every shipped route builds a party of
+          one. Enabling it is a <strong>setup-screen change</strong> — no entity, interactor or
+          endpoint.
+        </p>
       </div>
       <div class="card">
         <h3>Terminology worth landing</h3>
         <p style="margin-bottom:0"><span class="pill">Stateless endpoint</span>
         <span class="pill">Dependency injection of randomness</span>
         <span class="pill">Strategy</span>
-        <span class="pill">Factory method</span>
+        <span class="pill">Open/closed</span>
         <span class="pill">Immutable value object</span></p>
       </div>
     </div>
 
     <div>
-      <div class="before-after">
-        <div>
-          <div class="ba-label">Before</div>
-          <div class="media-slot" data-src="assets/albert-before.png">
-            <div class="placeholder"><span class="ph-icon">▣</span>Battle setup, both Pokémon at full HP<span class="ph-file">assets/albert-before.png</span></div>
-          </div>
+      <div class="demo">
+        <div class="ba-label">Recorded demo · ~45s</div>
+        <div class="media-slot" data-src="assets/albert-demo.mp4">
+          <div class="placeholder"><span class="ph-icon">▶</span>A turn resolved by the Java engine, start to faint<span class="ph-file">assets/albert-demo.mp4</span></div>
         </div>
-        <div>
-          <div class="ba-label after">After</div>
-          <div class="media-slot" data-src="assets/albert-after.png">
-            <div class="placeholder"><span class="ph-icon">▣</span>Super-effective hit, HP bar dropping<span class="ph-file">assets/albert-after.png</span></div>
-          </div>
-        </div>
+        <ol class="demo-beats">
+          <li>Setup, both Pokémon at full HP</li>
+          <li>A super-effective hit, HP bar drops</li>
+          <li>An item that would do nothing is refused</li>
+          <li>Faint, and the battle ends</li>
+        </ol>
       </div>
-      <p class="media-caption">Before and after views, required by the individual rubric.</p>
     </div>
   </div>
 
@@ -1071,6 +1074,9 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         it is the one moment the backend is visible to the audience.</li>
       <li>Let the message box be readable on the super-effective hit. Don't speed through it.</li>
       <li>Speed up the last few HP grinding turns — nobody needs twelve turns.</li>
+      <li><strong>Do not narrate switching.</strong> The clip is a 1v1 and the screen cannot show it.
+        If it comes up in Q&amp;A: the party model and the switch use case exist and are tested, the
+        setup screen just never builds a party bigger than one.</li>
     </ul>
   </div>
 </section>
@@ -1181,7 +1187,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 <!-- ================================================ 16. DOROTHY — STORY -->
 <section class="slide" data-section="Dorothy — Tournament">
   <div class="speaker-tag"><span class="avatar a4">DZ</span> Dorothy Zheng</div>
-  <p class="eyebrow">User story 6 of 6</p>
+  <p class="eyebrow">Use case 7 of 7 — Tournament</p>
   <h2>Eight enter. One leaves.</h2>
 
   <blockquote class="quote">"As a professional Pokémon player, I want to be able to play in tournaments to test my Pokémon battling skills."</blockquote>
@@ -1209,21 +1215,18 @@ components/  <span class="cm">humble views            (outermost)</span></code><
     </div>
 
     <div>
-      <div class="before-after">
-        <div>
-          <div class="ba-label">Before</div>
-          <div class="media-slot" data-src="assets/dorothy-before.png">
-            <div class="placeholder"><span class="ph-icon">▣</span>Setup: chosen entrants + <code>?</code> slots<span class="ph-file">assets/dorothy-before.png</span></div>
-          </div>
+      <div class="demo">
+        <div class="ba-label">Recorded demo · ~45s</div>
+        <div class="media-slot" data-src="assets/dorothy-demo.mp4">
+          <div class="placeholder"><span class="ph-icon">▶</span>Eight entrants down to one champion<span class="ph-file">assets/dorothy-demo.mp4</span></div>
         </div>
-        <div>
-          <div class="ba-label after">After</div>
-          <div class="media-slot" data-src="assets/dorothy-after.png">
-            <div class="placeholder"><span class="ph-icon">▣</span>Populated bracket with a champion<span class="ph-file">assets/dorothy-after.png</span></div>
-          </div>
-        </div>
+        <ol class="demo-beats">
+          <li>Hand-pick some entrants, leave <code>?</code> slots</li>
+          <li>Open slots fill at random on start</li>
+          <li>Round resolves, winners advance</li>
+          <li>Bracket completes with a champion</li>
+        </ol>
       </div>
-      <p class="media-caption">Before and after views, required by the individual rubric.</p>
     </div>
   </div>
 
@@ -1442,30 +1445,26 @@ components/  <span class="cm">humble views            (outermost)</span></code><
   <div class="cols two">
     <div class="stack">
       <div class="card accent-green">
-        <h3>Checkable claims, not assertions</h3>
+        <h3>Enforced claims, not assertions</h3>
         <ul class="check tight" style="margin-bottom:0">
-          <li>No Spring annotation appears anywhere in <code>entity/</code> or <code>use_case/</code></li>
-          <li>No <code>import</code> of <code>data_access</code> in any interactor</li>
-          <li>Every data access interface is declared <strong>inside the use case package that needs it</strong>, and implemented outward</li>
-          <li><code>usecases/</code> on the frontend imports nothing from <code>services/</code> or <code>components/</code></li>
-          <li>Controllers depend on input boundaries, never on an interactor class</li>
+          <li>Entities depend on <strong>nothing</strong> — not Spring, not Jackson, not even a use case</li>
+          <li>No interactor imports <code>data_access</code>, an adapter, or app code</li>
+          <li>Interface adapters touch no framework and no concrete gateway</li>
+          <li>Web controllers cannot reach a repository directly</li>
+          <li>Frontend <code>domain/</code> and <code>usecases/</code> import no adapter — and no <code>localStorage</code></li>
         </ul>
       </div>
 
       <div class="card">
-        <h3>Run these against our repo</h3>
-        <pre style="max-height:none; margin-top:0.5rem"><code><span class="cm"># no framework leaking into the inner circles</span>
-grep -rn <span class="str">"org.springframework"</span> backend/src/main/java/entity \
-                             backend/src/main/java/use_case
-
-<span class="cm"># no interactor reaching outward to an implementation</span>
-grep -rn <span class="str">"import data_access"</span> backend/src/main/java/use_case
-
-<span class="cm"># frontend use cases never import an adapter</span>
-grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases</code></pre>
+        <h3>The rule is a test, not a promise</h3>
+        <div class="code-label">backend/src/test/java/architecture/CleanArchitectureTest.java</div>
+        <pre style="max-height:none; margin-top:0.35rem"><code><span class="kw">@ArchTest static final</span> <span class="typ">ArchRule</span> useCasesDoNotDependOnOuterLayers =
+    <span class="fn">noClasses</span>().<span class="fn">that</span>().<span class="fn">resideInAPackage</span>(<span class="str">"use_case.."</span>)
+    .<span class="fn">should</span>().<span class="fn">dependOnClassesThat</span>().<span class="fn">resideInAnyPackage</span>(
+        <span class="str">"app.."</span>, <span class="str">"data_access.."</span>, <span class="str">"interface_adapter.."</span>, <span class="str">"service.."</span>);</code></pre>
         <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted); font-size:var(--text-sm)">
-          The first two return nothing. The third finds exactly one line — a <em>type-only</em> import
-          of <code>LibraryPokemon</code>. No call ever crosses the boundary.
+          Four <strong>ArchUnit</strong> rules in Java, three import rules in TypeScript, both in CI.
+          <strong>A violation is a red build</strong> — nobody has to catch it in review.
         </p>
       </div>
     </div>
@@ -1489,23 +1488,19 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
         </div>
         <p style="margin-top:0.7rem; margin-bottom:0">
           Step 6 is where most projects break the rule — the interactor reaches out and formats a
-          string. Ours calls an <em>interface it owns</em>, and an outer class implements it. That
-          inversion is the whole trick.
+          string. Ours calls an <em>interface it owns</em>. That inversion is the whole trick.
         </p>
       </div>
 
       <div class="card accent-gold">
-        <h3>Violations we will defend</h3>
+        <h3>Debt we will defend</h3>
         <ul class="tight" style="margin-bottom:0">
-          <li><strong>Auth and library exist twice</strong>: a tested Java implementation, and a
-            <code>localStorage</code> mirror the UI actually uses. The mirror was the seam that let the
-            UI ship before the endpoints did. Switching over touches
-            <code>services/auth.ts</code> and <code>services/library.ts</code> and nothing above them.</li>
-          <li><strong>The Pokédex reaches PokéAPI directly</strong> — one file, already discussed.</li>
-          <li><strong>One type-only import crosses outward</strong> — <code>usecases/pokedex.ts</code>
-            imports the <code>LibraryPokemon</code> type from <code>services/library.ts</code>. Types
-            flow at compile time only; the honest fix is moving that type into <code>domain/</code>,
-            about five lines.</li>
+          <li><strong>The library mirror is gone</strong> — one authoritative backend store, with library
+            policy still in Java rather than leaked into JavaScript.</li>
+          <li><strong>Accounts still use a local authority.</strong> The ports are clean; behind them is
+            the browser. Swapping in HTTP auth is a composition change, not a use-case change.</li>
+          <li><strong>The Pokédex still reads PokéAPI directly</strong>, while battle and tournament go
+            through the backend. Converging gives one cache and one error policy.</li>
         </ul>
       </div>
     </div>
@@ -1561,9 +1556,9 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
   <div class="card accent-green" style="margin-top:1rem">
     <h3>Pick two and go deep — don't recite all five</h3>
     <p style="margin-bottom:0">
-      <strong>Dependency inversion</strong> is our strongest: it is why 311 frontend tests and 223 Java
-      tests need nothing running. <strong>Interface segregation</strong> is the least common and shows
-      real judgment: one adapter, three client-shaped interfaces.
+      <strong>Dependency inversion</strong> is our strongest: it is why all 580 tests need nothing
+      running, and why 94%+ use-case coverage was reachable at all. <strong>Interface segregation</strong>
+      is the least common and shows real judgment: one adapter, three client-shaped interfaces.
     </p>
   </div>
 
@@ -1663,13 +1658,13 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
 <!-- ========================================================= 22. TESTING -->
 <section class="slide" data-section="Testing">
   <p class="eyebrow">Testing</p>
-  <h2>534 tests, and the design decision that made them possible</h2>
+  <h2>580 tests, and the coverage report that backs them</h2>
 
   <div class="metrics">
-    <div class="metric green"><div class="m-value">311</div><div class="m-label">frontend tests passing<br><span style="color:var(--dim)">across 42 files</span></div></div>
-    <div class="metric blue"><div class="m-value">223</div><div class="m-label">Java test methods<br><span style="color:var(--dim)">across 38 files</span></div></div>
-    <div class="metric"><div class="m-value">0</div><div class="m-label">tests needing a running server<br><span style="color:var(--dim)">or a network call</span></div></div>
-    <div class="metric red"><div class="m-value">CI</div><div class="m-label">lint · test · build<br><span style="color:var(--dim)">on every push and PR</span></div></div>
+    <div class="metric green"><div class="m-value">90.0%</div><div class="m-label">frontend line coverage<br><span style="color:var(--dim)">325 tests · 77.6% branch</span></div></div>
+    <div class="metric blue"><div class="m-value">83.2%</div><div class="m-label">backend line coverage<br><span style="color:var(--dim)">255 tests · 68.1% branch</span></div></div>
+    <div class="metric gold"><div class="m-value">94%+</div><div class="m-label">use-case line coverage<br><span style="color:var(--dim)">both stacks, the layer that matters</span></div></div>
+    <div class="metric red"><div class="m-value">0</div><div class="m-label">tests needing a server<br><span style="color:var(--dim)">or a network call</span></div></div>
   </div>
 
   <div class="cols two" style="margin-top:1.1rem">
@@ -1680,7 +1675,8 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
           <li><strong>Entities</strong> — damage, healing caps, type chart, party membership, win condition, bracket progression</li>
           <li><strong>Interactors</strong>, every use case slice, driven by fake gateways</li>
           <li><strong>Adapters</strong> — JSON mappers in both directions; controllers via MockMvc</li>
-          <li><strong>React</strong> — components, hooks, and use cases against a stub gateway</li>
+          <li><strong>React</strong> — components, hooks, forms, and modal keyboard behaviour</li>
+          <li><strong>The dependency rule itself</strong> — ArchUnit in Java, an import test in TypeScript</li>
         </ul>
       </div>
 
@@ -1699,19 +1695,17 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
       <div class="card accent-red">
         <h3>What is <em>not</em> tested, and why</h3>
         <ul class="tight" style="margin-bottom:0">
-          <li><strong>The <code>localStorage</code> auth/library mirror against the real Java endpoints</strong>, that integration does not exist yet, so there is nothing to test. It is the top item on the next-steps list.</li>
-          <li><strong>Live PokéAPI calls.</strong> Tests run against recorded JSON on purpose: a suite that fails because someone's Wi-Fi dropped is a suite people learn to ignore.</li>
-          <li><strong>Visual regression.</strong> Components are asserted on behaviour and accessible roles, not on pixels.</li>
+          <li><strong>Live PokéAPI calls.</strong> Tests use recorded JSON on purpose — a suite that fails when Wi-Fi drops is a suite people ignore. Adapter error paths are covered; a real outage is not.</li>
+          <li><strong>Screen readers.</strong> Roles and keyboard interaction are asserted; NVDA and VoiceOver stay manual.</li>
+          <li><strong>Visual regression</strong>, and the dev bearer token, which identifies a caller but is not cryptographically verified.</li>
         </ul>
       </div>
 
-      <div class="card">
-        <h3 style="color:var(--gold)">Before you present</h3>
-        <p style="margin-bottom:0; color:var(--muted)">
-          The 311 is measured. The 223 is a count of <code>@Test</code> methods —
-          <strong>run <code>mvn test</code> on a machine with Maven and put the real pass count and a
-          coverage percentage on this slide.</strong> The rubric wants evidence of coverage, not test
-          counts.
+      <div class="card accent-blue">
+        <h3>One command reproduces all of it</h3>
+        <pre style="max-height:none; margin-top:0.5rem"><code>.\scripts\verify.ps1</code></pre>
+        <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
+          It <strong>fails below the configured gates</strong>, so these numbers cannot rot silently.
         </p>
       </div>
     </div>
@@ -1719,11 +1713,13 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
 
   <div class="notes-source">
     <ul>
-      <li><strong>This slide is not finished.</strong> The Testing rubric's 3/5+ bands all require
-        <em>evidence of code coverage</em>, a screenshot of a coverage report, not a test count.
-        Run IntelliJ's coverage tool or add JaCoCo, screenshot it, and drop it in.</li>
-      <li>Target numbers: &gt;70% interactor line coverage for Excellent, &gt;90% for Exceptional, with
-        &gt;50%/&gt;70% overall.</li>
+      <li>The rubric wants <em>evidence of coverage</em>, not test counts — so lead with the
+        percentages, not the 580. JaCoCo and Vitest coverage both run in CI and upload as artifacts;
+        <strong>have one report open in a tab</strong> in case a grader asks to see it.</li>
+      <li>We clear every band: Exceptional wants &gt;90% interactor coverage and &gt;70% overall.
+        Use cases are 94%+ on both stacks; overall is 90.0% frontend and 83.2% backend.</li>
+      <li>Numbers measured 2026-08-07 by the final verification pass. If anything lands after that,
+        re-run <code>scripts/verify.ps1</code> and update this slide.</li>
       <li>"What is not tested, and why" is explicitly required at the Excellent band. Keep it.</li>
     </ul>
   </div>
@@ -1739,7 +1735,7 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
       <div class="card accent-blue">
         <h3>Every change went through a pull request</h3>
         <p style="margin-bottom:0.6rem; color:var(--muted)">
-          37+ pull requests, each reviewed by someone who did not write it. Branches are named by owner
+          40 pull requests, each reviewed by someone who did not write it. Branches are named by owner
           and feature — <code>dorothy/backend-tournament</code>, <code>yiming/library-api</code>,
           <code>albert/battle-message-and-plan</code>, so history reads as a list of slices.
         </p>
@@ -1751,11 +1747,12 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
       <div class="card accent-green">
         <h3>CI gates the merge</h3>
         <pre style="max-height:none; margin-top:0.5rem"><code><span class="cm"># .github/workflows/ci.yml — on every push and PR</span>
-frontend:  npm ci → npm run lint → npm test → npm run build
-backend:   mvn -B test</code></pre>
+frontend:  npm ci → lint → test:coverage → build → audit
+backend:   ./mvnw -B clean verify</code></pre>
         <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
-          Lint is <strong>oxlint</strong>, configured in <code>.oxlintrc.json</code>. A red build blocks
-          the merge, so <code>main</code> has never carried a failing test.
+          Lint is <strong>oxlint</strong>; <code>verify</code> runs <strong>Checkstyle</strong>,
+          the tests, <strong>JaCoCo</strong> and the <strong>ArchUnit</strong> dependency rules.
+          Both jobs upload their reports as artifacts. A red build blocks the merge.
         </p>
       </div>
     </div>
@@ -1773,13 +1770,18 @@ backend:   mvn -B test</code></pre>
         </p>
       </div>
 
-      <div class="card accent-red">
-        <h3>Honest gap</h3>
-        <p style="margin-bottom:0; color:var(--muted)">
-          The frontend is linted on every push; the Java side is not. We run
-          <code>mvn test</code> in CI but no <strong>Checkstyle</strong>. Adding it is a plugin block in
-          <code>pom.xml</code> and a CI step — worth doing before submission, since the rubric names the
-          tool explicitly.
+      <div class="card accent-green">
+        <h3>Both languages, the same standard</h3>
+        <table class="dense" style="margin-top:0.4rem">
+          <tbody>
+            <tr><td>Style</td><td>Checkstyle (Maven <code>validate</code>)</td><td>oxlint</td></tr>
+            <tr><td>Coverage</td><td>JaCoCo, gated</td><td>Vitest, gated</td></tr>
+            <tr><td>Dependency rule</td><td>ArchUnit</td><td>import test</td></tr>
+            <tr><td>Dependencies</td><td>—</td><td><code>npm audit</code></td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
+          None advisory. Each one fails the build.
         </p>
       </div>
     </div>
@@ -1787,9 +1789,10 @@ backend:   mvn -B test</code></pre>
 
   <div class="notes-source">
     <ul>
-      <li><strong>Checkstyle is required for 4/5 or above on Code Quality.</strong> Add it to
-        <code>pom.xml</code> and to <code>ci.yml</code> before you present, then delete the "honest gap"
-        card and say it runs on every push.</li>
+      <li><strong>Checkstyle is required for 4/5 or above on Code Quality</strong>, and it now runs on
+        every push — say that out loud, it is a named tool in the rubric.</li>
+      <li>If asked why the quality tooling landed late: it came in with PR #40 alongside the final
+        architecture pass. Owning the sequence reads better than implying it was always there.</li>
       <li>The 5/5 band wants <strong>a pull request example</strong> — PR #37 is a genuinely good one
         because it is a real bug with a real fix and a regression test. Have it open in a tab.</li>
     </ul>
@@ -1884,21 +1887,24 @@ App.tsx       <span class="cm">composition root</span></code></pre>
         <h3>Universal Design principles we acted on</h3>
         <ul class="tight" style="margin-bottom:0">
           <li><strong>Perceptible information</strong> — HP is a number <em>and</em> a bar <em>and</em> a
-            colour; type effectiveness is stated in words ("It's super effective!"), never colour alone</li>
+            colour; effectiveness is stated in words, never colour alone</li>
           <li><strong>Tolerance for error</strong>, an item that would do nothing is
             <em>refused rather than consumed</em>, so a mistaken tap costs neither the item nor the turn</li>
-          <li><strong>Simple and intuitive use</strong> — the main menu shows only what your role can
-            reach, so there are no dead ends to discover</li>
+          <li><strong>Low physical effort</strong> — skip link, focusable main landmark, trapped modal
+            focus that restores on close, and <code>prefers-reduced-motion</code></li>
+          <li><strong>Simple and intuitive use</strong> — the menu shows only what your role can reach</li>
           <li><strong>Flexibility in use</strong> — pick entrants by hand, or let the bracket fill itself</li>
         </ul>
+        <p style="margin:0.6rem 0 0; color:var(--muted); font-size:var(--text-sm)">
+          All seven are written up in <code>docs/accessibility-report.md</code>.
+        </p>
       </div>
 
       <div class="card accent-gold">
         <h3>Target users</h3>
         <p style="margin-bottom:0; color:var(--muted)">
-          Pokémon fans aged roughly 10 and up who want to settle a matchup argument, and who have a
-          desktop browser. It assumes no prior knowledge of type charts, because the app explains the
-          outcome of every hit in plain words.
+          Pokémon fans aged roughly 10 and up who want to settle a matchup argument. It assumes no prior
+          knowledge of type charts, because the app explains every hit in plain words.
         </p>
       </div>
     </div>
@@ -1907,24 +1913,24 @@ App.tsx       <span class="cm">composition root</span></code></pre>
       <div class="card accent-red">
         <h3>Who would struggle</h3>
         <p style="margin-bottom:0.5rem; color:var(--muted)">
-          <strong>A player with low vision or who relies on a screen reader.</strong> Battle state is
-          conveyed largely through sprites, HP bars and colour. Sprites carry no meaningful alt text, and
-          a turn's outcome updates a message box that is not announced as a live region, so a screen
-          reader user would know a turn happened but not what it did.
+          <strong>A blind or severely low-vision player.</strong> Keyboard operation, focus order and
+          dialog semantics are now real, and setup, forms and the catalog announce their state. But
+          <strong>the battle message box is still not a live region</strong> — a screen reader user
+          would know a turn happened and not what it did. The bracket is worse: a visual layout with
+          no linear text equivalent.
         </p>
         <p style="margin-bottom:0; color:var(--muted)">
-          Also affected: anyone who cannot use a mouse. The app is click-driven and was not tested for
-          keyboard-only navigation.
+          The fix for the first is one <code>aria-live</code> attribute. The second is real work.
         </p>
       </div>
 
-      <div class="card">
-        <h3 style="color:var(--gold)">Before you present</h3>
+      <div class="card accent-green">
+        <h3>What is asserted, and what is not</h3>
         <p style="margin-bottom:0; color:var(--muted)">
-          The repository has <strong>no accessibility Markdown file</strong>, and the rubric requires one
-          containing <em>all</em> the Universal Design principles. A draft covering all seven is included
-          in this deck's repo as <code>accessibility-report-draft.md</code> — review it as a team, correct
-          anything you disagree with, and commit it to the project repo.
+          Named dialogs with focus trapping, <code>aria-pressed</code> toggles, required/busy form
+          semantics, and component tests for modal keyboard behaviour all landed.
+          <strong>No screen-reader session has been run</strong> — NVDA and VoiceOver are on the manual
+          checklist, not in CI.
         </p>
       </div>
     </div>
@@ -1932,13 +1938,14 @@ App.tsx       <span class="cm">composition root</span></code></pre>
 
   <div class="notes-source">
     <ul>
-      <li><strong>Blocking gap.</strong> No <code>accessibility.md</code> in the repo = 1/5 on a 5-point
-        category. The draft in this repo covers all seven principles; move it over.</li>
+      <li><strong>The report exists now</strong> — <code>docs/accessibility-report.md</code>, all seven
+        principles plus a manual acceptance checklist. That was a 1/5 category and is no longer.</li>
       <li>The Excellent band needs <em>both</em> target users <strong>and</strong> a struggling group
         discussed <em>in the presentation</em>, using E3I terminology. This slide does both — make sure
         whoever speaks actually says them aloud rather than pointing at the slide.</li>
-      <li>Naming a real, specific failure (no live region on the message box) reads as far more credible
-        than "we tried to use good contrast".</li>
+      <li>Naming a real, specific failure (no live region on the battle message box, no text equivalent
+        for the bracket) reads as far more credible than "we tried to use good contrast". Resist the
+        urge to claim the gap is closed — it is not, and it is checkable in about ten seconds.</li>
     </ul>
   </div>
 </section>
@@ -1951,19 +1958,22 @@ App.tsx       <span class="cm">composition root</span></code></pre>
   <div class="cols two">
     <div class="stack">
       <div>
-        <div class="code-label">Two terminals. Java 17 and Node 22.</div>
+        <div class="code-label">Two terminals. Java 17 and Node 22 — no Maven install needed.</div>
         <pre style="max-height:none"><code>git clone git@github.com:aman-a-shah/pokemon-battler.git
 cd pokemon-battler
 
 <span class="cm"># terminal 1 — REST API on :8080</span>
 cd backend
-mvn test
-mvn spring-boot:run
+.\mvnw.cmd spring-boot:run     <span class="cm"># ./mvnw on macOS/Linux</span>
 
 <span class="cm"># terminal 2 — web app on :5173</span>
 cd frontend
 npm install
 npm run dev</code></pre>
+        <p style="margin-top:0.5rem; margin-bottom:0; color:var(--muted); font-size:var(--text-sm)">
+          The <strong>Maven wrapper is committed</strong>, so a fresh clone needs only a JDK. To verify
+          the whole project instead of running it: <code>.\scripts\verify.ps1</code> from the root.
+        </p>
       </div>
 
       <div class="card accent-green">
@@ -2002,10 +2012,11 @@ npm run dev</code></pre>
       <div class="card">
         <h3 style="color:var(--gold)">Before you present</h3>
         <p style="margin-bottom:0; color:var(--muted)">
-          Run this sequence on a <strong>fresh clone</strong>, on a machine with Maven, and screenshot the
-          server starting. The rubric's top band wants a run process that has actually been tested from
-          scratch, and the backend's boot has broken once before, when a feature landed without its
-          <code>@Configuration</code>.
+          <code>verify.ps1</code> passed on 2026-08-07, so the build is proven. <strong>Still walk the
+          run path once on a fresh clone</strong> — a clean <code>git clone</code> into an empty folder,
+          both terminals, one battle. Verification proves the tests; it does not prove that
+          <code>backend/cache/</code> and <code>backend/data/</code> get created on a machine that has
+          never run this before.
         </p>
       </div>
     </div>
@@ -2016,8 +2027,8 @@ npm run dev</code></pre>
       <li>Show the <strong>README</strong> on screen while saying this — the rubric explicitly wants setup
         instructions <em>shown during the presentation</em>.</li>
       <li>5/5 wants "tested on a fresh checkout". Do it once, for real, and then you can say it.</li>
-      <li>Consider <code>mvn package</code> and demoing <code>java -jar</code>, a packaged artifact moves
-        this category from Good to Exceptional.</li>
+      <li>The committed wrapper is worth one sentence: <em>"you do not need Maven, just a JDK."</em>
+        That is the difference between a grader who can run it and one who gives up.</li>
     </ul>
   </div>
 </section>
@@ -2038,7 +2049,8 @@ npm run dev</code></pre>
           day one</li>
         <li>Opponent AI picks a legal move at random, with no strategy behind the choice</li>
         <li>Poké Balls are refused, a trainer's Pokémon cannot be caught</li>
-        <li>The opponent party is always one Pokémon. <code>Battle</code> supports more; no caller sends more</li>
+        <li>Both parties are always one Pokémon, so switching never surfaces — <code>Battle</code> and
+          <code>SwitchPokemon</code> support it, the setup screen is what we scoped</li>
         <li>PP is tracked by the client; the backend does not model it</li>
       </ul>
     </div>
@@ -2047,20 +2059,22 @@ npm run dev</code></pre>
       <div class="card accent-gold">
         <h3>Debt we would pay first</h3>
         <ol class="tight" style="margin-bottom:0; color:var(--muted)">
+          <li><strong>Move accounts behind HTTP endpoints.</strong> The ports are there; what sits
+            behind them is still the browser, so accounts do not survive a different device</li>
           <li><strong>Point the Pokédex at our own endpoint</strong> and delete the direct PokéAPI calls</li>
-          <li><strong>Wire the UI to the real auth and library endpoints</strong>, deleting the
-            <code>localStorage</code> mirror</li>
-          <li><strong>Then</strong> add status conditions — the one change that makes several
-            already-modelled items do what their descriptions promise</li>
+          <li><strong>Replace the dev bearer token</strong> — it identifies a caller but is not
+            cryptographically verified</li>
+          <li><strong>Then</strong> add status conditions, which makes several already-modelled items do
+            what their descriptions promise</li>
         </ol>
       </div>
 
       <div class="card accent-blue">
         <h3>Why that order</h3>
         <p style="margin-bottom:0; color:var(--muted)">
-          The first two <em>delete</em> duplicate code. The third <em>adds</em> new surface. Paying down
-          duplication before adding features is the whole reason the seams exist, and each of those three
-          is confined to files we can name.
+          The library mirror was top of this list until last week, and paying it off <em>deleted</em>
+          code rather than adding it. Same logic for what is left: converge duplicated paths first, add
+          new surface second.
         </p>
       </div>
     </div>
@@ -2088,7 +2102,7 @@ npm run dev</code></pre>
         <li>Sign up, log in, or continue as a guest, with roles gating what you see</li>
         <li>Browse 1,300+ Pokémon with their real stats and save favourites to a library</li>
         <li>Invent a Pokémon of your own and take it straight into a fight</li>
-        <li>Fight a turn-based battle against the Java engine — moves, items, switching, fainting</li>
+        <li>Fight a turn-based battle against the Java engine — moves, items, damage, fainting</li>
         <li>Run an eight-entrant knockout tournament down to a champion</li>
       </ul>
     </div>
@@ -2096,15 +2110,15 @@ npm run dev</code></pre>
     <div class="stack">
       <div class="metrics">
         <div class="metric green"><div class="m-value">8/9</div><div class="m-label">blueprint user stories shipped</div></div>
-        <div class="metric blue"><div class="m-value">534</div><div class="m-label">tests across both stacks</div></div>
+        <div class="metric blue"><div class="m-value">580</div><div class="m-label">tests across both stacks</div></div>
         <div class="metric"><div class="m-value">2</div><div class="m-label">languages, one architecture</div></div>
-        <div class="metric red"><div class="m-value">37+</div><div class="m-label">reviewed pull requests</div></div>
+        <div class="metric red"><div class="m-value">40</div><div class="m-label">reviewed pull requests</div></div>
       </div>
 
       <div class="card accent-gold">
         <p style="margin:0; font-size:var(--text-base)">
           Six people, six distinct slices, one dependency rule — enforced in both a Java backend and a
-          React frontend, and provable with three <code>grep</code> commands.
+          React frontend, and <strong>a red build in either one if anybody breaks it</strong>.
         </p>
       </div>
     </div>
@@ -2177,19 +2191,18 @@ npm run dev</code></pre>
             <tr><td>PokéAPI responses</td><td><code>backend/cache/*.json</code></td><td>n/a</td><td>Yes</td></tr>
             <tr><td>Tournament in progress</td><td>Server memory</td><td>—</td><td><strong>No</strong></td></tr>
             <tr><td>Users, roles, sessions</td><td>Browser <code>localStorage</code></td><td>Yes</td><td>Yes — never touches the server</td></tr>
-            <tr><td>Per-user library</td><td>Browser <code>localStorage</code></td><td>Yes</td><td>Yes</td></tr>
+            <tr><td>Per-user library</td><td><code>backend/data/*.json</code></td><td>Yes</td><td>Yes — one authoritative store</td></tr>
             <tr><td>Users + libraries (Java copy)</td><td><code>backend/data/*.json</code></td><td>—</td><td>Yes, but the UI does not call it</td></tr>
           </tbody>
         </table>
       </div></details>
 
     <details class="qa"><summary>Why is auth implemented twice?</summary>
-      <div class="answer"><p>They were built in parallel. The Java side has file-backed users with PBKDF2 hashing, roles,
-      an access policy and 60-day soft-delete retention, all tested. The React side has a
-      <code>localStorage</code> mirror of the same rules, and <strong>the frontend uses the mirror</strong>.
-      The mirror was the seam that let the UI ship before the endpoints existed. Switching over touches
-      <code>services/auth.ts</code> and <code>services/library.ts</code> only — nothing above them changes.
-      That is the point of having a seam.</p></div></details>
+      <div class="answer"><p>It was, and we fixed half of it. The library mirror is gone — trainer libraries now have one
+      authoritative backend store, and <code>SyncAccount</code> maps a browser session into an authorization
+      projection so that access policy stayed in Java. <strong>Accounts are still local to the browser</strong>,
+      behind ports the use cases own, which is why swapping in HTTP authentication is a composition change
+      rather than a rewrite.</p></div></details>
 
     <details class="qa"><summary>What if PokéAPI is down?</summary>
       <div class="answer"><p>Anything already in <code>backend/cache/</code> still works. Anything else returns a
@@ -2234,14 +2247,16 @@ npm run dev</code></pre>
       deterministic, that is the main reason the injection exists.</p></div></details>
 
     <details class="qa"><summary>What is your coverage?</summary>
-      <div class="answer"><p>311 frontend tests across 42 files, and 223 Java test methods across 38 files — covering
-      entities, every use case interactor, the JSON mappers in both directions, the HTTP adapters, and
-      React components and hooks. CI runs lint, test and build on every push.</p></div></details>
+      <div class="answer"><p><strong>90.0% line on the frontend</strong> (325 tests, 77.6% branch) and
+      <strong>83.2% on the backend</strong> (255 tests, 68.1% branch), measured by Vitest and JaCoCo.
+      The layer that matters most — use cases — is above 94% on both stacks. Both gates fail the build
+      if coverage drops, and CI uploads the reports as artifacts on every run.</p></div></details>
 
     <details class="qa"><summary>What is not tested?</summary>
-      <div class="answer"><p>The integration that does not exist yet: the <code>localStorage</code> auth and library mirror
-      against the real Java endpoints. Also live PokéAPI calls — tests run against recorded JSON on
-      purpose, because a suite that fails when someone's Wi-Fi drops is a suite people stop trusting.</p></div></details>
+      <div class="answer"><p>Live PokéAPI calls — tests run against recorded JSON on purpose, because a suite that fails
+      when someone's Wi-Fi drops is a suite people stop trusting; adapter error paths are covered instead.
+      Also: no automated screen-reader session, no visual regression, and nothing that claims the dev
+      bearer token resists forgery.</p></div></details>
 
     <p class="qa-section-title">Design</p>
 
@@ -2270,8 +2285,21 @@ npm run dev</code></pre>
     <details class="qa"><summary>What went wrong?</summary>
       <div class="answer"><p>The frontend was built against <code>localStorage</code> and direct PokéAPI calls before the
       backend endpoints existed. It let the UI ship early, but it left us with two implementations of auth
-      and library and two ways of reaching PokéAPI. If we did it again we would agree the HTTP contract
-      first and stub the network rather than the storage.</p></div></details>
+      and library and two ways of reaching PokéAPI. We paid the library half back — it now has one
+      authoritative store — and the accounts half and the Pokédex are still outstanding.</p></div></details>
+
+    <details class="qa"><summary>How do you know nobody broke the dependency rule?</summary>
+      <div class="answer"><p>We do not rely on knowing. Four <strong>ArchUnit</strong> rules in Java assert that entities
+      depend on nothing, use cases never reach a gateway or a framework, interface adapters touch neither,
+      and web controllers cannot call a repository directly. Three equivalent import rules cover the
+      TypeScript side, including one that keeps <code>localStorage</code> out of domain and use-case code.
+      They run in CI, so a violation is a red build rather than something a reviewer has to catch.</p></div></details>
+
+    <details class="qa"><summary>You mentioned parties and switching — why didn't the demo show them?</summary>
+      <div class="answer"><p>Because the setup screen never builds a party bigger than one, so there is nothing on screen to
+      show. The <em>engine</em> has it: <code>Battle</code> models a party, <code>SwitchPokemon</code> is a
+      real use case with its own boundary, and all of it is tested. What is missing is one screen handing
+      the interactor three Pokémon instead of one — no entity, interactor or endpoint changes.</p></div></details>
 
     <details class="qa"><summary>Why did you cut the sharing user story?</summary>
       <div class="answer"><p>Sharing a result with friends needs hosting, public URLs and a permissions story, and buys

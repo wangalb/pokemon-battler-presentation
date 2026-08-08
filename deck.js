@@ -29,12 +29,26 @@
     return box.value;
   }
 
+  /* A slide must never scroll during the talk. Slides are composed to fit at
+     full size; if fonts, an odd window shape, or a dense slide still overflow
+     the panel, dial the content's zoom down (styles.css reads --fit) until it
+     fits. Zoom reflows synchronously, so remeasure after each step. */
+  function fitSlide(slide) {
+    slide.style.removeProperty("--fit");
+    var fit = 1;
+    for (var i = 0; i < 4 && slide.scrollHeight > slide.clientHeight; i += 1) {
+      fit *= slide.clientHeight / slide.scrollHeight;
+      slide.style.setProperty("--fit", fit);
+    }
+  }
+
   function show(index) {
     index = Math.max(0, Math.min(slides.length - 1, index));
     slides.forEach(function (slide, i) {
       slide.classList.toggle("active", i === index);
     });
     current = index;
+    fitSlide(slides[index]);
 
     elCounter.textContent = (index + 1) + " / " + slides.length;
     elBar.style.setProperty(
@@ -246,6 +260,17 @@
     document.addEventListener("DOMContentLoaded", start);
   } else {
     start();
+  }
+
+  // Refit whenever the panel's size or the text's metrics change: a resize or
+  // fullscreen toggle, and the swap from fallback to the self-hosted fonts.
+  window.addEventListener("resize", function () {
+    if (slides.length) fitSlide(slides[current]);
+  });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () {
+      if (slides.length) fitSlide(slides[current]);
+    });
   }
 
   // Belt and braces. Some preview and embedding hosts replay a snapshot of the

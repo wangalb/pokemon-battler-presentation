@@ -483,6 +483,7 @@
         <p style="margin-bottom:0"><span class="pill">Pure use case layer</span>
         <span class="pill">Two-tier entity</span>
         <span class="pill">Hook as interface adapter</span>
+        <span class="pill">Decorator hook</span>
         <span class="pill">Humble views</span></p>
       </div>
     </div>
@@ -567,9 +568,28 @@
       <div class="card accent-green">
         <h3>What purity buys, measurably</h3>
         <p style="margin-bottom:0">
-          The inner two layers carry <strong>35 tests with zero mocks</strong> — no React, no DOM, no
-          network. Call the function, assert the value. The zero-padding branch on the left is the kind
-          of edge case that only gets pinned when testing costs nothing.
+          <strong>98 tests across the slice, layered like the code.</strong> The inner two layers carry
+          <strong>35 tests with zero mocks</strong> — call the function, assert the value; the
+          zero-padding branch on the left is the kind of edge case that only gets pinned when testing
+          costs nothing. The hook's 21 tests mock exactly <em>one seam</em> — the service module — and
+          the views' 42 tests assert behaviour, never pixels.
+        </p>
+      </div>
+
+      <div class="card accent-purple">
+        <h3>Three of the five SOLID letters, in this one file</h3>
+        <ul class="tight" style="margin-bottom:0">
+          <li><strong>S</strong> — <code>searchSpecies</code> knows nothing about React, fetching, or
+            why anyone is browsing. Its one reason to change: what "matching" means.</li>
+          <li><strong>L</strong> — every function is generic over <code>T extends SpeciesSummary</code>,
+            so the full dex page substitutes wherever a summary is expected. One implementation of
+            search and filter serves both tiers.</li>
+          <li><strong>I</strong> — <code>SpeciesSummary</code> is interface segregation as an entity:
+            exactly the four fields a grid tile renders, so browsing never depends on the
+            ten-request detail page.</li>
+        </ul>
+        <p style="margin-top:0.5rem; margin-bottom:0; color:var(--muted); font-size:var(--text-sm)">
+          O and D live in the architecture, not one file — next slide.
         </p>
       </div>
 
@@ -580,6 +600,10 @@
     <ul>
       <li>The claim to land: <strong>the dependency rule needs no framework to enforce it</strong>.
         The inner two layers are plain TypeScript; React appears only in the hook and the components.</li>
+      <li>If asked where 98 comes from: 10 in <code>domain/__tests__/pokedex</code>, 25 in
+        <code>usecases/__tests__/pokedex</code> (the zero-mock 35), 15 + 6 in the two hook test files
+        (<code>vi.mock</code> of <code>services/pokedexApi</code> is the single seam), and 42 across
+        the six view test files.</li>
       <li>The generic <code>T extends SpeciesSummary</code> is the two-tier entity design:
         <code>SpeciesSummary</code> is what a grid tile shows, <code>PokemonSpecies</code> extends it
         with the full dex page — they load on different schedules, but one implementation of
@@ -605,8 +629,9 @@
       <div class="card accent-gold">
         <h3>Four layers, committed first</h3>
         <p style="margin-bottom:0.5rem; color:var(--muted)">
-          The first frontend commits bootstrapped Vite + React 19 + TypeScript, oxlint and vitest —
-          and the four-folder shape every later slice moved into:
+          The first four frontend commits — July 11 to 14: scaffold, domain types, components, hook —
+          bootstrapped Vite + React 19 + TypeScript, oxlint and vitest, and the shape every later
+          slice moved into:
         </p>
         <pre style="max-height:none"><code>domain/      <span class="cm">entities + pure rules   (innermost)</span>
 usecases/    <span class="cm">application logic, still pure</span>
@@ -614,29 +639,47 @@ hooks/       <span class="cm">interface adapters — React starts here</span>
 components/  <span class="cm">humble views            (outermost)</span></code></pre>
         <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
           Proven against <strong>mock battle data before any backend endpoint existed</strong> — the
-          layering was the plan, not a retrofit. Every later slice moved into it.
+          layering was the plan, not a retrofit — with <code>App.tsx</code> as the composition root
+          from the first wiring commit.
         </p>
       </div>
 
-      <div class="card accent-purple">
-        <h3>Composition, the frontend way</h3>
+      <div class="card accent-cyan">
+        <h3>Dependency inversion — and the one place we stopped short</h3>
+        <p>
+          <code>services/pokedexApi.ts</code> speaks PokéAPI's dialect and hands back <strong>domain
+          types only</strong>, so swapping the data source touches one file. The tests prove the
+          seam: <code>vi.mock</code> replaces the service module and the hook cannot tell.
+        </p>
         <p style="margin-bottom:0">
-          <code>useLibraryPokedex</code> <em>wraps</em> <code>usePokedex</code>: browsing stays one
-          implementation; the library screen layers the add-action and "owned" markers on top.
+          The battle side goes further — Albert's <code>usecases/ports.ts</code> declares a
+          <code>BattleGateway</code> the services implement, injected in <code>App.tsx</code>. The dex
+          hook calls its service <em>directly</em>, not through a port: the violation we name
+          ourselves on the Clean Architecture slide; the honest fix is a <code>PokedexGateway</code>
+          shaped like Albert's.
         </p>
       </div>
     </div>
 
     <div class="stack">
+      <div class="card accent-purple">
+        <h3>Open/closed, the frontend way</h3>
+        <p style="margin-bottom:0">
+          <code>useLibraryPokedex</code> <em>decorates</em> <code>usePokedex</code>: it layers the
+          add-to-library action, the "owned" markers and message clearing on top, with
+          <strong>zero edits to the hook it wraps</strong>. The pre-battle picker mounts the same
+          <code>usePokedex</code> and layers its own selection instead. Extending the dex means
+          writing a new wrapper, never modifying a working one — that is O, and it is also D:
+          both consumers depend on the <code>PokedexState</code> abstraction, not on how it loads.
+        </p>
+      </div>
+
       <div class="card accent-red">
-        <h3>The battle, as the player sees it</h3>
+        <h3>The same shape carried the battle UI</h3>
         <ul class="tight" style="margin-bottom:0">
-          <li>Battle arena screen — <code>BattleArena</code>, <code>ActionPanel</code>,
-            <code>HpBar</code>, <code>StatusCard</code>, sprite service</li>
-          <li>Bag and Party as overlay screens over the arena</li>
-          <li>Choose-your-Pokémon setup before a single battle</li>
-          <li>The switch from mock turns to <strong>live resolution against the Java engine</strong>,
-            battle end, and the way out of a finished battle</li>
+          <li>Battle arena — <code>BattleArena</code>, <code>ActionPanel</code>, <code>HpBar</code>,
+            <code>StatusCard</code> — with Bag and Party as overlays</li>
+          <li>Choose-your-Pokémon setup, battle end, and the way out of a finished battle</li>
           <li>The retro GBA look the whole app wears</li>
         </ul>
       </div>
@@ -655,12 +698,18 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
   <div class="notes-source">
     <ul>
-      <li>This is credit for invisible work — say it in one breath, don't lecture. 60–75 seconds.</li>
-      <li>The composition card is the frontend mirror of Cindy's slide: her interactor composes
+      <li>This is credit for invisible work — say it in one breath, don't lecture. 75–90 seconds.</li>
+      <li>The decorator card is the frontend mirror of Cindy's slide: her interactor composes
         Yiming's through a boundary; <code>useLibraryPokedex</code> composes <code>usePokedex</code>
         the same way. Draw that parallel out loud.</li>
+      <li>Credit Albert by name for <code>ports.ts</code> — the commit history says it is his, and
+        crediting a teammate while naming your own violation reads as confidence, not weakness.</li>
       <li>If asked "who decided the frontend architecture": the first four frontend commits in the git
         history are the answer — scaffold, domain types, components, hook — in that order, July 11–14.</li>
+      <li>If pressed on the direct service call: the module seam is real (the hook tests mock it and
+        pass), so the missing port cost us nothing in testability — it costs us swap-at-runtime, which
+        nothing needed yet. Then say the fix: a <code>PokedexGateway</code> in
+        <code>usecases/</code>, about twenty lines.</li>
       <li>Hand off to Edison by asking "so where does all this data actually come from?"</li>
     </ul>
   </div>

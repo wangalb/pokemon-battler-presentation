@@ -566,16 +566,58 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
   margin-top: 0.4rem;
 }
 
-.before-after {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.7rem;
+/* One pre-recorded clip per user story, replacing the old before/after pair.
+   The slot is 16/9 because that is what a screen recording produces; giving it
+   the full column instead of half means the app is legible from the back row. */
+.demo {
+  display: block;
 }
-.before-after .ba-label {
-  color: var(--dim);
+
+.demo .ba-label {
+  color: var(--gold);
   margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
-.before-after .ba-label.after { color: var(--green); }
+
+/* A record dot, so the label reads as "a clip goes here" at a glance. */
+.demo .ba-label::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--red);
+  flex: none;
+}
+
+.demo .media-slot {
+  aspect-ratio: 16 / 9;
+}
+
+/* The beats the clip has to hit, so the slide still says something useful
+   before the recording exists and while it is paused on its first frame. */
+.demo-beats {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.45rem;
+  font-size: var(--text-xs);
+  color: var(--dim);
+}
+
+.demo-beats li {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+}
+
+.demo-beats li::before {
+  content: "▸ ";
+  color: var(--gold);
+}
 
 /* ------------------------------------------------------------------- metrics */
 
@@ -611,6 +653,7 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
 .metric.green .m-value { color: var(--green); }
 .metric.blue  .m-value { color: var(--blue); }
 .metric.red   .m-value { color: var(--red-soft); }
+.metric.gold  .m-value { color: var(--gold); }
 
 /* ---------------------------------------------------------------------- Q & A */
 

@@ -116,11 +116,12 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  /* The dark room: shaded green with a faint scanline weave, standing in for
-     the app's dimmed background photograph. */
+  /* The dark room: the app's own dimmed background photograph, with the exact
+     shade its home and battle-setup screens lay over it. The green base paints
+     the first frame while the photo decodes, and is the print/no-image fallback. */
   background:
-    repeating-linear-gradient(0deg, transparent 0 3px, rgba(0, 0, 0, 0.10) 3px 6px),
-    linear-gradient(var(--room-shade), rgba(13, 26, 17, 0.65)),
+    linear-gradient(var(--room-shade), rgba(13, 26, 17, 0.58)),
+    url("assets/pokemon-background.jpg") center / cover no-repeat,
     var(--room);
   color: var(--text);
   font-family: var(--sans);
@@ -804,15 +805,15 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
 /* ---------------------------------------------------------------- title slide */
 
 /* The one slide that is not a cream panel: it is the app's home screen — the
-   dark green room itself, white pixel title, GBA-blue menu buttons. */
+   dimmed background photograph itself, white pixel title, GBA-blue menu
+   buttons. Transparent, so the body's photo (already carrying the app's exact
+   shade) reads through the frame with no double-dimming. */
 .slide.title-slide {
   align-items: center;
   justify-content: center;
   text-align: center;
   padding-bottom: 6vh;
-  background:
-    linear-gradient(var(--room-shade), rgba(13, 26, 17, 0.6)),
-    var(--room);
+  background: transparent;
   color: #ffffff;
 }
 
@@ -1162,4 +1163,6 @@ kbd {
   }
   pre { max-height: none; box-shadow: none; }
   .slide > * { zoom: 1; }
+  /* The photo does not print; without this the title's white text sits on paper. */
+  .slide.title-slide { background: var(--room); }
 }

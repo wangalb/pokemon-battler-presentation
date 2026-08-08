@@ -19,7 +19,7 @@
 
   <div class="roster">
     <div class="member">Will Xu <span>accounts &amp; trainer panel</span></div>
-    <div class="member">Aman Shah <span>Pokédex</span></div>
+    <div class="member">Aman Shah <span>Pokédex &amp; frontend architecture</span></div>
     <div class="member">Edison Cai <span>data layer</span></div>
     <div class="member">Cindy Liu <span>custom Pokémon</span></div>
     <div class="member">Albert Wang <span>battles</span></div>
@@ -58,8 +58,8 @@
     </div>
     <div class="card accent-blue">
       <h3>Battles you play</h3>
-      <p>Turn by turn: choose a move or use an item. Speed decides who strikes first; type matchups
-      decide how much it hurts.</p>
+      <p>Turn by turn: choose a move or use an item. Speed decides who
+      strikes first; type matchups decide how much it hurts.</p>
     </div>
     <div class="card accent-green">
       <h3>Tournaments that resolve</h3>
@@ -150,7 +150,7 @@
   <p class="eyebrow">Scope</p>
   <h2>Seven use cases, six people</h2>
 
-  <table>
+  <table class="dense">
     <thead>
       <tr><th style="width:19%">Use case</th><th style="width:34%">User story</th><th style="width:13%">Owner</th><th>What shipped</th></tr>
     </thead>
@@ -168,26 +168,26 @@
         <td>Per-user library over HTTP, role-gated menu entries, admin and dev inspection</td>
       </tr>
       <tr>
-        <td><strong>Pokédex</strong></td>
-        <td>As a user, I want to see Pokémon stats and battle information in a library.</td>
+        <td><strong>Pok&eacute;dex</strong></td>
+        <td>As a user, I want to see Pok&eacute;mon stats and battle information in a library.</td>
         <td>Aman Shah</td>
-        <td>Searchable Pokédex over live PokéAPI data, with stats, types and move pools</td>
+        <td>Searchable Pok&eacute;dex over live Pok&eacute;API data, with stats, types and move pools</td>
       </tr>
       <tr>
-        <td><strong>Battling with Custom Pokémon</strong></td>
-        <td>As a user, I want the Pokémon I invented to be usable in a real battle.</td>
+        <td><strong>Battling with Custom Pok&eacute;mon</strong></td>
+        <td>As a user, I want the Pok&eacute;mon I invented to be usable in a real battle.</td>
         <td>Edison Cai</td>
-        <td>Owner-scoped custom Pokémon storage and API, sprite uploads by opaque key, authorised sprite loading</td>
+        <td>Owner-scoped custom Pok&eacute;mon storage and API, sprite uploads by opaque key, authorised sprite loading</td>
       </tr>
       <tr>
-        <td><strong>Build a Pokémon</strong></td>
-        <td>As a user, I want to create my own Pokémon with custom stats and appearances.</td>
+        <td><strong>Build a Pok&eacute;mon</strong></td>
+        <td>As a user, I want to create my own Pok&eacute;mon with custom stats and appearances.</td>
         <td>Cindy Liu</td>
         <td>Creation screen, validation, image upload, auto-added to your library</td>
       </tr>
       <tr>
         <td><strong>Single Battle</strong></td>
-        <td>As a user, I want to battle a single Pokémon because I want to see which one is stronger.</td>
+        <td>As a user, I want to battle a single Pok&eacute;mon because I want to see which one is stronger.</td>
         <td>Albert Wang</td>
         <td>Turn resolution over HTTP: moves, items, damage, fainting</td>
       </tr>
@@ -203,8 +203,8 @@
   <div class="card accent-gold" style="margin-top:1rem">
     <p style="margin:0">
       <strong>Seven use cases, all shipped.</strong> Each of the six of us owns at least one distinct,
-      substantial slice — a login system with roles, a cached catalog, a creation flow, a turn engine,
-      a parallel tournament runner. <em>Not</em> six variations on one CRUD screen.
+      substantial slice &mdash; a login system with roles, a cached catalog, a creation flow, a turn
+      engine, a parallel tournament runner. <em>Not</em> six variations on one CRUD screen.
     </p>
   </div>
 
@@ -216,9 +216,9 @@
         turn engine, bracket runner. <em>Not</em> six variations on one CRUD screen.</li>
       <li>Rows are in <strong>demo order</strong>, so this table previews the next six sections.
         Will has two use cases and presents them together.</li>
-      <li>Owners confirmed by the team on 2026-08-08. The two story sentences without a blueprint
-        quote — Trainer Panel and Battling with Custom Pokémon — were written to match the shipped
-        behaviour; <strong>swap in the real blueprint wording if it exists</strong>.</li>
+      <li>Owners confirmed by the team on 2026-08-08, and they match <code>PROJECT.md</code>. The two
+        story sentences without a blueprint quote — Trainer Panel and Battling with Custom Pokémon —
+        were written to match the shipped behaviour.</li>
     </ul>
   </div>
 </section>
@@ -396,6 +396,15 @@
         }
     }
 }</code></pre>
+
+      <div class="card accent-green" style="margin-top:0.8rem">
+        <h3>The line that matters</h3>
+        <p style="margin-bottom:0">
+          The interactor never asks <em>"is this user an admin?"</em>. It asks a
+          <code>LibraryAccessPolicy</code> to <code>decide</code>. Change who may edit whose library
+          and you change one class — no screen, no controller, no interactor.
+        </p>
+      </div>
     </div>
 
     <div class="stack">
@@ -420,15 +429,6 @@
           <div class="ca-arrow">↑</div>
           <div class="ca-node l-data"><span class="n-layer">Implements</span><span class="n-name">FileLibraryDataAccess<br>FileUserDataAccess</span></div>
         </div>
-      </div>
-
-      <div class="card accent-green">
-        <h3>The line that matters</h3>
-        <p style="margin-bottom:0">
-          The interactor never asks <em>"is this user an admin?"</em>. It asks a
-          <code>LibraryAccessPolicy</code> to <code>decide</code>. Change who may edit whose library
-          and you change one class — no screen, no controller, no interactor.
-        </p>
       </div>
     </div>
   </div>
@@ -458,18 +458,20 @@
       <div class="card accent-gold">
         <h3>What the use case does</h3>
         <ul class="tight" style="margin-bottom:0">
-          <li>Loads the full species list and renders it as a browsable grid</li>
-          <li>Search by name, filter by type</li>
-          <li>Detail view: HP, attack, defense, speed, weight, types, move pool, artwork</li>
-          <li>Add to a personal library from the detail view</li>
+          <li>Loads all ~1,300 Pokémon — every form PokéAPI knows — live, in <strong>19 requests</strong></li>
+          <li>Search by name or dex number (<code>"15"</code> finds #150); type-chip filters that <strong>can never produce an empty grid</strong></li>
+          <li>Detail page: stat bars against the real 255 ceiling, moves, flavour text — and <strong>weaknesses computed from the type chart</strong>, not stored</li>
+          <li>Grid pages 120 cards at a time and says how many matches remain — no keystroke hitch</li>
+          <li>Add to your library from the detail view; owned entries are marked</li>
         </ul>
       </div>
       <div class="card">
         <h3>Terminology worth landing</h3>
-        <p style="margin-bottom:0"><span class="pill">Presentation vs domain split</span>
-        <span class="pill">Pure functions in <code>domain/</code></span>
-        <span class="pill">Custom hooks as adapters</span>
-        <span class="pill">Component composition</span></p>
+        <p style="margin-bottom:0"><span class="pill">Pure use case layer</span>
+        <span class="pill">Two-tier entity</span>
+        <span class="pill">Hook as interface adapter</span>
+        <span class="pill">Decorator hook</span>
+        <span class="pill">Humble views</span></p>
       </div>
     </div>
 
@@ -492,8 +494,12 @@
   <div class="notes-source">
     <ul>
       <li>Filter by type live; it is the fastest way to show the data is real, not a fixture.</li>
+      <li>The 19-requests number is worth saying: one list call plus the 18 <code>/type</code>
+        endpoints colours in the whole grid, instead of 1,300 per-Pokémon lookups.</li>
+      <li>Weaknesses are <em>computed</em> from <code>domain/typeChart.ts</code> — the same table the
+        battle engine uses. One source of truth for type effectiveness.</li>
       <li>Mention the retro GBA styling briefly; the rubric rewards visuals, but don't dwell.</li>
-      <li>Hand off to Edison by asking "so where does all this data actually come from?"</li>
+      <li>Two more Aman slides follow — keep this one under 90 seconds.</li>
     </ul>
   </div>
 </section>
@@ -501,36 +507,37 @@
 <!-- ===================================================== 9. AMAN — CODE -->
 <section class="slide" data-section="Aman — Code">
   <div class="speaker-tag"><span class="avatar a1">AS</span> Aman Shah</div>
-  <p class="eyebrow">Interactor &amp; class diagram</p>
-  <h2>The frontend has a use case layer too</h2>
+  <p class="eyebrow">Use case &amp; class diagram</p>
+  <h2>The use case layer is pure functions — and that is the design</h2>
 
   <div class="cols side">
-    <div class="stack">
-      <div>
-        <div class="code-label">frontend/src/usecases/ports.ts — the boundary</div>
-        <pre><code><span class="cm">// Ports — the boundaries the use cases depend on. Declared here, in the use
-// case layer, and implemented outward in `services`, so the dependency rule
-// points inward: nothing in this file knows a battle is resolved over HTTP.</span>
-
-<span class="kw">export type</span> <span class="typ">BattleAction</span> =
-  | { type: <span class="str">"move"</span>; move: <span class="typ">Move</span> }
-  | { type: <span class="str">"switch"</span>; pokemon: <span class="typ">Pokemon</span> }
-  | { type: <span class="str">"item"</span>; item: <span class="typ">Item</span>; target: <span class="typ">Pokemon</span> };
-
-<span class="kw">export interface</span> <span class="typ">BattleGateway</span> {
-<span class="hl">  <span class="fn">resolveTurn</span>(battle: <span class="typ">BattleState</span>, action: <span class="typ">BattleAction</span>): <span class="typ">Promise</span>&lt;<span class="typ">TurnOutcome</span>&gt;;</span>
+    <div>
+      <div class="code-label">frontend/src/usecases/pokedex.ts</div>
+      <pre style="max-height:none"><code><span class="cm">// Pokédex use cases — pure functions over species data, no React, no storage.</span>
+<span class="cm">// A numeric query matches on dex number prefix, so "15" finds #150.</span>
+<span class="kw">export function</span> <span class="fn">searchSpecies</span>&lt;T <span class="kw">extends</span> <span class="typ">SpeciesSummary</span>&gt;(
+  entries: T[], query: <span class="typ">string</span>,
+): T[] {
+  <span class="kw">const</span> trimmed = query.<span class="fn">trim</span>().<span class="fn">toLowerCase</span>();
+  <span class="kw">if</span> (!trimmed) <span class="kw">return</span> entries;
+  <span class="kw">if</span> (/^\d+$/.<span class="fn">test</span>(trimmed)) {
+<span class="hl">    <span class="cm">// cards show "#006" zero-padded — strip zeros; all-zero matches nothing</span>
+    <span class="kw">const</span> significant = trimmed.<span class="fn">replace</span>(/^0+/, <span class="str">""</span>);
+    <span class="kw">if</span> (!significant) <span class="kw">return</span> [];</span>
+    <span class="kw">return</span> entries.<span class="fn">filter</span>((s) =&gt; <span class="typ">String</span>(s.dexNumber).<span class="fn">startsWith</span>(significant));
+  }
+  <span class="kw">return</span> entries.<span class="fn">filter</span>((s) =&gt; s.name.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(trimmed));
 }
+<span class="hl"><span class="cm">// the whole pipeline: visibleSpecies = filterByTypes(searchSpecies(…), types)</span></span></code></pre>
 
-<span class="cm">/** Raised when a turn cannot be resolved. Message is safe to show the player. */</span>
-<span class="kw">export class</span> <span class="typ">BattleError</span> <span class="kw">extends</span> <span class="typ">Error</span> {}</code></pre>
-      </div>
-
-      <div class="card accent-purple">
-        <h3>Why this matters for the whole team</h3>
+      <div class="card accent-green" style="margin-top:0.8rem">
+        <h3>What purity buys, measurably</h3>
         <p style="margin-bottom:0">
-          <code>App.tsx</code> is the composition root: it constructs the HTTP implementation and
-          injects it. Tests hand the same use cases a stub instead, which is why
-          <strong>325 frontend tests run with no server</strong>.
+          <strong>98 tests across the slice, layered like the code.</strong> The inner two layers carry
+          <strong>35 tests with zero mocks</strong> — the zero-padding branch on the left is the kind
+          of edge case that only gets pinned when testing costs nothing. The hook's 21 tests mock
+          exactly <em>one seam</em> — the service module — and the views' 42 tests assert behaviour,
+          never pixels.
         </p>
       </div>
     </div>
@@ -539,28 +546,133 @@
       <div class="card">
         <h3>Full use case, layer by layer</h3>
         <div class="ca-flow" style="margin-top:0.55rem">
-          <div class="ca-node l-view"><span class="n-layer">View</span><span class="n-name">PokedexScreen<br>PokedexGrid · Card · Detail</span></div>
+          <div class="ca-node l-view"><span class="n-layer">View</span><span class="n-name">PokedexScreen<br>Grid · Card · Detail · StatBar</span></div>
           <div class="ca-arrow">→</div>
           <div class="ca-node l-adapter"><span class="n-layer">Adapter (hook)</span><span class="n-name">usePokedex<br>useLibraryPokedex</span></div>
         </div>
         <div class="ca-flow" style="margin-top:0.4rem">
-          <div class="ca-node l-usecase"><span class="n-layer">Use case</span><span class="n-name">usecases/pokedex.ts</span></div>
+          <div class="ca-node l-usecase"><span class="n-layer">Use case</span><span class="n-name">usecases/pokedex.ts<br>search · filter · toLibraryPokemon</span></div>
           <div class="ca-arrow">→</div>
-          <div class="ca-node l-entity"><span class="n-layer">Domain</span><span class="n-name">domain/pokedex.ts<br>domain/typeChart.ts</span></div>
+          <div class="ca-node l-entity"><span class="n-layer">Domain</span><span class="n-name">domain/pokedex.ts<br>weaknessesOf · typeChart</span></div>
         </div>
         <div class="ca-flow" style="margin-top:0.4rem">
-          <div class="ca-node l-usecase"><span class="n-layer">Port</span><span class="n-name">usecases/ports.ts</span></div>
-          <div class="ca-arrow">↑</div>
-          <div class="ca-node l-data"><span class="n-layer">Implements</span><span class="n-name">services/pokedexApi.ts<br>services/battleApi.ts</span></div>
+          <div class="ca-node l-data"><span class="n-layer">Frameworks &amp; drivers — called only by the hook</span><span class="n-name">services/pokedexApi.ts → PokéAPI</span></div>
         </div>
       </div>
 
-      <div class="card accent-blue">
-        <h3>Two languages, one rule</h3>
+      <div class="card accent-purple">
+        <h3>Three of the five SOLID letters, in this one file</h3>
+        <ul class="tight" style="margin-bottom:0">
+          <li><strong>S</strong> — <code>searchSpecies</code> knows nothing about React, fetching, or
+            why anyone is browsing. Its one reason to change: what "matching" means.</li>
+          <li><strong>L</strong> — every function is generic over <code>T extends SpeciesSummary</code>,
+            so the full dex page substitutes wherever a summary is expected.</li>
+          <li><strong>I</strong> — <code>SpeciesSummary</code> is interface segregation as an entity:
+            exactly the four fields a grid tile renders, so browsing never depends on the
+            ten-request detail page.</li>
+        </ul>
+        <p style="margin-top:0.5rem; margin-bottom:0; color:var(--muted); font-size:var(--text-sm)">
+          O and D live in the architecture, not one file — next slide.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="notes-source">
+    <ul>
+      <li>The claim to land: <strong>the dependency rule needs no framework to enforce it</strong>.
+        The inner two layers are plain TypeScript; React appears only in the hook and the components.</li>
+      <li>If asked where 98 comes from: 10 in <code>domain/__tests__/pokedex</code>, 25 in
+        <code>usecases/__tests__/pokedex</code> (the zero-mock 35), 15 + 6 in the two hook test files
+        (<code>vi.mock</code> of <code>services/pokedexApi</code> is the single seam), and 42 across
+        the six view test files.</li>
+      <li>The generic <code>T extends SpeciesSummary</code> is the two-tier entity design:
+        <code>SpeciesSummary</code> is what a grid tile shows, <code>PokemonSpecies</code> extends it
+        with the full dex page — they load on different schedules, but one implementation of
+        search/filter serves both tiers.</li>
+      <li><code>weaknessesOf</code> reads the same <code>typeChart</code> the battle engine uses —
+        the dex page and the damage formula cannot disagree about what beats what.</li>
+      <li><strong>The wrinkle is now fixed, so do not volunteer it as a gap.</strong>
+        <code>usecases/pokedex.ts</code> used to take a type-only import from
+        <code>services/library.ts</code>; <code>LibraryPokemon</code> moved into <code>domain/</code>
+        in PR #40, and <code>frontend/src/__tests__/architecture.test.ts</code> now fails the build if
+        anything in <code>usecases/</code> imports an adapter again. Worth saying <em>that</em> instead:
+        we found it, moved the type, and pinned it with a test.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================== 9b. AMAN — FRONTEND ARCHITECTURE -->
+<section class="slide" data-section="Aman — Frontend architecture">
+  <div class="speaker-tag"><span class="avatar a1">AS</span> Aman Shah</div>
+  <p class="eyebrow">Foundation work</p>
+  <h2>The frontend's architecture landed before its first feature</h2>
+
+  <div class="cols two">
+    <div class="stack">
+      <div class="card accent-gold">
+        <h3>Four layers, committed first</h3>
+        <p style="margin-bottom:0.5rem; color:var(--muted)">
+          The first four frontend commits — scaffold, domain types, components, hook — bootstrapped
+          Vite + React 19 + TypeScript, oxlint and vitest, and the shape every later slice moved into:
+        </p>
+        <pre style="max-height:none"><code>domain/      <span class="cm">entities + pure rules   (innermost)</span>
+usecases/    <span class="cm">application logic, still pure</span>
+hooks/       <span class="cm">interface adapters — React starts here</span>
+components/  <span class="cm">humble views            (outermost)</span></code></pre>
+        <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
+          Proven against <strong>mock battle data before any backend endpoint existed</strong> — the
+          layering was the plan, not a retrofit.
+        </p>
+      </div>
+
+      <div class="card accent-cyan">
+        <h3>Dependency inversion — and the one place we stopped short</h3>
+        <p>
+          <code>services/pokedexApi.ts</code> speaks PokéAPI's dialect and hands back <strong>domain
+          types only</strong>, so swapping the data source touches one file. The tests prove the
+          seam: <code>vi.mock</code> replaces the service module and the hook cannot tell.
+        </p>
         <p style="margin-bottom:0">
-          Java enforces the boundary with an <code>interface</code> in <code>use_case/</code>.
-          TypeScript enforces it with an exported <code>interface</code> in <code>usecases/ports.ts</code>.
-          Same rule, same direction, different keyword.
+          The battle side goes further — Albert's <code>usecases/ports.ts</code> declares a
+          <code>BattleGateway</code> the services implement, injected in <code>App.tsx</code>. The dex
+          hook calls its service <em>directly</em>, not through a port: the violation we name
+          ourselves on the Clean Architecture slide.
+        </p>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="card accent-purple">
+        <h3>Open/closed, the frontend way</h3>
+        <p style="margin-bottom:0">
+          <code>useLibraryPokedex</code> <em>decorates</em> <code>usePokedex</code>: it layers the
+          add-to-library action, the "owned" markers and message clearing on top, with
+          <strong>zero edits to the hook it wraps</strong>. The pre-battle picker mounts the same
+          <code>usePokedex</code> and layers its own selection instead. Extending the dex means
+          writing a new wrapper, never modifying a working one — that is O, and it is also D:
+          both consumers depend on the <code>PokedexState</code> abstraction, not on how it loads.
+        </p>
+      </div>
+
+      <div class="card accent-red">
+        <h3>The same shape carried the battle UI</h3>
+        <ul class="tight" style="margin-bottom:0">
+          <li>Battle arena — <code>BattleArena</code>, <code>ActionPanel</code>, <code>HpBar</code>,
+            <code>StatusCard</code> — with Bag and Party as overlays</li>
+          <li>Choose-your-Pokémon setup, battle end, and the way out of a finished battle</li>
+          <li>The retro GBA look the whole app wears</li>
+        </ul>
+      </div>
+
+      <div class="card accent-green">
+        <h3>Why laying it early mattered</h3>
+        <p style="margin-bottom:0">
+          A dependency rule is cheap to follow when the folders already encode it and the first tests
+          already enforce it. The frontend's <strong>325 tests need no server</strong> in large part
+          because this shape kept <code>fetch</code> at the edge from day one — a component literally
+          has nowhere to put a network call.
         </p>
       </div>
     </div>
@@ -568,9 +680,19 @@
 
   <div class="notes-source">
     <ul>
-      <li>This is our strongest Clean Architecture evidence on the frontend: most teams treat React as
-        exempt from the Dependency Rule. We didn't.</li>
-      <li>The comment at the top of the file was written before the implementation, not after.</li>
+      <li>This is credit for invisible work — say it in one breath, don't lecture. 75–90 seconds.</li>
+      <li>The decorator card is the frontend mirror of Cindy's slide: her interactor composes
+        Will's through a boundary; <code>useLibraryPokedex</code> composes <code>usePokedex</code>
+        the same way. Draw that parallel out loud.</li>
+      <li>Credit Albert by name for <code>ports.ts</code> — the commit history says it is his, and
+        crediting a teammate while naming your own violation reads as confidence, not weakness.</li>
+      <li>If asked "who decided the frontend architecture": the first four frontend commits in the git
+        history are the answer — scaffold, domain types, components, hook — in that order, July 11–14.</li>
+      <li>If pressed on the direct service call: the module seam is real (the hook tests mock it and
+        pass), so the missing port cost us nothing in testability — it costs us swap-at-runtime, which
+        nothing needed yet. Then say the fix: a <code>PokedexGateway</code> in
+        <code>usecases/</code>, about twenty lines.</li>
+      <li>Hand off to Edison by asking "so where does all this data actually come from?"</li>
     </ul>
   </div>
 </section>
@@ -717,7 +839,7 @@
     <ul>
       <li><strong>Open by saying this is the catalog slice, not the custom-Pokémon one.</strong> Both
         are yours; this is the one with the cleanest interface-segregation story, which is why it is
-        the code on screen. Ten seconds, then move on — do not re-explain the previous slide.</li>
+        the code on screen.</li>
       <li>Highlighted lines: the only field is an <strong>interface</strong>, and the only failure path
         produces a <strong>domain-level enum</strong>. No <code>ResponseEntity</code>, no
         <code>@Service</code>, no <code>HttpClient</code> anywhere in this file.</li>
@@ -769,6 +891,21 @@
           <li>It appears in the library</li>
         </ol>
       </div>
+      <div class="before-after" style="margin-top:0.6rem">
+        <div>
+          <div class="ba-label">Before</div>
+          <div class="media-slot" data-src="assets/cindy-before.png">
+            <div class="placeholder"><span class="ph-icon">▣</span>Empty creation form<span class="ph-file">assets/cindy-before.png</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="ba-label after">After</div>
+          <div class="media-slot" data-src="assets/cindy-after.png">
+            <div class="placeholder"><span class="ph-icon">▣</span>Custom Pokémon sitting in the library<span class="ph-file">assets/cindy-after.png</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="media-caption">Stills already captured; the clip above replaces them once recorded.</p>
     </div>
   </div>
 
@@ -827,6 +964,15 @@
                 <span class="str">"Pokemon created successfully"</span>, pokemon, <span class="kw">true</span>));
     }
 }</code></pre>
+
+      <div class="card accent-green" style="margin-top:0.8rem">
+        <h3>Why the highlighted call is the interesting one</h3>
+        <p style="margin-bottom:0">
+          Creating a Pokémon also puts it in your library, but this interactor does not touch the
+          library store. It depends on <code>AddToLibraryInputBoundary</code>, Will's use case, as an
+          <em>interface</em>. Two features composed with zero coupling between their implementations.
+        </p>
+      </div>
     </div>
 
     <div class="stack">
@@ -855,14 +1001,6 @@
         </div>
       </div>
 
-      <div class="card accent-green">
-        <h3>Why the highlighted call is the interesting one</h3>
-        <p style="margin-bottom:0">
-          Creating a Pokémon also puts it in your library, but this interactor does not touch the
-          library store. It depends on <code>AddToLibraryInputBoundary</code>, Will's use case, as an
-          <em>interface</em>. Two features composed with zero coupling between their implementations.
-        </p>
-      </div>
     </div>
   </div>
 
@@ -937,9 +1075,8 @@
       <li>Let the message box be readable on the super-effective hit. Don't speed through it.</li>
       <li>Speed up the last few HP grinding turns — nobody needs twelve turns.</li>
       <li><strong>Do not narrate switching.</strong> The clip is a 1v1 and the screen cannot show it.
-        If it comes up in Q&amp;A, the green card is the answer: the party model and the switch use
-        case exist and are tested, the setup screen just never builds a party bigger than one.
-        <em>Volunteering</em> that reads as a scoped decision; being caught on it reads as a gap.</li>
+        If it comes up in Q&amp;A: the party model and the switch use case exist and are tested, the
+        setup screen just never builds a party bigger than one.</li>
     </ul>
   </div>
 </section>
@@ -993,6 +1130,16 @@
         <span class="kw">return new</span> <span class="typ">ResolveTurnOutputData</span>(<span class="kw">true</span>, <span class="kw">new</span> <span class="typ">TurnResult</span>(actions, battle), <span class="str">"Turn resolved."</span>);
     }
 }</code></pre>
+
+      <div class="card accent-gold" style="margin-top:0.8rem">
+        <h3>What injecting <code>Random</code> buys</h3>
+        <p style="margin-bottom:0">
+          A test pins the crit roll, the accuracy roll and the opponent's choice, so
+          <strong>every turn test is deterministic</strong>. Construct <code>Random</code> inside the
+          interactor and none of that is possible. This is the single decision the whole battle test
+          suite rests on.
+        </p>
+      </div>
     </div>
 
     <div class="stack">
@@ -1022,15 +1169,6 @@
         </div>
       </div>
 
-      <div class="card accent-gold">
-        <h3>What injecting <code>Random</code> buys</h3>
-        <p style="margin-bottom:0">
-          A test pins the crit roll, the accuracy roll and the opponent's choice, so
-          <strong>every turn test is deterministic</strong>. Construct <code>Random</code> inside the
-          interactor and none of that is possible. This is the single decision the whole battle test
-          suite rests on.
-        </p>
-      </div>
     </div>
   </div>
 
@@ -1153,6 +1291,15 @@
         <span class="kw">return</span> matchTasks.<span class="fn">stream</span>().<span class="fn">map</span>(<span class="typ">CompletableFuture</span>::<span class="fn">join</span>).<span class="fn">toList</span>();
     }
 }</code></pre>
+
+      <div class="card accent-blue" style="margin-top:0.8rem">
+        <h3>Open/closed, concretely</h3>
+        <p style="margin-bottom:0">
+          Want seeded moves, or a bracket that replays a human's recorded turns? Implement
+          <code>TournamentMatchRunner</code>. Bracket progression, persistence, presentation and the
+          interactor itself do not change by a single line.
+        </p>
+      </div>
     </div>
 
     <div class="stack">
@@ -1184,14 +1331,6 @@
         </div>
       </div>
 
-      <div class="card accent-blue">
-        <h3>Open/closed, concretely</h3>
-        <p style="margin-bottom:0">
-          Want seeded moves, or a bracket that replays a human's recorded turns? Implement
-          <code>TournamentMatchRunner</code>. Bracket progression, persistence, presentation and the
-          interactor itself do not change by a single line.
-        </p>
-      </div>
     </div>
   </div>
 
@@ -1370,12 +1509,9 @@
   <div class="notes-source">
     <ul>
       <li>The rubric's 5/5 band is "no violations of the Dependency Rule are evident" <em>and</em>
-        "gone above and beyond to convince the audience". <strong>An executable rule is the strongest
-        form of convincing available</strong> — stronger than the greps this slide used to offer,
-        because a grep proves today and a test proves every future commit.</li>
-      <li>If you only say one sentence here: <em>"we did not just follow the dependency rule, we made
-        it impossible to break without failing the build."</em></li>
-      <li>Name the remaining debt ourselves, with the reason and the size of the fix. "Clearly discussed
+        "gone above and beyond to convince the audience". Offering commands a TA can run is the
+        strongest form of convincing available.</li>
+      <li>Name both violations ourselves, with the reason and the size of the fix. "Clearly discussed
         and adequately justified" is explicitly allowed at the top band.</li>
     </ul>
   </div>
@@ -1583,7 +1719,7 @@
       <li>We clear every band: Exceptional wants &gt;90% interactor coverage and &gt;70% overall.
         Use cases are 94%+ on both stacks; overall is 90.0% frontend and 83.2% backend.</li>
       <li>Numbers measured 2026-08-07 by the final verification pass. If anything lands after that,
-        re-run <code>scripts/verify.ps1</code> and update this slide — do not quote stale figures.</li>
+        re-run <code>scripts/verify.ps1</code> and update this slide.</li>
       <li>"What is not tested, and why" is explicitly required at the Excellent band. Keep it.</li>
     </ul>
   </div>
@@ -1636,7 +1772,7 @@ backend:   ./mvnw -B clean verify</code></pre>
 
       <div class="card accent-green">
         <h3>Both languages, the same standard</h3>
-        <table style="margin-top:0.4rem">
+        <table class="dense" style="margin-top:0.4rem">
           <tbody>
             <tr><td>Style</td><td>Checkstyle (Maven <code>validate</code>)</td><td>oxlint</td></tr>
             <tr><td>Coverage</td><td>JaCoCo, gated</td><td>Vitest, gated</td></tr>
@@ -1655,11 +1791,10 @@ backend:   ./mvnw -B clean verify</code></pre>
     <ul>
       <li><strong>Checkstyle is required for 4/5 or above on Code Quality</strong>, and it now runs on
         every push — say that out loud, it is a named tool in the rubric.</li>
+      <li>If asked why the quality tooling landed late: it came in with PR #40 alongside the final
+        architecture pass. Owning the sequence reads better than implying it was always there.</li>
       <li>The 5/5 band wants <strong>a pull request example</strong> — PR #37 is a genuinely good one
         because it is a real bug with a real fix and a regression test. Have it open in a tab.</li>
-      <li>If asked why the quality tooling landed late: say it plainly. It came in with PR #40 alongside
-        the final architecture pass. Owning the sequence reads better than implying it was there
-        all along.</li>
     </ul>
   </div>
 </section>
@@ -1804,8 +1939,7 @@ App.tsx       <span class="cm">composition root</span></code></pre>
   <div class="notes-source">
     <ul>
       <li><strong>The report exists now</strong> — <code>docs/accessibility-report.md</code>, all seven
-        principles, plus a manual acceptance checklist. That was a 1/5 category and is no longer.
-        Have the file open if a grader wants it.</li>
+        principles plus a manual acceptance checklist. That was a 1/5 category and is no longer.</li>
       <li>The Excellent band needs <em>both</em> target users <strong>and</strong> a struggling group
         discussed <em>in the presentation</em>, using E3I terminology. This slide does both — make sure
         whoever speaks actually says them aloud rather than pointing at the slide.</li>
@@ -1977,7 +2111,7 @@ npm run dev</code></pre>
       <div class="metrics">
         <div class="metric green"><div class="m-value">8/9</div><div class="m-label">blueprint user stories shipped</div></div>
         <div class="metric blue"><div class="m-value">580</div><div class="m-label">tests across both stacks</div></div>
-        <div class="metric gold"><div class="m-value">2</div><div class="m-label">languages, one architecture</div></div>
+        <div class="metric"><div class="m-value">2</div><div class="m-label">languages, one architecture</div></div>
         <div class="metric red"><div class="m-value">40</div><div class="m-label">reviewed pull requests</div></div>
       </div>
 
@@ -2003,11 +2137,9 @@ npm run dev</code></pre>
 </section>
 
 <!-- =========================================================== 29. Q & A -->
-<section class="slide" data-section="Q &amp; A">
-  <p class="eyebrow">Questions</p>
-  <h2>Q&nbsp;&amp;&nbsp;A</h2>
-  <p class="lede">Click a question to reveal the answer. Say the first sentence, then stop and let them
-  ask for more.</p>
+<section class="slide" data-section="Q &amp; A — architecture &amp; data">
+  <p class="eyebrow">Questions · 1 of 2</p>
+  <h2>Q&nbsp;&amp;&nbsp;A — architecture and data</h2>
 
   <div class="qa-list">
 
@@ -2060,7 +2192,7 @@ npm run dev</code></pre>
             <tr><td>Tournament in progress</td><td>Server memory</td><td>—</td><td><strong>No</strong></td></tr>
             <tr><td>Users, roles, sessions</td><td>Browser <code>localStorage</code></td><td>Yes</td><td>Yes — never touches the server</td></tr>
             <tr><td>Per-user library</td><td><code>backend/data/*.json</code></td><td>Yes</td><td>Yes — one authoritative store</td></tr>
-            <tr><td>Custom Pokémon + sprites</td><td><code>backend/data/</code></td><td>Yes</td><td>Yes</td></tr>
+            <tr><td>Users + libraries (Java copy)</td><td><code>backend/data/*.json</code></td><td>—</td><td>Yes, but the UI does not call it</td></tr>
           </tbody>
         </table>
       </div></details>
@@ -2070,7 +2202,7 @@ npm run dev</code></pre>
       authoritative backend store, and <code>SyncAccount</code> maps a browser session into an authorization
       projection so that access policy stayed in Java. <strong>Accounts are still local to the browser</strong>,
       behind ports the use cases own, which is why swapping in HTTP authentication is a composition change
-      rather than a rewrite. Building the seam first is what made deleting the library half a small change.</p></div></details>
+      rather than a rewrite.</p></div></details>
 
     <details class="qa"><summary>What if PokéAPI is down?</summary>
       <div class="answer"><p>Anything already in <code>backend/cache/</code> still works. Anything else returns a
@@ -2085,6 +2217,26 @@ npm run dev</code></pre>
       <div class="answer"><p>On the Java side: PBKDF2, 100,000 iterations, a per-user salt, and it is tested. The
       <code>localStorage</code> mirror matches those rules. Neither is a real auth system and we would not
       ship either one.</p></div></details>
+
+  </div>
+
+  <div class="notes-source">
+    <ul>
+      <li><strong>Everyone reads both Q&amp;A slides before presenting.</strong> Nobody should need notes
+        for the persistence question.</li>
+      <li>Answer with the first sentence and <strong>stop</strong>. Over-explaining an honest gap turns a
+        good answer into a bad one.</li>
+      <li>Route questions to the person who owns that slice — it shows the split was real.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================================== 30. Q & A cont. -->
+<section class="slide" data-section="Q &amp; A — testing, design &amp; process">
+  <p class="eyebrow">Questions · 2 of 2</p>
+  <h2>Q&nbsp;&amp;&nbsp;A — testing, design and process</h2>
+
+  <div class="qa-list">
 
     <p class="qa-section-title">Testing</p>
 
@@ -2104,17 +2256,9 @@ npm run dev</code></pre>
       <div class="answer"><p>Live PokéAPI calls — tests run against recorded JSON on purpose, because a suite that fails
       when someone's Wi-Fi drops is a suite people stop trusting; adapter error paths are covered instead.
       Also: no automated screen-reader session, no visual regression, and nothing that claims the dev
-      bearer token resists forgery. It identifies a caller and is not cryptographically verified.</p></div></details>
+      bearer token resists forgery.</p></div></details>
 
     <p class="qa-section-title">Design</p>
-
-    <details class="qa"><summary>You mentioned parties and switching — why didn't the demo show them?</summary>
-      <div class="answer"><p>Because the setup screen never builds a party bigger than one, so there is nothing on screen to
-      show. The <em>engine</em> has it: <code>Battle</code> models a party, <code>SwitchPokemon</code> is a
-      real use case with its own boundary, a faint triggers a forced switch, and all of it is tested. What
-      is missing is one screen handing the interactor three Pokémon instead of one — no entity, interactor
-      or endpoint changes. We would rather demo a path that works end to end than narrate one the UI cannot
-      reach.</p></div></details>
 
     <details class="qa"><summary>Give me one change your design makes easy that would otherwise be hard.</summary>
       <div class="answer"><p>Making the opponent play well instead of at random. One new class implementing
@@ -2142,8 +2286,7 @@ npm run dev</code></pre>
       <div class="answer"><p>The frontend was built against <code>localStorage</code> and direct PokéAPI calls before the
       backend endpoints existed. It let the UI ship early, but it left us with two implementations of auth
       and library and two ways of reaching PokéAPI. We paid the library half back — it now has one
-      authoritative store — and the accounts half and the Pokédex are still outstanding. If we did it
-      again we would agree the HTTP contract first and stub the network rather than the storage.</p></div></details>
+      authoritative store — and the accounts half and the Pokédex are still outstanding.</p></div></details>
 
     <details class="qa"><summary>How do you know nobody broke the dependency rule?</summary>
       <div class="answer"><p>We do not rely on knowing. Four <strong>ArchUnit</strong> rules in Java assert that entities
@@ -2151,6 +2294,12 @@ npm run dev</code></pre>
       and web controllers cannot call a repository directly. Three equivalent import rules cover the
       TypeScript side, including one that keeps <code>localStorage</code> out of domain and use-case code.
       They run in CI, so a violation is a red build rather than something a reviewer has to catch.</p></div></details>
+
+    <details class="qa"><summary>You mentioned parties and switching — why didn't the demo show them?</summary>
+      <div class="answer"><p>Because the setup screen never builds a party bigger than one, so there is nothing on screen to
+      show. The <em>engine</em> has it: <code>Battle</code> models a party, <code>SwitchPokemon</code> is a
+      real use case with its own boundary, and all of it is tested. What is missing is one screen handing
+      the interactor three Pokémon instead of one — no entity, interactor or endpoint changes.</p></div></details>
 
     <details class="qa"><summary>Why did you cut the sharing user story?</summary>
       <div class="answer"><p>Sharing a result with friends needs hosting, public URLs and a permissions story, and buys
@@ -2166,8 +2315,8 @@ npm run dev</code></pre>
 
   <div class="notes-source">
     <ul>
-      <li><strong>Everyone reads this slide before presenting.</strong> Nobody should need notes for the
-        persistence question.</li>
+      <li><strong>Everyone reads both Q&amp;A slides before presenting.</strong> Nobody should need notes
+        for the persistence question.</li>
       <li>Answer with the first sentence and <strong>stop</strong>. Over-explaining an honest gap turns a
         good answer into a bad one.</li>
       <li>Route questions to the person who owns that slice — it shows the split was real.</li>

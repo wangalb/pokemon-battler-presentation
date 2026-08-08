@@ -64,6 +64,11 @@ The beats are also printed on each slide under the video, so the slide still com
 clip is paused on its first frame — and if a recording is missing entirely, the section is still
 presentable.
 
+**Cindy's slide carries both.** `cindy-before.png` and `cindy-after.png` are already captured and
+committed, so they stay beneath her clip slot rather than being deleted — the section has real
+media today and upgrades to video when `cindy-demo.mp4` lands. Delete the `before-after` block on
+that slide once the clip exists, or keep both if you prefer the stills as a fallback.
+
 `.webm` and `.mov` work too; change the slot's `data-src` in `index.html` to match. A still `.png`
 also works if a clip falls through — the loader swaps in an `<img>` instead of a `<video>`.
 

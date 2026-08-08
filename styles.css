@@ -1034,8 +1034,37 @@ kbd {
 /* -------------------------------------------------------------------- print */
 
 @media print {
-  html, body { overflow: visible; height: auto; }
+  /* 13.333in x 7.5in is the standard 16:9 slide size, so an exported PDF
+     matches the deck's shape instead of defaulting to Letter portrait. */
+  @page { size: 13.333in 7.5in; margin: 0; }
+
+  html, body { overflow: visible; height: auto; background: var(--bg); }
   #chrome, #notes, #overview, #help { display: none !important; }
-  .slide { display: flex !important; position: static; page-break-after: always; min-height: 100vh; }
+
+  /* Each slide starts a new page and is at least one page tall. It is
+     deliberately NOT clamped to exactly one page: 21 of the 29 slides are
+     taller than the projected view — the code slides by 400-600px and the
+     Q&A bank by over 1100 — so clamping would silently delete the content
+     the individual rubric is scored on. A slide that overruns continues
+     onto a second page instead, and nothing is lost. */
+  .slide {
+    display: flex !important;
+    position: static;
+    min-height: 7.5in;
+    overflow: visible;
+    page-break-after: always;
+    break-after: page;
+    animation: none;
+  }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+
+  /* Only guard the things that look broken when split. Adding .card here
+     costs roughly twenty extra pages of whitespace for no real gain. */
+  pre, tr, .metric, .ca-flow { break-inside: avoid; }
+
   pre { max-height: none; }
+
+  /* Keep the dashed demo placeholders legible in print — a grader reading
+     the PDF should see what each recording covers, not an empty box. */
+  .media-slot { break-inside: avoid; }
 }

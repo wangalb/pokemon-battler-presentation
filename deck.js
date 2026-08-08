@@ -37,7 +37,10 @@
     current = index;
 
     elCounter.textContent = (index + 1) + " / " + slides.length;
-    elBar.style.width = (slides.length < 2 ? 100 : (index / (slides.length - 1)) * 100) + "%";
+    elBar.style.setProperty(
+      "--progress",
+      slides.length < 2 ? 1 : index / (slides.length - 1)
+    );
     elSection.textContent = sectionName(slides[index]);
 
     slides[index].scrollTop = 0;

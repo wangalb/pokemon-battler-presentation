@@ -1,5 +1,39 @@
 /* Pokémon Battle Simulator — Team 4 presentation deck
-   Plain CSS, no build step, no external fonts or libraries. */
+   Plain CSS, no build step. The three typefaces are self-hosted under
+   assets/fonts/ (latin subset) so the deck renders identically on a
+   projector with no internet and never falls back mid-talk. */
+
+/* Type roles — arcade, body, and mono. Two of the three are outliers held to a
+   small number of slots. Press Start 2P is the arcade register: it appears on
+   the title and on section eyebrows and nowhere else, because a pixel face set
+   across 29 slides of body copy is unreadable from the back of a lecture hall.
+   Mono is the code register: <code>, <pre>, <kbd>. Everything that used to
+   reach for mono to look technical (table headers, badges, chrome, notes) now
+   uses the body face with weight, tracking and tabular figures instead. */
+
+@font-face {
+  font-family: "Press Start 2P";
+  src: url("assets/fonts/press-start-2p-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("assets/fonts/ibm-plex-sans-latin-var.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("assets/fonts/jetbrains-mono-latin-var.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   --bg: #0d1117;
@@ -22,8 +56,32 @@
   --cyan: #39c5cf;
 
   --radius: 14px;
+
+  /* Press Start 2P ships one weight (400) and square-ish glyphs about 1em wide,
+     so anything set in it needs generous leading, zero negative tracking, and a
+     character count you have counted. Never bold it — font-synthesis is off. */
+  --arcade: "Press Start 2P", "Segoe UI", system-ui, sans-serif;
+  --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --display: var(--sans);
   --mono: "JetBrains Mono", "Cascadia Code", "SF Mono", Consolas, "Liberation Mono", monospace;
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Major-third scale (1.25) off a 17px root. Every size in the deck comes from
+     this ladder — steps a fifth of a step apart read as an accident, not a
+     hierarchy. */
+  --text-2xs: 0.64rem;   /* 10.9px — chrome numerals, layer tags */
+  --text-xs:  0.8rem;    /* 13.6px — labels, captions, badges */
+  --text-sm:  0.9rem;    /* 15.3px — dense card copy, table cells */
+  --text-base: 1rem;     /* 17px   — body */
+  --text-md:  1.25rem;   /* 21.3px — lede */
+  --text-lg:  1.5625rem; /* 26.6px — metric values */
+  --text-xl:  1.953rem;  /* 33.2px */
+  --text-2xl: 2.441rem;  /* 41.5px — h2 ceiling */
+  --text-3xl: 3.052rem;  /* 51.9px — h1 ceiling */
+
+  /* Label register: the small uppercase treatment that used to be "set it in
+     mono". Tracking and weight carry it now. */
+  --label-tracking: 0.14em;
+  --label-weight: 600;
 }
 
 * { box-sizing: border-box; }
@@ -38,6 +96,7 @@ html, body {
   font-size: 17px;
   line-height: 1.55;
   overflow: hidden;
+  font-synthesis: none;
 }
 
 /* ---------------------------------------------------------------- deck shell */
@@ -73,40 +132,83 @@ html, body {
   to   { opacity: 1; transform: none; }
 }
 
+/* Slide transitions are decoration, not information. Anyone who has asked the
+   OS to stop moving things gets the deck with no motion at all. */
+@media (prefers-reduced-motion: reduce) {
+  .slide.active { animation: none; }
+  #progress-bar { transition: none; }
+  .ctrl, .ov-item, .qa summary { transition: none; }
+}
+
 /* ------------------------------------------------------------------ headings */
 
-.eyebrow {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
+/* The label register. Applied by .eyebrow and by every small-caps label in the
+   deck, so they all share one treatment instead of each inventing a mono size. */
+.eyebrow,
+.code-label,
+.qa-section-title,
+.ba-label,
+th,
+#overview h3,
+#help h3,
+#notes h4,
+#section-name {
+  font-family: var(--sans);
+  font-size: var(--text-xs);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
   text-transform: uppercase;
+}
+
+/* Arcade slot 1 of 2. Small enough to stay a label, loose enough that the pixel
+   grid does not smear, and never bolded — the face has one weight. */
+.eyebrow {
+  font-family: var(--arcade);
+  font-weight: 400;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  line-height: 1.6;
   color: var(--gold);
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.75rem;
 }
 
 .slide h1 {
-  font-size: clamp(2rem, 3.6vw, 3.1rem);
-  line-height: 1.1;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(var(--text-xl), 3.6vw, var(--text-3xl));
+  line-height: 1.05;
   margin: 0 0 0.6rem;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .slide h2 {
-  font-size: clamp(1.5rem, 2.5vw, 2.15rem);
-  line-height: 1.15;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(var(--text-md), 2.5vw, var(--text-2xl));
+  line-height: 1.08;
   margin: 0 0 1.1rem;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* h3 sat at 1.02rem against 1rem body — a 1.02:1 step is not a hierarchy. The
+   display face at 700 does the separating now, so the size can stay modest. */
+.slide h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: var(--text-md);
+  line-height: 1.2;
+  margin: 0 0 0.55rem;
+  color: var(--text);
   letter-spacing: -0.015em;
 }
 
-.slide h3 {
-  font-size: 1.02rem;
-  margin: 0 0 0.55rem;
-  color: var(--text);
-  letter-spacing: -0.005em;
-}
-
 .lede {
-  font-size: clamp(1.02rem, 1.35vw, 1.22rem);
+  font-size: var(--text-md);
+  line-height: 1.5;
   color: var(--muted);
   max-width: 62ch;
   margin: 0 0 1.4rem;
@@ -139,21 +241,31 @@ html, body {
   padding: 1rem 1.15rem;
 }
 
-.card.accent-red    { border-left: 3px solid var(--red-soft); }
-.card.accent-gold   { border-left: 3px solid var(--gold); }
-.card.accent-blue   { border-left: 3px solid var(--blue); }
-.card.accent-green  { border-left: 3px solid var(--green); }
-.card.accent-purple { border-left: 3px solid var(--purple); }
+/* Card accents. These used to be 3px coloured left stripes — the single most
+   recognisable AI-UI tell. The colour coding is real (it maps cards to layers
+   and to the roster), so it moves onto the heading and a hairline border tint
+   instead of a stripe down the edge. */
+.card[class*="accent-"] { border-color: var(--accent-line); }
+.card[class*="accent-"] > h3 { color: var(--accent-ink); }
+
+.card.accent-red    { --accent-ink: var(--red-soft); --accent-line: rgba(255,91,91,0.32); }
+.card.accent-gold   { --accent-ink: var(--gold);     --accent-line: rgba(255,203,5,0.32); }
+.card.accent-blue   { --accent-ink: var(--blue);     --accent-line: rgba(77,124,255,0.34); }
+.card.accent-green  { --accent-ink: var(--green);    --accent-line: rgba(63,185,80,0.32); }
+.card.accent-purple { --accent-ink: var(--purple);   --accent-line: rgba(176,124,255,0.32); }
+.card.accent-cyan   { --accent-ink: var(--cyan);     --accent-line: rgba(57,197,207,0.32); }
 
 .card p:last-child, .card ul:last-child { margin-bottom: 0; }
 .card p:first-of-type { margin-top: 0; }
 
+/* A pull quote earns a rule, but 1px reads as typesetting where 3px reads as a
+   template. The indent does the rest of the work. */
 .quote {
-  font-size: 1.12rem;
-  line-height: 1.45;
+  font-size: var(--text-md);
+  line-height: 1.4;
   color: var(--text);
-  border-left: 3px solid var(--gold);
-  padding: 0.35rem 0 0.35rem 1rem;
+  border-left: 1px solid var(--gold);
+  padding: 0.35rem 0 0.35rem 1.15rem;
   margin: 0 0 1.1rem;
   max-width: 70ch;
 }
@@ -193,14 +305,12 @@ th, td {
 }
 
 th {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--dim);
-  font-weight: 600;
   border-bottom: 1px solid var(--line);
 }
+
+/* Stat and ID columns line up on the decimal without mono doing it for them. */
+td { font-variant-numeric: tabular-nums; }
 
 tbody tr:hover { background: rgba(255,255,255,0.02); }
 
@@ -216,9 +326,9 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
 
 .badge {
   display: inline-block;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.06em;
+  font-size: var(--text-2xs);
+  font-weight: var(--label-weight);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 0.14rem 0.5rem;
   border-radius: 999px;
@@ -232,8 +342,8 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
 
 .pill {
   display: inline-block;
-  font-family: var(--mono);
-  font-size: 0.74rem;
+  font-size: var(--text-xs);
+  font-weight: 500;
   padding: 0.2rem 0.55rem;
   border-radius: 6px;
   background: var(--panel-2);
@@ -282,13 +392,15 @@ pre .cm  { color: #6b7a8c; font-style: italic; }
 pre .fn  { color: #d2a8ff; }
 pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%; }
 
+/* These are full source paths and some run past 60 characters. The shared label
+   tracking pushes them off the slide, so this one opts down a size, tightens
+   the tracking, and is allowed to wrap at the path separators. */
 .code-label {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
   color: var(--dim);
   margin-bottom: 0.4rem;
+  overflow-wrap: anywhere;
 }
 
 /* ------------------------------------------------- clean architecture diagram */
@@ -314,17 +426,21 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
 
 .ca-node .n-layer {
   display: block;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.09em;
+  font-size: var(--text-2xs);
+  font-weight: var(--label-weight);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-bottom: 0.2rem;
 }
 
+/* Class names are code, but a node label is not a code block — the display face
+   at 600 reads as a named thing without pulling mono into a 27th slot. */
 .ca-node .n-name {
-  font-family: var(--mono);
-  font-size: 0.76rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: var(--text-xs);
   color: var(--text);
+  letter-spacing: -0.01em;
   word-break: break-word;
 }
 
@@ -363,34 +479,40 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
 }
 
 .layer-row .l-title {
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  letter-spacing: 0.06em;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  color: var(--accent-ink, var(--text));
 }
 
 .layer-row .l-side {
-  font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
-.layer-row.entity  { border-left: 3px solid var(--gold); }
-.layer-row.entity  .l-title { color: var(--gold); }
-.layer-row.usecase { border-left: 3px solid var(--green); }
-.layer-row.usecase .l-title { color: var(--green); }
-.layer-row.adapter { border-left: 3px solid var(--blue); }
-.layer-row.adapter .l-title { color: var(--blue); }
-.layer-row.frame   { border-left: 3px solid var(--purple); }
-.layer-row.frame   .l-title { color: var(--purple); }
+/* The left edge still marks the layer — at 1px, with the row tinted to match,
+   so it reads as a band in a diagram rather than a stack of accent stripes. */
+.layer-row[class*="entity"],
+.layer-row[class*="usecase"],
+.layer-row[class*="adapter"],
+.layer-row[class*="frame"] {
+  border-left: 1px solid var(--accent-ink);
+  background: linear-gradient(90deg, var(--accent-wash), var(--panel) 22%);
+}
+
+.layer-row.entity  { --accent-ink: var(--gold);   --accent-wash: rgba(255,203,5,0.10); }
+.layer-row.usecase { --accent-ink: var(--green);  --accent-wash: rgba(63,185,80,0.10); }
+.layer-row.adapter { --accent-ink: var(--blue);   --accent-wash: rgba(77,124,255,0.11); }
+.layer-row.frame   { --accent-ink: var(--purple); --accent-wash: rgba(176,124,255,0.10); }
 
 .dep-rule {
   text-align: center;
-  font-family: var(--mono);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   color: var(--dim);
   padding: 0.5rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 /* ------------------------------------------------------------- media / demos */
@@ -420,8 +542,7 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
   text-align: center;
   padding: 1.2rem;
   color: var(--dim);
-  font-family: var(--mono);
-  font-size: 0.76rem;
+  font-size: var(--text-xs);
   line-height: 1.7;
 }
 
@@ -440,10 +561,9 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
 }
 
 .media-caption {
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   color: var(--dim);
   margin-top: 0.4rem;
-  font-family: var(--mono);
 }
 
 .before-after {
@@ -452,10 +572,6 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
   gap: 0.7rem;
 }
 .before-after .ba-label {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: var(--dim);
   margin-bottom: 0.35rem;
 }
@@ -477,16 +593,17 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
 }
 
 .metric .m-value {
-  font-family: var(--mono);
-  font-size: 1.85rem;
+  font-family: var(--display);
+  font-size: var(--text-lg);
   font-weight: 700;
   line-height: 1;
   color: var(--gold);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
 }
 
 .metric .m-label {
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   color: var(--muted);
   margin-top: 0.35rem;
 }
@@ -526,8 +643,9 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
   position: absolute;
   left: 0.95rem;
   top: 0.72rem;
-  font-family: var(--mono);
-  font-size: 0.7rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: var(--text-2xs);
   line-height: 1.35;
   color: var(--gold);
   border: 1px solid rgba(255,203,5,0.35);
@@ -547,10 +665,6 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
 .qa .answer p:last-child { margin-bottom: 0; }
 
 .qa-section-title {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--red-soft);
   margin: 1.1rem 0 0.5rem;
 }
@@ -577,8 +691,8 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-family: var(--mono);
-  font-size: 0.72rem;
+  font-family: var(--display);
+  font-size: var(--text-xs);
   font-weight: 700;
   color: #0d1117;
   background: var(--gold);
@@ -621,9 +735,18 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
   border: 3px solid #1a1a1a;
 }
 
+/* Arcade slot 2 of 2, and the reason the face is in the deck at all. "Pokémon
+   Battle Simulator" is 24 characters and Press Start 2P advances about 1em per
+   glyph, so the clamp is sized against that count: 1.9rem × 24 ≈ 770px, which
+   holds one line on a 1280px projector and wraps safely below that. Tracking
+   stays at 0 — negative tracking collides the pixel stems. */
 .title-slide h1 {
-  font-size: clamp(2.4rem, 5.2vw, 4.2rem);
-  margin-bottom: 0.5rem;
+  font-family: var(--arcade);
+  font-weight: 400;
+  font-size: clamp(0.7rem, 2.4vw, 1.9rem);
+  line-height: 1.55;
+  letter-spacing: 0;
+  margin-bottom: 1.2rem;
 }
 
 .title-slide .subtitle {
@@ -656,8 +779,7 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
 
 .repo-line {
   margin-top: 2rem;
-  font-family: var(--mono);
-  font-size: 0.82rem;
+  font-size: var(--text-xs);
   color: var(--dim);
 }
 .repo-line a { color: var(--blue); text-decoration: none; }
@@ -691,11 +813,15 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
   border-radius: 2px;
   overflow: hidden;
 }
+/* Driven by transform, not width: animating width relayouts the bar on every
+   slide change. deck.js sets --progress; scaleX reads it off the compositor. */
 #progress-bar {
   height: 100%;
-  width: 0;
+  width: 100%;
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
   background: linear-gradient(90deg, var(--red), var(--gold));
-  transition: width 240ms ease;
+  transition: transform 240ms ease;
 }
 
 .ctrl {
@@ -704,24 +830,40 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
   color: var(--muted);
   border-radius: 7px;
   padding: 0.25rem 0.6rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
+  font-family: var(--sans);
+  font-size: var(--text-2xs);
+  font-weight: var(--label-weight);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: all 120ms;
+  transition: color 120ms ease, border-color 120ms ease;
 }
 .ctrl:hover { color: var(--text); border-color: var(--dim); }
 .ctrl.on { color: var(--gold); border-color: rgba(255,203,5,0.4); }
+.ctrl:active { border-color: var(--gold); }
+.ctrl:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Keyboard focus has to be visible instantly — this deck is driven entirely
+   from the keyboard, and a focus ring that fades in reads as lag. */
+.ctrl:focus-visible,
+.ov-item:focus-visible,
+.qa summary:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 5px;
+}
 
 #counter {
-  font-family: var(--mono);
-  font-size: 0.76rem;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
   min-width: 62px;
   text-align: right;
 }
 
 #timer {
-  font-family: var(--mono);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
   min-width: 54px;
 }
 #timer.over { color: var(--red-soft); }
@@ -729,10 +871,8 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
 
 /* section marker in chrome */
 #section-name {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.1em;
   color: var(--dim);
   max-width: 26vw;
   overflow: hidden;
@@ -758,10 +898,6 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
 #notes.show { display: block; }
 #notes h4 {
   margin: 0 0 0.45rem;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--gold);
 }
 #notes ul { margin: 0; }
@@ -784,10 +920,6 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
 #overview.show { display: block; }
 
 #overview h3 {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   color: var(--gold);
   margin-bottom: 1.1rem;
 }
@@ -808,13 +940,14 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
   display: flex;
   gap: 0.6rem;
   align-items: baseline;
-  transition: all 120ms;
+  transition: border-color 120ms ease, background-color 120ms ease;
 }
 .ov-item:hover { border-color: var(--gold); background: var(--panel-2); }
 .ov-item.current { border-color: var(--red-soft); background: rgba(238,21,21,0.08); }
+.ov-item:active { border-color: var(--gold); }
 .ov-item .ov-num {
-  font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
   color: var(--dim);
   flex: 0 0 auto;
 }
@@ -839,10 +972,10 @@ pre .hl  { background: rgba(255,203,5,0.10); display: inline-block; width: 100%;
   padding: 1.8rem 2.2rem;
   max-width: 520px;
 }
-#help h3 { font-family: var(--mono); color: var(--gold); font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; }
+#help h3 { color: var(--gold); }
 #help dl { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 1.2rem; margin: 1rem 0 0; }
-#help dt { font-family: var(--mono); font-size: 0.8rem; color: var(--text); }
-#help dd { margin: 0; font-size: 0.86rem; color: var(--muted); }
+#help dt { font-size: var(--text-sm); font-weight: 600; color: var(--text); }
+#help dd { margin: 0; font-size: var(--text-sm); color: var(--muted); }
 
 kbd {
   font-family: var(--mono);

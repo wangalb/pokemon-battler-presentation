@@ -73,7 +73,7 @@
     <p style="color:var(--muted); margin-bottom:0">
       "Who would win?" is a question every Pokémon fan has argued about and nobody can settle,
       because playing it out means owning the games and grinding the levels. We made the argument
-      answerable in about fifteen seconds — and then made it repeatable eight Pokémon at a time.
+      answerable in about fifteen seconds, and then made it repeatable eight Pokémon at a time.
     </p>
   </div>
 
@@ -94,7 +94,7 @@
 
   <blockquote class="quote">
     A user signs in, browses every Pokémon and saves favourites to a personal library, optionally
-    invents a Pokémon of their own, then puts any two of them into a turn-based battle — or seeds
+    invents a Pokémon of their own, then puts any two of them into a turn-based battle, or seeds
     eight into a knockout bracket and watches it play down to a champion.
   </blockquote>
 
@@ -120,15 +120,15 @@
         <ul class="tight" style="color:var(--muted); margin-bottom:0">
           <li>Status conditions, stat stages and move-specific effects</li>
           <li>Levels, EVs, IVs, abilities and held items</li>
-          <li>Catching Pokémon — every battle is trainer versus trainer</li>
+          <li>Catching Pokémon: every battle is trainer versus trainer</li>
         </ul>
       </div>
       <div class="card">
         <h3 style="color:var(--gold)">Note the absence</h3>
         <p style="color:var(--muted); margin-bottom:0">
-          Nothing on this slide says <em>how</em>. No classes, no endpoints, no frameworks. If you
-          have never written a line of code, you still know exactly what the app does — that is the
-          bar we were aiming at.
+          Nothing on this slide says <em>how</em> it works: there are no classes on it, no endpoints
+          and no frameworks. If you have never written a line of code, you still know exactly what
+          the app does, and that is the bar we were aiming at.
         </p>
       </div>
     </div>
@@ -321,7 +321,7 @@
         <h3>What the use case does</h3>
         <ul class="tight" style="margin-bottom:0">
           <li>Sign up, sign in, or continue as a guest</li>
-          <li>Four roles — <code>USER</code>, <code>TRAINER</code>, <code>ADMIN</code>, <code>DEV</code> — with elevated ones behind invite codes</li>
+          <li>Four roles — <code>USER</code>, <code>TRAINER</code>, <code>ADMIN</code>, <code>DEV</code>, with elevated ones behind invite codes</li>
           <li>The main menu shows only the panels your role can reach</li>
           <li>Admins can soft-delete a user, and restore them for 60 days</li>
           <li>Passwords hashed with PBKDF2, 100,000 iterations, per-user salt</li>
@@ -351,7 +351,7 @@
           </div>
         </div>
       </div>
-      <p class="media-caption">Before and after views — required by the individual rubric.</p>
+      <p class="media-caption">Before and after views, required by the individual rubric.</p>
     </div>
   </div>
 
@@ -359,7 +359,7 @@
     <ul>
       <li><strong>Do not read the slide.</strong> Reading from notes caps this at 3/5 on Verbal Presentation.</li>
       <li>Land the moment the menu changes shape: same screen, different role, different panels.</li>
-      <li>Have the invite-code path ready — it is the detail that shows this is more than a form.</li>
+      <li>Have the invite-code path ready; it is the detail that shows this is more than a form.</li>
     </ul>
   </div>
 </section>
@@ -501,13 +501,13 @@
           </div>
         </div>
       </div>
-      <p class="media-caption">Before and after views — required by the individual rubric.</p>
+      <p class="media-caption">Before and after views, required by the individual rubric.</p>
     </div>
   </div>
 
   <div class="notes-source">
     <ul>
-      <li>Filter by type live — it is the fastest way to show the data is real, not a fixture.</li>
+      <li>Filter by type live; it is the fastest way to show the data is real, not a fixture.</li>
       <li>Mention the retro GBA styling briefly; the rubric rewards visuals, but don't dwell.</li>
       <li>Hand off to Edison by asking "so where does all this data actually come from?"</li>
     </ul>
@@ -545,7 +545,7 @@
         <h3>Why this matters for the whole team</h3>
         <p style="margin-bottom:0">
           <code>App.tsx</code> is the composition root: it constructs the HTTP implementation and
-          injects it. Tests hand the same use cases a stub instead — which is why
+          injects it. Tests hand the same use cases a stub instead, which is why
           <strong>311 frontend tests run with no server</strong>.
         </p>
       </div>
@@ -584,7 +584,7 @@
 
   <div class="notes-source">
     <ul>
-      <li>This is our strongest Clean Architecture evidence on the frontend — most teams treat React as
+      <li>This is our strongest Clean Architecture evidence on the frontend: most teams treat React as
         exempt from the Dependency Rule. We didn't.</li>
       <li>The comment at the top of the file was written before the implementation, not after.</li>
     </ul>
@@ -597,11 +597,11 @@
   <p class="eyebrow">User story 3 of 6</p>
   <h2>Real stats for 1,300+ Pokémon, fetched once</h2>
 
-  <blockquote class="quote">"As a user, I want battles to use the real stats of every Pokémon — not numbers we made up."</blockquote>
+  <blockquote class="quote">"As a user, I want battles to use the real stats of every Pokémon, not numbers we made up."</blockquote>
 
   <div class="cols side">
     <div class="stack">
-      <div class="card accent-cyan" style="border-left:3px solid var(--cyan)">
+      <div class="card accent-cyan">
         <h3>What the use case does</h3>
         <ul class="tight" style="margin-bottom:0">
           <li>Pages the PokéAPI catalog with validated <code>limit</code> and <code>offset</code></li>
@@ -634,7 +634,7 @@
           </div>
         </div>
       </div>
-      <p class="media-caption">Before and after views — required by the individual rubric.</p>
+      <p class="media-caption">Before and after views, required by the individual rubric.</p>
     </div>
   </div>
 
@@ -722,7 +722,7 @@
         <p style="margin-bottom:0">
           There is no god-object <code>PokeApiService</code>. There are three narrow interfaces —
           <code>ListPokemonDataAccessInterface</code>, <code>LoadPokemonDataAccessInterface</code>,
-          <code>LoadMoveDataAccessInterface</code> — and one class quietly implements all of them.
+          <code>LoadMoveDataAccessInterface</code>, and one class quietly implements all of them.
           Each use case depends only on the method it actually calls.
         </p>
       </div>
@@ -754,7 +754,7 @@
         <h3>What the use case does</h3>
         <ul class="tight" style="margin-bottom:0">
           <li>Name it, set HP, weight, attack, defense and speed</li>
-          <li>Pick real moves from the move catalog — not free-text strings</li>
+          <li>Pick real moves from the move catalog, not free-text strings</li>
           <li>Upload artwork, stored through an <code>ImageRepository</code></li>
           <li>Rejects a blank name or a non-positive stat, with the reason</li>
           <li>On success it lands in your library automatically, ready to battle</li>
@@ -784,7 +784,7 @@
           </div>
         </div>
       </div>
-      <p class="media-caption">Before and after views — required by the individual rubric.</p>
+      <p class="media-caption">Before and after views, required by the individual rubric.</p>
     </div>
   </div>
 
@@ -792,7 +792,7 @@
     <ul>
       <li>Best demo beat: create it, then <strong>immediately take it into a battle</strong>. That
         proves it is a real domain entity, not a row in a list.</li>
-      <li>Show one rejection too — a blank name — so validation is visible, not claimed.</li>
+      <li>Show one rejection too, a blank name, so validation is visible, not claimed.</li>
     </ul>
   </div>
 </section>
@@ -874,7 +874,7 @@
       <div class="card accent-green">
         <h3>Why the highlighted call is the interesting one</h3>
         <p style="margin-bottom:0">
-          Creating a Pokémon also puts it in your library — but this interactor does not touch the
+          Creating a Pokémon also puts it in your library, but this interactor does not touch the
           library store. It depends on <code>AddToLibraryInputBoundary</code>, Yiming's use case, as an
           <em>interface</em>. Two features composed with zero coupling between their implementations.
         </p>
@@ -884,7 +884,7 @@
 
   <div class="notes-source">
     <ul>
-      <li>Lead with the composition point — it is the most sophisticated thing on this slide and it is
+      <li>Lead with the composition point; it is the most sophisticated thing on this slide and it is
         genuine Clean Architecture, not decoration.</li>
       <li>Presenter is a real output boundary: the interactor returns <code>void</code> and pushes
         through <code>prepareSuccessView</code> / <code>prepareFailView</code>. Name that pattern.</li>
@@ -910,7 +910,7 @@
           <li>Choose a move; speed decides who strikes first, with a coin flip on a tie</li>
           <li>Damage = <code>floor(power × atk / def × STAB × type × crit)</code>, over the full 18-type chart</li>
           <li>Accuracy rolls, and a 1-in-24 critical hit at 1.5×</li>
-          <li>Use an item, or switch a Pokémon — both cost you the turn</li>
+          <li>Use an item, or switch a Pokémon; both cost you the turn</li>
           <li>A faint forces a switch, and that one is free — the knockout already cost the turn</li>
           <li>You lose only when your <em>whole party</em> is down</li>
         </ul>
@@ -940,7 +940,7 @@
           </div>
         </div>
       </div>
-      <p class="media-caption">Before and after views — required by the individual rubric.</p>
+      <p class="media-caption">Before and after views, required by the individual rubric.</p>
     </div>
   </div>
 
@@ -1069,7 +1069,7 @@
       <div class="card accent-green">
         <h3>What the use case does</h3>
         <ul class="tight" style="margin-bottom:0">
-          <li>Place entrants into bracket order by hand — or leave slots open and have them filled at random</li>
+          <li>Place entrants into bracket order by hand, or leave slots open and have them filled at random</li>
           <li>Four quarterfinals, two semifinals, one final, in a 4-2-1 knockout</li>
           <li>Every match in a round is simulated <strong>in parallel</strong>; the round records only when all of them finish</li>
           <li>Each match is a fresh <code>Battle</code>, so HP resets between rounds</li>
@@ -1101,7 +1101,7 @@
           </div>
         </div>
       </div>
-      <p class="media-caption">Before and after views — required by the individual rubric.</p>
+      <p class="media-caption">Before and after views, required by the individual rubric.</p>
     </div>
   </div>
 
@@ -1233,7 +1233,7 @@
 
   <div class="cols two">
     <div class="stack">
-      <div class="card accent-cyan" style="border-left:3px solid var(--cyan)">
+      <div class="card accent-cyan">
         <h3>The two endpoints doing the work</h3>
         <table style="margin-top:0.5rem">
           <thead><tr><th>Request</th><th>What we take from it</th></tr></thead>
@@ -1305,7 +1305,7 @@
     <ul>
       <li>The rubric's top band wants <strong>two specific endpoints named on a slide</strong>. We name
         three, with the exact fields we consume. Read at least two aloud.</li>
-      <li>Volunteering the debt is worth more than hiding it — it is two greps away and it contradicts
+      <li>Volunteering the debt is worth more than hiding it; it is two greps away and it contradicts
         our own <code>backend/README.md</code>. Owning it reads as judgment.</li>
     </ul>
   </div>
@@ -1340,7 +1340,7 @@ grep -rn <span class="str">"import data_access"</span> backend/src/main/java/use
 
 <span class="cm"># frontend use cases never import an adapter</span>
 grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases</code></pre>
-        <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted); font-size:0.88rem">
+        <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted); font-size:var(--text-sm)">
           All three return nothing. That is the evidence.
         </p>
       </div>
@@ -1373,7 +1373,7 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
       <div class="card accent-gold">
         <h3>Violations we will defend</h3>
         <ul class="tight" style="margin-bottom:0">
-          <li><strong>Auth and library exist twice</strong> — a tested Java implementation, and a
+          <li><strong>Auth and library exist twice</strong>: a tested Java implementation, and a
             <code>localStorage</code> mirror the UI actually uses. The mirror was the seam that let the
             UI ship before the endpoints did. Switching over touches
             <code>services/auth.ts</code> and <code>services/library.ts</code> and nothing above them.</li>
@@ -1410,7 +1410,7 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
       <tr>
         <td><strong style="color:var(--green)">O</strong>pen/closed</td>
         <td><code>TournamentMatchRunner</code>, <code>OpponentMoveSelector</code></td>
-        <td>A new match policy or a smarter AI is a new class. No existing file is edited.</td>
+        <td>A new match policy or a smarter AI arrives as a new class, without editing any existing file.</td>
       </tr>
       <tr>
         <td><strong style="color:var(--blue)">L</strong>iskov substitution</td>
@@ -1420,7 +1420,7 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
       <tr>
         <td><strong style="color:var(--purple)">I</strong>nterface segregation</td>
         <td><code>ListPokemonDataAccessInterface</code>, <code>LoadPokemonDataAccessInterface</code>, <code>LoadMoveDataAccessInterface</code> — three narrow interfaces, one implementation</td>
-        <td>No use case depends on a method it never calls. No god-object <code>PokeApiService</code>.</td>
+        <td>Each use case depends only on the methods it actually calls, so there is no god-object <code>PokeApiService</code>.</td>
       </tr>
       <tr>
         <td><strong style="color:var(--cyan)">D</strong>ependency inversion</td>
@@ -1452,31 +1452,31 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
 <!-- ================================================ 21. DESIGN PATTERNS -->
 <section class="slide" data-section="Design patterns">
   <p class="eyebrow">Overall design</p>
-  <h2>Patterns we implemented — and why each one</h2>
+  <h2>Patterns we implemented, and why each one</h2>
 
   <div class="cols three">
     <div class="card accent-green">
       <h3>Strategy</h3>
-      <p style="font-size:0.9rem"><code>OpponentMoveSelector</code> · <code>TournamentMatchRunner</code></p>
-      <p style="color:var(--muted); font-size:0.9rem; margin-bottom:0">
+      <p style="font-size:var(--text-sm)"><code>OpponentMoveSelector</code> · <code>TournamentMatchRunner</code></p>
+      <p style="color:var(--muted); font-size:var(--text-sm); margin-bottom:0">
         Move choice and match policy are pluggable. A test injects a fixed selector; production injects
         the random one. Swapping in a smarter AI never touches the interactor.
       </p>
     </div>
 
-    <div class="card accent-cyan" style="border-left:3px solid var(--cyan)">
+    <div class="card accent-cyan">
       <h3>Caching proxy</h3>
-      <p style="font-size:0.9rem"><code>CachedPokeApiDataAccess</code> wraps <code>PokeApiClient</code></p>
-      <p style="color:var(--muted); font-size:0.9rem; margin-bottom:0">
+      <p style="font-size:var(--text-sm)"><code>CachedPokeApiDataAccess</code> wraps <code>PokeApiClient</code></p>
+      <p style="color:var(--muted); font-size:var(--text-sm); margin-bottom:0">
         Same interface, added behaviour: read disk first, fall through to the network, write back. No
-        caller knows the cache exists — which is exactly the point of a proxy.
+        caller knows the cache exists, which is exactly the point of a proxy.
       </p>
     </div>
 
     <div class="card accent-gold">
       <h3>Factory method</h3>
-      <p style="font-size:0.9rem"><code>Battle.resume(...)</code></p>
-      <p style="color:var(--muted); font-size:0.9rem; margin-bottom:0">
+      <p style="font-size:var(--text-sm)"><code>Battle.resume(...)</code></p>
+      <p style="color:var(--muted); font-size:var(--text-sm); margin-bottom:0">
         Rebuilds an in-progress battle from a payload and <em>refuses states that could not have
         happened</em> — HP above maximum, negative HP, an active index outside the party. A constructor
         could not reject; a factory can.
@@ -1485,8 +1485,8 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
 
     <div class="card accent-blue">
       <h3>Presenter + View Model</h3>
-      <p style="font-size:0.9rem"><code>TournamentRoundPresenter</code> → <code>TournamentRoundViewModel</code></p>
-      <p style="color:var(--muted); font-size:0.9rem; margin-bottom:0">
+      <p style="font-size:var(--text-sm)"><code>TournamentRoundPresenter</code> → <code>TournamentRoundViewModel</code></p>
+      <p style="color:var(--muted); font-size:var(--text-sm); margin-bottom:0">
         The interactor returns <code>void</code> and pushes output through a boundary. Formatting
         decisions live outside the use case, where they belong.
       </p>
@@ -1494,19 +1494,19 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
 
     <div class="card accent-purple">
       <h3>Ports and adapters</h3>
-      <p style="font-size:0.9rem"><code>usecases/ports.ts</code> + <code>App.tsx</code> as composition root</p>
-      <p style="color:var(--muted); font-size:0.9rem; margin-bottom:0">
-        The pattern applied to a React app, which is unusual — most frontends let components call
+      <p style="font-size:var(--text-sm)"><code>usecases/ports.ts</code> + <code>App.tsx</code> as composition root</p>
+      <p style="color:var(--muted); font-size:var(--text-sm); margin-bottom:0">
+        The pattern applied to a React app, which is unusual, most frontends let components call
         <code>fetch</code> directly. Ours cannot: the use case only sees a <code>BattleGateway</code>.
       </p>
     </div>
 
     <div class="card accent-red">
       <h3>Immutable value object</h3>
-      <p style="font-size:0.9rem"><code>Bag</code></p>
-      <p style="color:var(--muted); font-size:0.9rem; margin-bottom:0">
+      <p style="font-size:var(--text-sm)"><code>Bag</code></p>
+      <p style="color:var(--muted); font-size:var(--text-sm); margin-bottom:0">
         Consuming an item returns a <em>new</em> bag. A rejected turn can never leave a trainer short of
-        a Potion — a rules bug cannot become a data-loss bug.
+        a Potion, a rules bug cannot become a data-loss bug.
       </p>
     </div>
   </div>
@@ -1550,7 +1550,7 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
         <h3>What is covered</h3>
         <ul class="tight" style="margin-bottom:0">
           <li><strong>Entities</strong> — damage, healing caps, type chart, party membership, win condition, bracket progression</li>
-          <li><strong>Interactors</strong> — every use case slice, driven by fake gateways</li>
+          <li><strong>Interactors</strong>, every use case slice, driven by fake gateways</li>
           <li><strong>Adapters</strong> — JSON mappers in both directions; controllers via MockMvc</li>
           <li><strong>React</strong> — components, hooks, and use cases against a stub gateway</li>
         </ul>
@@ -1571,7 +1571,7 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
       <div class="card accent-red">
         <h3>What is <em>not</em> tested, and why</h3>
         <ul class="tight" style="margin-bottom:0">
-          <li><strong>The <code>localStorage</code> auth/library mirror against the real Java endpoints</strong> — that integration does not exist yet, so there is nothing to test. It is the top item on the next-steps list.</li>
+          <li><strong>The <code>localStorage</code> auth/library mirror against the real Java endpoints</strong>, that integration does not exist yet, so there is nothing to test. It is the top item on the next-steps list.</li>
           <li><strong>Live PokéAPI calls.</strong> Tests run against recorded JSON on purpose: a suite that fails because someone's Wi-Fi dropped is a suite people learn to ignore.</li>
           <li><strong>Visual regression.</strong> Components are asserted on behaviour and accessible roles, not on pixels.</li>
         </ul>
@@ -1592,7 +1592,7 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
   <div class="notes-source">
     <ul>
       <li><strong>This slide is not finished.</strong> The Testing rubric's 3/5+ bands all require
-        <em>evidence of code coverage</em> — a screenshot of a coverage report, not a test count.
+        <em>evidence of code coverage</em>, a screenshot of a coverage report, not a test count.
         Run IntelliJ's coverage tool or add JaCoCo, screenshot it, and drop it in.</li>
       <li>Target numbers: &gt;70% interactor line coverage for Excellent, &gt;90% for Exceptional, with
         &gt;50%/&gt;70% overall.</li>
@@ -1613,7 +1613,7 @@ grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases
         <p style="margin-bottom:0.6rem; color:var(--muted)">
           37+ pull requests, each reviewed by someone who did not write it. Branches are named by owner
           and feature — <code>dorothy/backend-tournament</code>, <code>yiming/library-api</code>,
-          <code>albert/battle-message-and-plan</code> — so history reads as a list of slices.
+          <code>albert/battle-message-and-plan</code>, so history reads as a list of slices.
         </p>
         <p style="margin-bottom:0; color:var(--muted)">
           Nobody pushed to <code>main</code> directly.
@@ -1637,7 +1637,7 @@ backend:   mvn -B test</code></pre>
         <h3>A pull request worth showing</h3>
         <p style="margin-bottom:0.5rem"><code>#37 — fix(battle): keep the resolver's status message out of the arena</code></p>
         <p style="color:var(--muted); margin-bottom:0">
-          The arena was printing <em>"Turn resolved. Arceus used Judgment!"</em> — an internal status
+          The arena was printing <em>"Turn resolved. Arceus used Judgment!"</em>, an internal status
           string leaking into player-facing copy. The fix narrates a resolved <strong>move</strong> from
           its events alone, while a <strong>switch</strong> or an <strong>item</strong> keeps its message,
           because "Go! Garchomp!" and "Pikachu recovered 20 HP!" genuinely <em>are</em> the copy. Pinned
@@ -1709,7 +1709,7 @@ App.tsx       <span class="cm">composition root</span></code></pre>
       <div class="card accent-green">
         <h3>Why it is organised this way</h3>
         <p style="margin-bottom:0.5rem; color:var(--muted)">
-          We split the work <strong>by vertical slice, not by layer</strong> — each person carried one
+          We split the work <strong>by vertical slice, not by layer</strong>, each person carried one
           feature from entity to screen. Packages are named after use cases because that is how the work
           was actually divided, and it means a feature's files sit together instead of being scattered
           across four layer folders.
@@ -1757,7 +1757,7 @@ App.tsx       <span class="cm">composition root</span></code></pre>
         <ul class="tight" style="margin-bottom:0">
           <li><strong>Perceptible information</strong> — HP is a number <em>and</em> a bar <em>and</em> a
             colour; type effectiveness is stated in words ("It's super effective!"), never colour alone</li>
-          <li><strong>Tolerance for error</strong> — an item that would do nothing is
+          <li><strong>Tolerance for error</strong>, an item that would do nothing is
             <em>refused rather than consumed</em>, so a mistaken tap costs neither the item nor the turn</li>
           <li><strong>Simple and intuitive use</strong> — the main menu shows only what your role can
             reach, so there are no dead ends to discover</li>
@@ -1769,8 +1769,8 @@ App.tsx       <span class="cm">composition root</span></code></pre>
         <h3>Target users</h3>
         <p style="margin-bottom:0; color:var(--muted)">
           Pokémon fans aged roughly 10 and up who want to settle a matchup argument, and who have a
-          desktop browser. No prior knowledge of type charts is assumed — the app explains the outcome
-          of every hit in plain words.
+          desktop browser. It assumes no prior knowledge of type charts, because the app explains the
+          outcome of every hit in plain words.
         </p>
       </div>
     </div>
@@ -1781,7 +1781,7 @@ App.tsx       <span class="cm">composition root</span></code></pre>
         <p style="margin-bottom:0.5rem; color:var(--muted)">
           <strong>A player with low vision or who relies on a screen reader.</strong> Battle state is
           conveyed largely through sprites, HP bars and colour. Sprites carry no meaningful alt text, and
-          a turn's outcome updates a message box that is not announced as a live region — so a screen
+          a turn's outcome updates a message box that is not announced as a live region, so a screen
           reader user would know a turn happened but not what it did.
         </p>
         <p style="margin-bottom:0; color:var(--muted)">
@@ -1876,7 +1876,7 @@ npm run dev</code></pre>
         <p style="margin-bottom:0; color:var(--muted)">
           Run this sequence on a <strong>fresh clone</strong>, on a machine with Maven, and screenshot the
           server starting. The rubric's top band wants a run process that has actually been tested from
-          scratch — and the backend's boot has broken once before, when a feature landed without its
+          scratch, and the backend's boot has broken once before, when a feature landed without its
           <code>@Configuration</code>.
         </p>
       </div>
@@ -1888,7 +1888,7 @@ npm run dev</code></pre>
       <li>Show the <strong>README</strong> on screen while saying this — the rubric explicitly wants setup
         instructions <em>shown during the presentation</em>.</li>
       <li>5/5 wants "tested on a fresh checkout". Do it once, for real, and then you can say it.</li>
-      <li>Consider <code>mvn package</code> and demoing <code>java -jar</code> — a packaged artifact moves
+      <li>Consider <code>mvn package</code> and demoing <code>java -jar</code>, a packaged artifact moves
         this category from Good to Exceptional.</li>
     </ul>
   </div>
@@ -1908,8 +1908,8 @@ npm run dev</code></pre>
           modelled, the effect is out of scope, and refusing costs the player neither the item nor the turn</li>
         <li>Damage has no random roll and no level scaling. That simplification was in the blueprint from
           day one</li>
-        <li>Opponent AI picks a legal move at random. No strategy</li>
-        <li>Poké Balls are refused — a trainer's Pokémon cannot be caught</li>
+        <li>Opponent AI picks a legal move at random, with no strategy behind the choice</li>
+        <li>Poké Balls are refused, a trainer's Pokémon cannot be caught</li>
         <li>The opponent party is always one Pokémon. <code>Battle</code> supports more; no caller sends more</li>
         <li>PP is tracked by the client; the backend does not model it</li>
       </ul>
@@ -1931,7 +1931,7 @@ npm run dev</code></pre>
         <h3>Why that order</h3>
         <p style="margin-bottom:0; color:var(--muted)">
           The first two <em>delete</em> duplicate code. The third <em>adds</em> new surface. Paying down
-          duplication before adding features is the whole reason the seams exist — and each of those three
+          duplication before adding features is the whole reason the seams exist, and each of those three
           is confined to files we can name.
         </p>
       </div>
@@ -1942,7 +1942,7 @@ npm run dev</code></pre>
     <ul>
       <li>Say all of this <strong>ourselves, in our framing</strong>, before Q&amp;A does it for us. A
         limitation you volunteer reads as judgment; the same one extracted from you reads as a gap.</li>
-      <li>The refused-item design is genuinely good — it is a deliberate choice, not a missing feature.
+      <li>The refused-item design is genuinely good; it is a deliberate choice, not a missing feature.
         Frame it that way.</li>
     </ul>
   </div>
@@ -1957,7 +1957,7 @@ npm run dev</code></pre>
     <div class="card accent-green">
       <h3>The full path a user can walk right now</h3>
       <ul class="check" style="margin-bottom:0">
-        <li>Sign up, log in, or continue as a guest — with roles gating what you see</li>
+        <li>Sign up, log in, or continue as a guest, with roles gating what you see</li>
         <li>Browse 1,300+ Pokémon with their real stats and save favourites to a library</li>
         <li>Invent a Pokémon of your own and take it straight into a fight</li>
         <li>Fight a turn-based battle against the Java engine — moves, items, switching, fainting</li>
@@ -1974,7 +1974,7 @@ npm run dev</code></pre>
       </div>
 
       <div class="card accent-gold">
-        <p style="margin:0; font-size:1.02rem">
+        <p style="margin:0; font-size:var(--text-base)">
           Six people, six distinct slices, one dependency rule — enforced in both a Java backend and a
           React frontend, and provable with three <code>grep</code> commands.
         </p>
@@ -1989,7 +1989,7 @@ npm run dev</code></pre>
   <div class="notes-source">
     <ul>
       <li>One slide, 30 seconds, then straight into Q&amp;A. Do not summarise the whole deck again.</li>
-      <li>End on the last line — it is the sentence you want the graders holding when they score.</li>
+      <li>End on the last line; it is the sentence you want the graders holding when they score.</li>
     </ul>
   </div>
 </section>
@@ -2017,7 +2017,7 @@ npm run dev</code></pre>
 
     <details class="qa"><summary>The frontend has its own <code>domain/</code> and <code>usecases/</code>. Is that duplicated logic?</summary>
       <div class="answer"><p>Partly, and deliberately. The frontend checks the rules a player can <em>already see</em> —
-      whose Pokémon has fainted, what is in the bag — so a pointless tap costs no round trip. The backend
+      whose Pokémon has fainted, what is in the bag, so a pointless tap costs no round trip. The backend
       enforces the same rules and is the authority. If they disagree, the backend wins.</p></div></details>
 
     <details class="qa"><summary>Why does the frontend call PokéAPI directly when you built <code>GET /api/pokemon</code>?</summary>
@@ -2036,7 +2036,7 @@ npm run dev</code></pre>
     <details class="qa"><summary>Is a stateless battle endpoint not just pushing state onto the client?</summary>
       <div class="answer"><p>Yes, and that was the trade. The cost is that a refresh loses the battle. The benefit is that
       the API can restart mid-battle, and the tournament runs many battles without the server tracking
-      any of them — which is why the tournament use case needed no new battle state at all.</p></div></details>
+      any of them, which is why the tournament use case needed no new battle state at all.</p></div></details>
 
     <p class="qa-section-title">Data and persistence</p>
 
@@ -2071,8 +2071,8 @@ npm run dev</code></pre>
       Pokémon.</p></div></details>
 
     <details class="qa"><summary>Why not use a database?</summary>
-      <div class="answer"><p>Nothing we store is relational or concurrent. All data access sits behind an interface owned
-      by a use case, so swapping in JDBC is one new class and zero changes to any use case.</p></div></details>
+      <div class="answer"><p>None of what we store is relational or concurrent, and all data access sits behind an
+      interface owned by a use case, so swapping in JDBC is one new class and zero changes to any use case.</p></div></details>
 
     <details class="qa"><summary>Are passwords stored safely?</summary>
       <div class="answer"><p>On the Java side: PBKDF2, 100,000 iterations, a per-user salt, and it is tested. The
@@ -2085,7 +2085,7 @@ npm run dev</code></pre>
       <div class="answer"><p>We inject <code>Random</code>, <code>OpponentMoveSelector</code> and the tournament
       <code>Executor</code> rather than constructing them inside interactors, so a test can pin the crit
       roll, the accuracy roll, the opponent's choice and the thread of execution. Every turn test is
-      deterministic — that is the main reason the injection exists.</p></div></details>
+      deterministic, that is the main reason the injection exists.</p></div></details>
 
     <details class="qa"><summary>What is your coverage?</summary>
       <div class="answer"><p>311 frontend tests across 42 files, and 223 Java test methods across 38 files — covering
@@ -2111,13 +2111,13 @@ npm run dev</code></pre>
 
     <details class="qa"><summary>Which design pattern are you proudest of?</summary>
       <div class="answer"><p>The caching proxy. <code>CachedPokeApiDataAccess</code> implements the same interfaces as the
-      raw client and adds disk caching underneath, so no caller — not the interactor, not the controller —
+      raw client and adds disk caching underneath, so no caller, not the interactor, not the controller —
       knows a cache exists. It also happens to be what makes the demo survive a bad connection.</p></div></details>
 
     <p class="qa-section-title">Process and scope</p>
 
     <details class="qa"><summary>How did you split the work?</summary>
-      <div class="answer"><p>By vertical slice, not by layer — each person took a feature from entity all the way to
+      <div class="answer"><p>By vertical slice, not by layer, each person took a feature from entity all the way to
       screen. That is why the packages are named after use cases rather than layers, and why nobody was
       ever blocked waiting on somebody else's layer.</p></div></details>
 
@@ -2130,7 +2130,7 @@ npm run dev</code></pre>
     <details class="qa"><summary>Why did you cut the sharing user story?</summary>
       <div class="answer"><p>Sharing a result with friends needs hosting, public URLs and a permissions story, and buys
       almost no design depth in return. We cut it early to put that time into the tournament runner and the
-      role system instead — both of which had real design decisions in them.</p></div></details>
+      role system instead, both of which had real design decisions in them.</p></div></details>
 
     <details class="qa"><summary>If you had two more weeks, what would you do?</summary>
       <div class="answer"><p>Point the Pokédex at our own endpoint and delete the direct PokéAPI calls; wire the UI to the

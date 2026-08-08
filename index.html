@@ -150,7 +150,7 @@
   <p class="eyebrow">Scope</p>
   <h2>Eight user stories, six people</h2>
 
-  <table>
+  <table class="dense">
     <thead>
       <tr><th style="width:44%">User story</th><th style="width:16%">Owner</th><th style="width:12%">Status</th><th>What shipped</th></tr>
     </thead>
@@ -409,6 +409,15 @@
         }
     }
 }</code></pre>
+
+      <div class="card accent-green" style="margin-top:0.8rem">
+        <h3>The line that matters</h3>
+        <p style="margin-bottom:0">
+          The interactor never asks <em>"is this user an admin?"</em>. It asks a
+          <code>LibraryAccessPolicy</code> to <code>decide</code>. Change who may edit whose library
+          and you change one class — no screen, no controller, no interactor.
+        </p>
+      </div>
     </div>
 
     <div class="stack">
@@ -433,15 +442,6 @@
           <div class="ca-arrow">↑</div>
           <div class="ca-node l-data"><span class="n-layer">Implements</span><span class="n-name">FileLibraryDataAccess<br>FileUserDataAccess</span></div>
         </div>
-      </div>
-
-      <div class="card accent-green">
-        <h3>The line that matters</h3>
-        <p style="margin-bottom:0">
-          The interactor never asks <em>"is this user an admin?"</em>. It asks a
-          <code>LibraryAccessPolicy</code> to <code>decide</code>. Change who may edit whose library
-          and you change one class — no screen, no controller, no interactor.
-        </p>
       </div>
     </div>
   </div>
@@ -545,6 +545,17 @@
   <span class="kw">return</span> entries.<span class="fn">filter</span>((s) =&gt; s.name.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(trimmed));
 }
 <span class="hl"><span class="cm">// the whole pipeline: visibleSpecies = filterByTypes(searchSpecies(…), types)</span></span></code></pre>
+
+      <div class="card accent-green" style="margin-top:0.8rem">
+        <h3>What purity buys, measurably</h3>
+        <p style="margin-bottom:0">
+          <strong>98 tests across the slice, layered like the code.</strong> The inner two layers carry
+          <strong>35 tests with zero mocks</strong> — the zero-padding branch on the left is the kind
+          of edge case that only gets pinned when testing costs nothing. The hook's 21 tests mock
+          exactly <em>one seam</em> — the service module — and the views' 42 tests assert behaviour,
+          never pixels.
+        </p>
+      </div>
     </div>
 
     <div class="stack">
@@ -565,25 +576,13 @@
         </div>
       </div>
 
-      <div class="card accent-green">
-        <h3>What purity buys, measurably</h3>
-        <p style="margin-bottom:0">
-          <strong>98 tests across the slice, layered like the code.</strong> The inner two layers carry
-          <strong>35 tests with zero mocks</strong> — call the function, assert the value; the
-          zero-padding branch on the left is the kind of edge case that only gets pinned when testing
-          costs nothing. The hook's 21 tests mock exactly <em>one seam</em> — the service module — and
-          the views' 42 tests assert behaviour, never pixels.
-        </p>
-      </div>
-
       <div class="card accent-purple">
         <h3>Three of the five SOLID letters, in this one file</h3>
         <ul class="tight" style="margin-bottom:0">
           <li><strong>S</strong> — <code>searchSpecies</code> knows nothing about React, fetching, or
             why anyone is browsing. Its one reason to change: what "matching" means.</li>
           <li><strong>L</strong> — every function is generic over <code>T extends SpeciesSummary</code>,
-            so the full dex page substitutes wherever a summary is expected. One implementation of
-            search and filter serves both tiers.</li>
+            so the full dex page substitutes wherever a summary is expected.</li>
           <li><strong>I</strong> — <code>SpeciesSummary</code> is interface segregation as an entity:
             exactly the four fields a grid tile renders, so browsing never depends on the
             ten-request detail page.</li>
@@ -629,9 +628,8 @@
       <div class="card accent-gold">
         <h3>Four layers, committed first</h3>
         <p style="margin-bottom:0.5rem; color:var(--muted)">
-          The first four frontend commits — July 11 to 14: scaffold, domain types, components, hook —
-          bootstrapped Vite + React 19 + TypeScript, oxlint and vitest, and the shape every later
-          slice moved into:
+          The first four frontend commits — scaffold, domain types, components, hook — bootstrapped
+          Vite + React 19 + TypeScript, oxlint and vitest, and the shape every later slice moved into:
         </p>
         <pre style="max-height:none"><code>domain/      <span class="cm">entities + pure rules   (innermost)</span>
 usecases/    <span class="cm">application logic, still pure</span>
@@ -639,8 +637,7 @@ hooks/       <span class="cm">interface adapters — React starts here</span>
 components/  <span class="cm">humble views            (outermost)</span></code></pre>
         <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
           Proven against <strong>mock battle data before any backend endpoint existed</strong> — the
-          layering was the plan, not a retrofit — with <code>App.tsx</code> as the composition root
-          from the first wiring commit.
+          layering was the plan, not a retrofit.
         </p>
       </div>
 
@@ -655,8 +652,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
           The battle side goes further — Albert's <code>usecases/ports.ts</code> declares a
           <code>BattleGateway</code> the services implement, injected in <code>App.tsx</code>. The dex
           hook calls its service <em>directly</em>, not through a port: the violation we name
-          ourselves on the Clean Architecture slide; the honest fix is a <code>PokedexGateway</code>
-          shaped like Albert's.
+          ourselves on the Clean Architecture slide.
         </p>
       </div>
     </div>
@@ -967,6 +963,15 @@ components/  <span class="cm">humble views            (outermost)</span></code><
                 <span class="str">"Pokemon created successfully"</span>, pokemon, <span class="kw">true</span>));
     }
 }</code></pre>
+
+      <div class="card accent-green" style="margin-top:0.8rem">
+        <h3>Why the highlighted call is the interesting one</h3>
+        <p style="margin-bottom:0">
+          Creating a Pokémon also puts it in your library, but this interactor does not touch the
+          library store. It depends on <code>AddToLibraryInputBoundary</code>, Yiming's use case, as an
+          <em>interface</em>. Two features composed with zero coupling between their implementations.
+        </p>
+      </div>
     </div>
 
     <div class="stack">
@@ -995,14 +1000,6 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         </div>
       </div>
 
-      <div class="card accent-green">
-        <h3>Why the highlighted call is the interesting one</h3>
-        <p style="margin-bottom:0">
-          Creating a Pokémon also puts it in your library, but this interactor does not touch the
-          library store. It depends on <code>AddToLibraryInputBoundary</code>, Yiming's use case, as an
-          <em>interface</em>. Two features composed with zero coupling between their implementations.
-        </p>
-      </div>
     </div>
   </div>
 
@@ -1127,6 +1124,16 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         <span class="kw">return new</span> <span class="typ">ResolveTurnOutputData</span>(<span class="kw">true</span>, <span class="kw">new</span> <span class="typ">TurnResult</span>(actions, battle), <span class="str">"Turn resolved."</span>);
     }
 }</code></pre>
+
+      <div class="card accent-gold" style="margin-top:0.8rem">
+        <h3>What injecting <code>Random</code> buys</h3>
+        <p style="margin-bottom:0">
+          A test pins the crit roll, the accuracy roll and the opponent's choice, so
+          <strong>every turn test is deterministic</strong>. Construct <code>Random</code> inside the
+          interactor and none of that is possible. This is the single decision the whole battle test
+          suite rests on.
+        </p>
+      </div>
     </div>
 
     <div class="stack">
@@ -1156,15 +1163,6 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         </div>
       </div>
 
-      <div class="card accent-gold">
-        <h3>What injecting <code>Random</code> buys</h3>
-        <p style="margin-bottom:0">
-          A test pins the crit roll, the accuracy roll and the opponent's choice, so
-          <strong>every turn test is deterministic</strong>. Construct <code>Random</code> inside the
-          interactor and none of that is possible. This is the single decision the whole battle test
-          suite rests on.
-        </p>
-      </div>
     </div>
   </div>
 
@@ -1290,6 +1288,15 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         <span class="kw">return</span> matchTasks.<span class="fn">stream</span>().<span class="fn">map</span>(<span class="typ">CompletableFuture</span>::<span class="fn">join</span>).<span class="fn">toList</span>();
     }
 }</code></pre>
+
+      <div class="card accent-blue" style="margin-top:0.8rem">
+        <h3>Open/closed, concretely</h3>
+        <p style="margin-bottom:0">
+          Want seeded moves, or a bracket that replays a human's recorded turns? Implement
+          <code>TournamentMatchRunner</code>. Bracket progression, persistence, presentation and the
+          interactor itself do not change by a single line.
+        </p>
+      </div>
     </div>
 
     <div class="stack">
@@ -1321,14 +1328,6 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         </div>
       </div>
 
-      <div class="card accent-blue">
-        <h3>Open/closed, concretely</h3>
-        <p style="margin-bottom:0">
-          Want seeded moves, or a bracket that replays a human's recorded turns? Implement
-          <code>TournamentMatchRunner</code>. Bracket progression, persistence, presentation and the
-          interactor itself do not change by a single line.
-        </p>
-      </div>
     </div>
   </div>
 
@@ -1466,8 +1465,7 @@ grep -rn <span class="str">"import data_access"</span> backend/src/main/java/use
 grep -rn <span class="str">"services/\|components/"</span> frontend/src/usecases</code></pre>
         <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted); font-size:var(--text-sm)">
           The first two return nothing. The third finds exactly one line — a <em>type-only</em> import
-          of <code>LibraryPokemon</code>, named and defended on the Pokédex code slide. No call ever
-          crosses the boundary.
+          of <code>LibraryPokemon</code>. No call ever crosses the boundary.
         </p>
       </div>
     </div>
@@ -2125,11 +2123,9 @@ npm run dev</code></pre>
 </section>
 
 <!-- =========================================================== 29. Q & A -->
-<section class="slide" data-section="Q &amp; A">
-  <p class="eyebrow">Questions</p>
-  <h2>Q&nbsp;&amp;&nbsp;A</h2>
-  <p class="lede">Click a question to reveal the answer. Say the first sentence, then stop and let them
-  ask for more.</p>
+<section class="slide" data-section="Q &amp; A — architecture &amp; data">
+  <p class="eyebrow">Questions · 1 of 2</p>
+  <h2>Q&nbsp;&amp;&nbsp;A — architecture and data</h2>
 
   <div class="qa-list">
 
@@ -2209,6 +2205,26 @@ npm run dev</code></pre>
       <code>localStorage</code> mirror matches those rules. Neither is a real auth system and we would not
       ship either one.</p></div></details>
 
+  </div>
+
+  <div class="notes-source">
+    <ul>
+      <li><strong>Everyone reads both Q&amp;A slides before presenting.</strong> Nobody should need notes
+        for the persistence question.</li>
+      <li>Answer with the first sentence and <strong>stop</strong>. Over-explaining an honest gap turns a
+        good answer into a bad one.</li>
+      <li>Route questions to the person who owns that slice — it shows the split was real.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================================== 30. Q & A cont. -->
+<section class="slide" data-section="Q &amp; A — testing, design &amp; process">
+  <p class="eyebrow">Questions · 2 of 2</p>
+  <h2>Q&nbsp;&amp;&nbsp;A — testing, design and process</h2>
+
+  <div class="qa-list">
+
     <p class="qa-section-title">Testing</p>
 
     <details class="qa"><summary>How do you test something random?</summary>
@@ -2271,8 +2287,8 @@ npm run dev</code></pre>
 
   <div class="notes-source">
     <ul>
-      <li><strong>Everyone reads this slide before presenting.</strong> Nobody should need notes for the
-        persistence question.</li>
+      <li><strong>Everyone reads both Q&amp;A slides before presenting.</strong> Nobody should need notes
+        for the persistence question.</li>
       <li>Answer with the first sentence and <strong>stop</strong>. Over-explaining an honest gap turns a
         good answer into a bad one.</li>
       <li>Route questions to the person who owns that slice — it shows the split was real.</li>

@@ -124,8 +124,13 @@ html, body {
     var(--room);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 17px;
-  line-height: 1.55;
+  /* The deck is composed at 17px against a 1440×900 window. Below that, the
+     root shrinks with the viewport (1.889vh = 17px at 900 tall, 1.328vw = 17px
+     at 1280 wide — the projector width the deck was sized against), so every
+     rem-derived measure scales together and a slide that fits at composition
+     size still fits on a 720p projector. */
+  font-size: min(17px, 1.889vh, 1.328vw);
+  line-height: 1.5;
   overflow: hidden;
   font-synthesis: none;
 }
@@ -147,7 +152,7 @@ html, body {
   inset: 1.8vh 1.4vw calc(48px + 2vh);
   display: none;
   flex-direction: column;
-  padding: 2.6vh 2.6vw 3vh;
+  padding: 2.2vh 2.4vw 2.4vh;
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--panel);
@@ -167,6 +172,11 @@ html, body {
   display: flex;
   animation: rise 240ms steps(5, jump-end);
 }
+
+/* Autofit: deck.js measures the active slide and, only when it would scroll,
+   dials --fit below 1 until the content fits the panel. zoom (not transform)
+   so the shrunken content re-wraps and keeps filling the panel's width. */
+.slide > * { zoom: var(--fit, 1); }
 
 @keyframes rise {
   from { opacity: 0; transform: translateY(12px); }
@@ -216,7 +226,7 @@ th,
 
 .eyebrow {
   color: var(--red);
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.6rem;
 }
 .eyebrow::before { content: "▶ "; }
 
@@ -236,7 +246,7 @@ th,
   font-weight: 700;
   font-size: clamp(var(--text-md), 2.5vw, var(--text-2xl));
   line-height: 1.08;
-  margin: 0 0 1.1rem;
+  margin: 0 0 0.9rem;
   letter-spacing: -0.025em;
   overflow-wrap: anywhere;
   min-width: 0;
@@ -254,17 +264,17 @@ th,
 
 .lede {
   font-size: var(--text-md);
-  line-height: 1.5;
+  line-height: 1.45;
   color: var(--muted);
   max-width: 62ch;
-  margin: 0 0 1.4rem;
+  margin: 0 0 1rem;
 }
 
 /* -------------------------------------------------------------------- layout */
 
 .cols {
   display: grid;
-  gap: 1.1rem;
+  gap: 1rem;
   align-items: start;
 }
 .cols.two   { grid-template-columns: 1fr 1fr; }
@@ -276,7 +286,7 @@ th,
   .cols.two, .cols.three, .cols.side, .cols.wide-left { grid-template-columns: 1fr; }
 }
 
-.stack > * + * { margin-top: 1rem; }
+.stack > * + * { margin-top: 0.8rem; }
 
 /* --------------------------------------------------------------------- cards */
 
@@ -286,14 +296,14 @@ th,
   background: var(--panel-2);
   border: 0.1875rem solid var(--line);
   border-radius: 0;
-  padding: 1rem 1.15rem;
+  padding: 0.85rem 1.05rem;
   box-shadow: 0.25rem 0.25rem 0 var(--drop);
 }
 
 /* Card accents: the colour coding is real (it maps cards to layers and to the
    roster), and it rides on the heading ink plus a strip of colour tucked under
    the top of the frame — a window's header tape, not a stripe down the edge. */
-.card[class*="accent-"] { padding-top: 1.3rem; }
+.card[class*="accent-"] { padding-top: 1.15rem; }
 .card[class*="accent-"] > h3 { color: var(--accent-ink); }
 .card[class*="accent-"] {
   box-shadow:
@@ -322,7 +332,7 @@ th,
   border-radius: 0;
   box-shadow: inset 0 0 0 0.125rem #ffffff, 0.25rem 0.25rem 0 var(--drop);
   padding: 0.75rem 1.1rem 0.75rem 2.3rem;
-  margin: 0 0 1.2rem;
+  margin: 0 0 1rem;
   max-width: 70ch;
   position: relative;
 }
@@ -339,8 +349,8 @@ th,
 
 /* --------------------------------------------------------------------- lists */
 
-ul, ol { margin: 0 0 0.9rem; padding-left: 1.15rem; }
-li { margin-bottom: 0.35rem; }
+ul, ol { margin: 0 0 0.8rem; padding-left: 1.15rem; }
+li { margin-bottom: 0.3rem; }
 li::marker { color: var(--red); }
 
 ul.tight li { margin-bottom: 0.2rem; }
@@ -366,7 +376,7 @@ table {
 
 th, td {
   text-align: left;
-  padding: 0.55rem 0.7rem;
+  padding: 0.45rem 0.65rem;
   border-bottom: 0.125rem solid var(--line-soft);
   vertical-align: top;
 }
@@ -378,6 +388,10 @@ th {
 
 /* Stat and ID columns line up on the decimal without mono doing it for them. */
 td { font-variant-numeric: tabular-nums; }
+
+/* The nine-row scope table is the one table that fights the panel for height. */
+table.dense { font-size: 0.88rem; }
+table.dense th, table.dense td { padding: 0.35rem 0.6rem; }
 
 tbody tr:hover { background: rgba(90, 74, 58, 0.07); }
 
@@ -457,7 +471,7 @@ pre code {
   padding: 0;
   color: #cdd9e5;
   font-size: 0.78rem;
-  line-height: 1.55;
+  line-height: 1.45;
   white-space: pre;
 }
 
@@ -490,7 +504,7 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
 
 .ca-node {
   flex: 1 1 auto;
-  min-width: 120px;
+  min-width: 7rem;
   background: var(--panel-2);
   border: 0.125rem solid var(--line);
   border-radius: 0;
@@ -546,7 +560,7 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
 
 .layer-row {
   display: grid;
-  grid-template-columns: 150px 1fr 1fr;
+  grid-template-columns: 9rem 1fr 1fr;
   gap: 0.6rem;
   align-items: center;
   background: var(--panel-2);
@@ -663,7 +677,7 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
   border: 0.1875rem solid var(--line);
   border-radius: 0;
   box-shadow: 0.25rem 0.25rem 0 var(--drop);
-  padding: 0.85rem 1rem;
+  padding: 0.75rem 0.9rem;
 }
 
 /* The big number is the one place a stat gets the pixel face — it is a stat. */
@@ -688,7 +702,7 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
 
 /* ---------------------------------------------------------------------- Q & A */
 
-.qa-list { display: grid; gap: 0.6rem; }
+.qa-list { display: grid; gap: 0.5rem; }
 
 .qa {
   background: var(--panel-2);
@@ -702,7 +716,7 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
    item and shreds the sentence. The Q badge is positioned instead. */
 .qa summary {
   cursor: pointer;
-  padding: 0.7rem 0.95rem 0.7rem 2.7rem;
+  padding: 0.55rem 0.95rem 0.55rem 2.7rem;
   font-size: 0.94rem;
   list-style: none;
   display: block;
@@ -718,7 +732,7 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
   content: "Q";
   position: absolute;
   left: 0.9rem;
-  top: 0.78rem;
+  top: 0.62rem;
   font-family: var(--arcade);
   font-size: var(--arcade-xs);
   line-height: 1.5;
@@ -742,7 +756,7 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
 
 .qa-section-title {
   color: var(--red);
-  margin: 1.1rem 0 0.5rem;
+  margin: 0.8rem 0 0.4rem;
 }
 .qa-section-title::before { content: "▶ "; }
 .qa-section-title:first-child { margin-top: 0; }
@@ -761,7 +775,7 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
   padding: 0.25rem 0.8rem 0.25rem 0.25rem;
   font-size: 0.84rem;
   color: var(--muted);
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.7rem;
 }
 
 /* Squared sprite tiles, not circles — initials set like type badges. */
@@ -1147,4 +1161,5 @@ kbd {
     box-shadow: none;
   }
   pre { max-height: none; box-shadow: none; }
+  .slide > * { zoom: 1; }
 }

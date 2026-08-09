@@ -177,7 +177,7 @@
         <td><strong>Battling with Custom Pok&eacute;mon</strong></td>
         <td>As a user, I want the Pok&eacute;mon I invented to be usable in a real battle.</td>
         <td>Edison Cai</td>
-        <td>Owner-scoped custom Pok&eacute;mon storage and API, sprite uploads by opaque key, authorised sprite loading</td>
+        <td>Owner-scoped custom Pok&eacute;mon files, user-scoped API, sprite loading, battle-ready <code>Pokemon</code> entity</td>
       </tr>
       <tr>
         <td><strong>Build a Pok&eacute;mon</strong></td>
@@ -710,19 +710,19 @@ components/  <span class="cm">humble views            (outermost)</span></code><
       <div class="card accent-cyan">
         <h3>What the use case does</h3>
         <ul class="tight" style="margin-bottom:0">
-          <li>Persists a custom Pokémon to its <strong>owner's</strong> files — one user cannot read another's</li>
-          <li>Stores uploaded sprites by <strong>opaque key</strong>, so a filename can never address someone else's image</li>
-          <li>Serves both back over a user-scoped API, with sprite loading behind authorisation</li>
-          <li>Feeds the same <code>Pokemon</code> entity the battle engine already takes, so a custom
+          <li>Persists a custom Pokémon under its <strong>owner's</strong> backend files</li>
+          <li>Stores uploaded artwork through an <code>ImageRepository</code>, separate from Pokémon data</li>
+          <li>Serves the Pokémon and its sprite back through a user-scoped API</li>
+          <li>Returns the same <code>Pokemon</code> entity the battle engine already takes, so a custom
             entrant fights exactly like an official one</li>
         </ul>
       </div>
       <div class="card">
         <h3>Terminology worth landing</h3>
         <p style="margin-bottom:0"><span class="pill">Repository</span>
-        <span class="pill">Owner-scoped storage</span>
-        <span class="pill">Opaque key</span>
-        <span class="pill">Interface segregation</span></p>
+        <span class="pill">User-scoped API</span>
+        <span class="pill">Use Case Interactor</span>
+        <span class="pill">Pokemon entity</span></p>
       </div>
     </div>
 
@@ -746,10 +746,10 @@ components/  <span class="cm">humble views            (outermost)</span></code><
     <ul>
       <li>This section <strong>picks up exactly where Cindy's leaves off</strong> — she creates it, you
         fight with it. Say that hand-off out loud; it makes two slices read as one product.</li>
-      <li>The security point is worth ten seconds: sprites are addressed by an <strong>opaque key</strong>,
-        not a filename, so guessing another user's URL does not work.</li>
-      <li>The catalog and cache work is <em>also</em> yours — it is on the next slide and on the
-        <strong>API Usage</strong> slide. Plant the endpoints there, not here.</li>
+      <li>Keep this backend-focused: owner-specific files, repository interfaces, the API endpoint,
+        and the fact that the final object is still a normal <code>Pokemon</code> entity.</li>
+      <li>The catalog and cache work is <em>also</em> yours, but do not let it take over this section.
+        Your individual story is custom Pokémon becoming battle-ready.</li>
     </ul>
   </div>
 </section>
@@ -757,45 +757,42 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 <!-- ================================================== 11. EDISON — CODE -->
 <section class="slide" data-section="Edison — Code">
   <div class="speaker-tag"><span class="avatar a5">EC</span> Edison Cai</div>
-  <p class="eyebrow">Interactor &amp; class diagram — the catalog slice, also mine</p>
-  <h2>The interactor validates. It does not know what HTTP is.</h2>
+  <p class="eyebrow">Interactor &amp; class diagram — Battling with Custom Pokémon</p>
+  <h2>The backend loads custom data without leaking HTTP into the use case.</h2>
 
   <div class="cols side">
     <div>
-      <div class="code-label">backend/src/main/java/use_case/list_pokemon/ListPokemonInteractor.java</div>
-      <pre><code><span class="kw">public class</span> <span class="typ">ListPokemonInteractor</span> <span class="kw">implements</span> <span class="typ">ListPokemonInputBoundary</span> {
-    <span class="kw">private static final int</span> MIN_LIMIT = <span class="typ">1</span>;
-    <span class="kw">private static final int</span> MAX_LIMIT = <span class="typ">100</span>;
+      <div class="code-label">backend/src/main/java/use_case/custom_pokemon/LoadCustomPokemonSpriteInteractor.java</div>
+      <pre><code><span class="kw">public class</span> <span class="typ">LoadCustomPokemonSpriteInteractor</span>
+        <span class="kw">implements</span> <span class="typ">LoadCustomPokemonSpriteInputBoundary</span> {
+    <span class="kw">private final</span> <span class="typ">CustomPokemonRepository</span> pokemonRepository;
+    <span class="kw">private final</span> <span class="typ">ImageRepository</span> imageRepository;
 
-<span class="hl">    <span class="kw">private final</span> <span class="typ">ListPokemonDataAccessInterface</span> dataAccess;</span>
-
-    <span class="kw">public</span> <span class="fn">ListPokemonInteractor</span>(<span class="typ">ListPokemonDataAccessInterface</span> dataAccess) {
-        <span class="kw">this</span>.dataAccess = dataAccess;
+    <span class="kw">public</span> <span class="fn">LoadCustomPokemonSpriteInteractor</span>(
+            <span class="typ">CustomPokemonRepository</span> pokemonRepository,
+            <span class="typ">ImageRepository</span> imageRepository
+    ) {
+        <span class="kw">this</span>.pokemonRepository = pokemonRepository;
+        <span class="kw">this</span>.imageRepository = imageRepository;
     }
 
     <span class="kw">@Override</span>
-    <span class="kw">public</span> <span class="typ">ListPokemonOutputData</span> <span class="fn">listPokemon</span>(<span class="typ">ListPokemonInputData</span> inputData) {
-        <span class="kw">int</span> limit = inputData.<span class="fn">getLimit</span>();
-        <span class="kw">int</span> offset = inputData.<span class="fn">getOffset</span>();
-
-        <span class="kw">if</span> (limit &lt; MIN_LIMIT || limit &gt; MAX_LIMIT) {
-            <span class="kw">return</span> <span class="fn">failure</span>(<span class="str">"Limit must be between 1 and 100."</span>, limit, offset,
-                           <span class="typ">QueryFailure</span>.INVALID_INPUT);
-        }
-        <span class="kw">if</span> (offset &lt; <span class="typ">0</span>) {
-            <span class="kw">return</span> <span class="fn">failure</span>(<span class="str">"Offset must be 0 or greater."</span>, limit, offset,
-                           <span class="typ">QueryFailure</span>.INVALID_INPUT);
-        }
-
+    <span class="kw">public</span> <span class="typ">LoadCustomPokemonSpriteOutputData</span> <span class="fn">load</span>(
+            <span class="typ">String</span> ownerUsername, <span class="typ">String</span> pokemonName, <span class="typ">String</span> spriteKey
+    ) {
         <span class="kw">try</span> {
-            <span class="typ">PokemonCatalogPageData</span> page = dataAccess.<span class="fn">listPokemon</span>(limit, offset);
-            <span class="kw">return new</span> <span class="typ">ListPokemonOutputData</span>(<span class="kw">true</span>, <span class="str">"Loaded Pokemon catalog."</span>,
-                    page.<span class="fn">getCount</span>(), limit, offset,
-                    page.<span class="fn">getNextOffset</span>(), page.<span class="fn">getPreviousOffset</span>(),
-                    page.<span class="fn">getPokemon</span>(), <span class="kw">null</span>);
-        } <span class="kw">catch</span> (<span class="typ">PokemonDataAccessException</span> exception) {
-<span class="hl">            <span class="kw">return</span> <span class="fn">failure</span>(exception.<span class="fn">getMessage</span>(), limit, offset,
-                           <span class="typ">QueryFailure</span>.UPSTREAM_ERROR);</span>
+<span class="hl">            <span class="kw">boolean</span> belongsToPokemon = pokemonRepository.<span class="fn">getPokemon</span>(ownerUsername, pokemonName)
+                    .<span class="fn">map</span>(pokemon -&gt; pokemon.<span class="fn">getSprites</span>().<span class="fn">contains</span>(spriteKey))
+                    .<span class="fn">orElse</span>(<span class="kw">false</span>);</span>
+            <span class="kw">if</span> (!belongsToPokemon) <span class="kw">return</span> <span class="fn">notFound</span>();
+
+            <span class="kw">return</span> imageRepository.<span class="fn">getImage</span>(spriteKey)
+                    .<span class="fn">map</span>(image -&gt; <span class="kw">new</span> <span class="typ">LoadCustomPokemonSpriteOutputData</span>(
+                            <span class="kw">true</span>, image.<span class="fn">mediaType</span>(), image.<span class="fn">bytes</span>(), <span class="str">""</span>, <span class="kw">null</span>))
+                    .<span class="fn">orElseGet</span>(<span class="kw">this</span>::notFound);
+        } <span class="kw">catch</span> (<span class="typ">CustomPokemonStorageException</span> | <span class="typ">UncheckedIOException</span> exception) {
+<span class="hl">            <span class="kw">return new</span> <span class="typ">LoadCustomPokemonSpriteOutputData</span>(<span class="kw">false</span>, <span class="kw">null</span>, <span class="kw">null</span>,
+                    <span class="str">"Could not load custom Pokemon sprite."</span>, <span class="typ">CustomPokemonFailure</span>.STORAGE_ERROR);</span>
         }
     }
 }</code></pre>
@@ -803,48 +800,44 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
     <div class="stack">
       <div class="card">
-        <h3>Full use case, layer by layer</h3>
-        <div class="ca-flow" style="margin-top:0.55rem">
-          <div class="ca-node l-view"><span class="n-layer">Client</span><span class="n-name">PokedexScreen<br>TournamentSetup</span></div>
+        <h3>Backend path, simplified</h3>
+        <div style="display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:0.45rem; align-items:center; margin-top:0.55rem">
+          <div class="stack" style="gap:0.45rem">
+            <div class="ca-node l-view"><span class="n-layer">View</span><span class="n-name">TrainerPanel<br>SingleBattleSetup</span></div>
+            <div class="ca-node l-adapter"><span class="n-layer">Controller</span><span class="n-name">CustomPokemonController</span></div>
+          </div>
           <div class="ca-arrow">→</div>
-          <div class="ca-node l-adapter"><span class="n-layer">Adapter</span><span class="n-name">PokemonController<br>PokemonCatalogResponse</span></div>
+          <div class="ca-node l-usecase"><span class="n-layer">Interactor</span><span class="n-name">LoadCustomPokemon<br>SpriteInteractor</span></div>
           <div class="ca-arrow">→</div>
-          <div class="ca-node l-usecase"><span class="n-layer">Boundary</span><span class="n-name">ListPokemon<br>InputBoundary</span></div>
-        </div>
-        <div class="ca-flow" style="margin-top:0.4rem">
-          <div class="ca-node l-usecase"><span class="n-layer">Interactor</span><span class="n-name">ListPokemonInteractor<br>LoadPokemonInteractor</span></div>
-          <div class="ca-arrow">→</div>
-          <div class="ca-node l-entity"><span class="n-layer">Entity</span><span class="n-name">PokemonSummary<br>Pokemon · Move</span></div>
-        </div>
-        <div class="ca-flow" style="margin-top:0.4rem">
-          <div class="ca-node l-usecase"><span class="n-layer">Interface (owned by use case)</span><span class="n-name">ListPokemonDataAccessInterface</span></div>
-          <div class="ca-arrow">↑</div>
-          <div class="ca-node l-data"><span class="n-layer">Implements</span><span class="n-name">CachedPokeApiDataAccess → PokeApiClient → PokéAPI</span></div>
+          <div class="stack" style="gap:0.45rem">
+            <div class="ca-node l-entity"><span class="n-layer">Pokemon entity</span><span class="n-name">Pokemon</span></div>
+            <div class="ca-node l-usecase"><span class="n-layer">Data Access Interface</span><span class="n-name">CustomPokemonRepository<br>ImageRepository</span></div>
+          </div>
         </div>
       </div>
 
       <div class="card accent-gold">
-        <h3>Interface segregation, concretely</h3>
-        <p style="margin-bottom:0">
-          There is no god-object <code>PokeApiService</code>. There are three narrow interfaces —
-          <code>ListPokemonDataAccessInterface</code>, <code>LoadPokemonDataAccessInterface</code>,
-          <code>LoadMoveDataAccessInterface</code>, and one class quietly implements all of them.
-          Each use case depends only on the method it actually calls.
-        </p>
+        <h3>SOLID: D and S</h3>
+        <ul class="tight" style="margin-bottom:0">
+          <li><strong>D — Dependency Inversion:</strong> the interactor depends on
+            <code>CustomPokemonRepository</code> and <code>ImageRepository</code> interfaces, not file
+            storage, Spring, or HTTP.</li>
+          <li><strong>S — Single Responsibility:</strong> this class only checks that the requested
+            sprite belongs to the owner's custom Pokémon, then loads the sprite bytes.</li>
+        </ul>
       </div>
     </div>
   </div>
 
   <div class="notes-source">
     <ul>
-      <li><strong>Open by saying this is the catalog slice, not the custom-Pokémon one.</strong> Both
-        are yours; this is the one with the cleanest interface-segregation story, which is why it is
-        the code on screen.</li>
-      <li>Highlighted lines: the only field is an <strong>interface</strong>, and the only failure path
-        produces a <strong>domain-level enum</strong>. No <code>ResponseEntity</code>, no
-        <code>@Service</code>, no <code>HttpClient</code> anywhere in this file.</li>
-      <li>If asked "isn't one class implementing three interfaces a smell?" — no: it is the ISP
-        pay-off. Clients are segregated; the implementation is free to be one adapter.</li>
+      <li>Open by tying this directly to the demo: the custom Pokémon appears in battle because the
+        backend returns the same <code>Pokemon</code> entity shape the battle engine already accepts.</li>
+      <li>Highlighted lines: the interactor asks repository interfaces for the owner's Pokémon data
+        and sprite bytes. It does not know about Spring controllers, HTTP status codes, or disk paths.</li>
+      <li>Course terms to say out loud: <strong>View</strong>, <strong>Controller</strong>,
+        <strong>Interactor</strong>, <strong>Data Access Interface</strong>, and
+        <strong>Entity</strong>.</li>
     </ul>
   </div>
 </section>
@@ -1556,7 +1549,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
   <div class="card accent-green" style="margin-top:1rem">
     <h3>Pick two and go deep — don't recite all five</h3>
     <p style="margin-bottom:0">
-      <strong>Dependency inversion</strong> is our strongest: it is why all 580 tests need nothing
+      <strong>Dependency inversion</strong> is our strongest: it is why all 633 tests need nothing
       running, and why 94%+ use-case coverage was reachable at all. <strong>Interface segregation</strong>
       is the least common and shows real judgment: one adapter, three client-shaped interfaces.
     </p>
@@ -1658,11 +1651,11 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 <!-- ========================================================= 22. TESTING -->
 <section class="slide" data-section="Testing">
   <p class="eyebrow">Testing</p>
-  <h2>580 tests, and the coverage report that backs them</h2>
+  <h2>633 tests, and the coverage report that backs them</h2>
 
   <div class="metrics">
     <div class="metric green"><div class="m-value">90.0%</div><div class="m-label">frontend line coverage<br><span style="color:var(--dim)">325 tests · 77.6% branch</span></div></div>
-    <div class="metric blue"><div class="m-value">83.2%</div><div class="m-label">backend line coverage<br><span style="color:var(--dim)">255 tests · 68.1% branch</span></div></div>
+    <div class="metric blue"><div class="m-value">90.0%</div><div class="m-label">backend line coverage<br><span style="color:var(--dim)">308 tests · 76.0% branch</span></div></div>
     <div class="metric gold"><div class="m-value">94%+</div><div class="m-label">use-case line coverage<br><span style="color:var(--dim)">both stacks, the layer that matters</span></div></div>
     <div class="metric red"><div class="m-value">0</div><div class="m-label">tests needing a server<br><span style="color:var(--dim)">or a network call</span></div></div>
   </div>
@@ -1714,11 +1707,11 @@ components/  <span class="cm">humble views            (outermost)</span></code><
   <div class="notes-source">
     <ul>
       <li>The rubric wants <em>evidence of coverage</em>, not test counts — so lead with the
-        percentages, not the 580. JaCoCo and Vitest coverage both run in CI and upload as artifacts;
+        percentages, not the 633. JaCoCo and Vitest coverage both run in CI and upload as artifacts;
         <strong>have one report open in a tab</strong> in case a grader asks to see it.</li>
       <li>We clear every band: Exceptional wants &gt;90% interactor coverage and &gt;70% overall.
-        Use cases are 94%+ on both stacks; overall is 90.0% frontend and 83.2% backend.</li>
-      <li>Numbers measured 2026-08-07 by the final verification pass. If anything lands after that,
+        Use cases are 94%+ on both stacks; overall is 90.0% frontend and 90.0% backend.</li>
+      <li>Backend coverage measured 2026-08-08 by a fresh JaCoCo verification pass. If anything lands after that,
         re-run <code>scripts/verify.ps1</code> and update this slide.</li>
       <li>"What is not tested, and why" is explicitly required at the Excellent band. Keep it.</li>
     </ul>
@@ -2110,7 +2103,7 @@ npm run dev</code></pre>
     <div class="stack">
       <div class="metrics">
         <div class="metric green"><div class="m-value">8/9</div><div class="m-label">blueprint user stories shipped</div></div>
-        <div class="metric blue"><div class="m-value">580</div><div class="m-label">tests across both stacks</div></div>
+        <div class="metric blue"><div class="m-value">633</div><div class="m-label">tests across both stacks</div></div>
         <div class="metric"><div class="m-value">2</div><div class="m-label">languages, one architecture</div></div>
         <div class="metric red"><div class="m-value">40</div><div class="m-label">reviewed pull requests</div></div>
       </div>
@@ -2248,7 +2241,7 @@ npm run dev</code></pre>
 
     <details class="qa"><summary>What is your coverage?</summary>
       <div class="answer"><p><strong>90.0% line on the frontend</strong> (325 tests, 77.6% branch) and
-      <strong>83.2% on the backend</strong> (255 tests, 68.1% branch), measured by Vitest and JaCoCo.
+      <strong>90.0% on the backend</strong> (308 tests, 76.0% branch), measured by Vitest and JaCoCo.
       The layer that matters most — use cases — is above 94% on both stacks. Both gates fail the build
       if coverage drops, and CI uploads the reports as artifacts on every run.</p></div></details>
 

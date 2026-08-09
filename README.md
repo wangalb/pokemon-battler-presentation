@@ -161,11 +161,11 @@ CI now runs `./mvnw -B clean verify` and uploads the reports as artifacts.
 ### 4. ~~No coverage evidence~~ — CLOSED
 
 JaCoCo on the backend, Vitest coverage on the frontend, **both gated** — the build fails below
-threshold. CI uploads both reports. Measured 2026-08-07:
+threshold. CI uploads both reports. Backend refreshed 2026-08-08; frontend retained from 2026-08-07:
 
 | Area | Tests | Line | Branch |
 | --- | ---: | ---: | ---: |
-| Java backend | 255 | 83.15% | 68.09% |
+| Java backend | 308 | 90.00% | 75.99% |
 | Java `use_case` | — | 94%+ | — |
 | TypeScript frontend | 325 | 90.01% | 77.62% |
 | TypeScript `usecases` | — | 95.67% | 87.95% |
@@ -226,15 +226,13 @@ actually called. Will's section now covers both his use cases; his code slide wa
 
 **Edison's headline use case moved.** His section led with the PokéAPI cache; his assigned use case
 is Battling with Custom Pokémon. His story slide and demo beats were rewritten to that — owner-scoped
-storage, sprites by opaque key, authorised loading, custom entrants fighting like official ones —
+storage, user-scoped API loading, sprite loading, custom entrants fighting like official ones —
 and his clip now picks up where Cindy's ends.
 
-**His code slide was deliberately left on `ListPokemonInteractor`.** It is the deck's cleanest
-interface-segregation evidence, the SOLID slide cross-references those three interfaces, and the API
-Usage slide builds on the catalog work — all of which is also Edison's. Its eyebrow and speaker notes
-now say plainly that it is the catalog slice. **Edison should decide** whether he would rather show a
-custom-Pokémon interactor there; if so, `LoadCustomPokemonSpriteInteractor` is the most interesting
-one, but the SOLID and API slides would need adjusting to match.
+**His code slide now uses `LoadCustomPokemonSpriteInteractor`.** That aligns the individual rubric
+with his assigned use case: before/after demo beats show a created Pokémon entering battle, and the
+code/class-diagram slide explains the backend loading path behind that workflow. The catalog
+and cache work still appears on the API Usage and SOLID slides as group-level evidence.
 
 Note the earlier misattribution this fixed: the clean-architecture pass (PR #40) is **Dorothy's**, not
 Cindy's. `cindy-pokemon-customization` is unmerged and carries only checkstyle fixes.
@@ -245,11 +243,11 @@ git log main --format='%an %s' --no-merges | sort | uniq -c | sort -rn
 
 ### 8. Verified numbers
 
-All numbers on the deck now come from the 2026-08-07 verification pass (see item 4) rather than
-from counting `@Test` occurrences. The deck says 580 tests, 90.0% / 83.2% line coverage, and 40
+Backend coverage on the deck now comes from the 2026-08-08 JaCoCo verification pass rather than
+from counting `@Test` occurrences. The deck says 633 tests, 90.0% / 90.0% line coverage, and 40
 merged pull requests.
 
-**If any code lands after 2026-08-07, re-run `scripts/verify.ps1` and update slides 22 and 28.**
+**If any code lands after 2026-08-08, re-run `scripts/verify.ps1` and update slides 22 and 28.**
 Quoting stale coverage to a grader who can run the command themselves is worse than quoting none.
 
 ### 9. One genuinely new claim to sanity-check

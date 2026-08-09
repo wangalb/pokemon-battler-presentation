@@ -42,35 +42,45 @@ group rubric's Excellent band.
 Every slide carries speaker notes. They are written to be read *before* presenting, not from the
 podium — the individual rubric caps you at 3/5 on Verbal Presentation if you read from notes.
 
-## Adding the demo recordings and screenshots
+## Adding the demo recordings
 
-Drop files into `assets/` using the exact names below. The page picks them up automatically on
-reload; anything missing keeps showing its dashed placeholder, so the deck always presents cleanly
-even if a recording is not ready.
+Each user story gets **one pre-recorded clip**, not a before/after screenshot pair. Drop the files
+into `assets/` using the exact names below. The page picks them up on reload; anything missing keeps
+its dashed placeholder, so the deck always presents cleanly even if a recording is not ready.
 
-| File | Slide | What it should show |
+Aim for **~45 seconds each**, pre-trimmed. At six clips that is 4:30 of the 15 minutes, which is
+what the one-minute-per-section budget allows.
+
+| File | Slide | Beats the clip has to hit |
 | --- | --- | --- |
-| `yiming-before.png` | Yiming | Login screen, signed out |
-| `yiming-after.png` | Yiming | Main menu with role-gated panels |
-| `aman-before.png` | Aman | Main menu before opening the Pokédex |
-| `aman-after.png` | Aman | Pokédex grid + detail view with stat bars |
-| `edison-before.png` | Edison | Empty `backend/cache/`, cold request |
-| `edison-after.png` | Edison | `curl /api/pokemon/pikachu` and the warm cache |
-| `cindy-before.png` | Cindy | Empty creation form |
-| `cindy-after.png` | Cindy | The custom Pokémon sitting in the library |
-| `albert-before.png` | Albert | Battle setup, both Pokémon at full HP |
-| `albert-after.png` | Albert | A super-effective hit, HP bar dropping |
-| `dorothy-before.png` | Dorothy | Setup screen: chosen entrants and `?` slots |
-| `dorothy-after.png` | Dorothy | Populated bracket with a champion |
+| `will-demo.mp4` | Will | Sign up as `USER` → menu shows only reachable panels → sign in with a `TRAINER` invite code → trainer panel with that user's library |
+| `aman-demo.mp4` | Aman | Open the Pokédex → search and filter by type → detail view with real stat bars → save one to the library |
+| `edison-demo.mp4` | Edison | Cindy's custom Pokémon in the library → pick it as a battle entrant → its uploaded sprite loads in the arena → it takes and deals damage |
+| `cindy-demo.mp4` | Cindy | Empty creation form → validation rejects a bad stat → upload a sprite and pick moves → it appears in the library |
+| `albert-demo.mp4` | Albert | Setup at full HP → super-effective hit, HP drops → an item that would do nothing is refused → faint ends the battle |
+| `dorothy-demo.mp4` | Dorothy | Hand-pick entrants leaving `?` slots → open slots fill at random → round resolves → bracket completes with a champion |
 
-Video works too — name a file `*.mp4`, `*.webm` or `*.mov` and change the slot's `data-src` in
-`index.html` to match. A `<video>` element with controls replaces the placeholder.
+The beats are also printed on each slide under the video, so the slide still communicates while the
+clip is paused on its first frame — and if a recording is missing entirely, the section is still
+presentable.
+
+**Cindy's slide carries both.** `cindy-before.png` and `cindy-after.png` are already captured and
+committed, so they stay beneath her clip slot rather than being deleted — the section has real
+media today and upgrades to video when `cindy-demo.mp4` lands. Delete the `before-after` block on
+that slide once the clip exists, or keep both if you prefer the stills as a fallback.
+
+`.webm` and `.mov` work too; change the slot's `data-src` in `index.html` to match. A still `.png`
+also works if a clip falls through — the loader swaps in an `<img>` instead of a `<video>`.
 
 To add a slot somewhere new, copy this block:
 
 ```html
-<div class="media-slot" data-src="assets/my-clip.mp4">
-  <div class="placeholder"><span class="ph-icon">▣</span>What this will show<span class="ph-file">assets/my-clip.mp4</span></div>
+<div class="demo">
+  <div class="ba-label">Recorded demo · ~45s</div>
+  <div class="media-slot" data-src="assets/my-clip.mp4">
+    <div class="placeholder"><span class="ph-icon">▶</span>What this will show<span class="ph-file">assets/my-clip.mp4</span></div>
+  </div>
+  <ol class="demo-beats"><li>First beat</li><li>Second beat</li></ol>
 </div>
 ```
 
@@ -79,9 +89,9 @@ To add a slot somewhere new, copy this block:
 1. Title
 2. Introduction
 3. Specification
-4. Scope — the nine blueprint user stories and who owns each
+4. Scope — the seven shipped use cases and who owns each
 5. Architecture primer — read once, applies to all six individual sections
-6.–17. Six individual sections, two slides each: **story + before/after**, then **interactor code + class diagram**
+6.–17. Six individual sections, two slides each: **story + recorded demo**, then **interactor code + class diagram**
 18. API usage
 19. Clean Architecture deep dive
 20. SOLID
@@ -93,16 +103,20 @@ To add a slot somewhere new, copy this block:
 26. Run it yourself
 27. Limitations
 28. Wrap
-29. Q&A — 21 preloaded answers, click to reveal
+29. Q&A — 22 preloaded answers, click to reveal
 
-Individual sections run in demo order: Yiming → Aman → Edison → Cindy → Albert → Dorothy.
+Individual sections run in demo order: Will → Aman → Edison → Cindy → Albert → Dorothy.
 
 ---
 
 ## Before you present — open items
 
-These are gaps in the **project repo**, not in this deck. Each maps to a rubric category, and each
-one is fixable in an evening.
+These are gaps in the **project repo**, not in this deck. Each maps to a rubric category.
+
+> **Updated 2026-08-08 against `main` at `bd0b4ef`.** PR #40 (`dorothy/final-quality-updates`)
+> closed items 2, 3, 4 and most of 5. What remains is below. Note that the clean-architecture and
+> quality pass was **Dorothy's** work, not Cindy's — `cindy-pokemon-customization` is an unmerged
+> branch carrying only checkstyle fixes on top of older `main`.
 
 ### 1. The rubric says 15 minutes. The old plan says 20.
 
@@ -122,75 +136,136 @@ Suggested 15-minute budget:
 | 13:00–14:00 | Run it, limitations | 26–27 |
 | 14:00–15:00 | Wrap | 28 |
 
-One minute each means the demos must be **recorded and pre-trimmed**. Live clicking will not fit.
+One minute each means the demos must be **recorded and pre-trimmed** — which is now the plan. Each
+individual section is a ~45s clip plus ~15s of speaking, and the deck has one video slot per story
+sized for exactly that. Live clicking will not fit, and it is the single most common way a group
+overruns.
 
-### 2. No accessibility report exists
+### 2. ~~No accessibility report exists~~ — CLOSED
 
-There is no accessibility Markdown file anywhere in the project repo. The rubric requires one
-containing **all** the Universal Design principles; without it that category scores 1/5 out of 5.
+`docs/accessibility-report.md` now covers all seven Universal Design principles plus a manual
+acceptance checklist. `accessibility-report-draft.md` in this repo is superseded and can be deleted.
 
-A draft covering all seven principles is in this repo as
-[`accessibility-report-draft.md`](accessibility-report-draft.md). **Review it as a team, correct
-anything you disagree with, then commit it to the project repo** — it describes your app, and it
-should be in your words, not a starting draft's.
+Real accessibility work landed with it: skip link, focusable main landmark, `:focus-visible`
+styling, named modal dialogs with focus trapping and restoration, `aria-pressed` toggles,
+`prefers-reduced-motion`, and component tests for modal keyboard behaviour.
 
-### 3. No Checkstyle
+**Still open, and slide 25 says so honestly:** the battle message box is not an `aria-live` region,
+and the tournament bracket has no linear text equivalent. No screen-reader session has been run.
 
-CI runs `mvn -B test` but no style check on the Java side. The Code Quality rubric names Checkstyle
-explicitly: without a tool like it you cannot score above 3/5. Adding it is a plugin block in
-`pom.xml` and one step in `.github/workflows/ci.yml`.
+### 3. ~~No Checkstyle~~ — CLOSED
 
-### 4. No coverage evidence
+`maven-checkstyle-plugin` runs during Maven `validate` against `config/checkstyle/checkstyle.xml`.
+CI now runs `./mvnw -B clean verify` and uploads the reports as artifacts.
 
-The Testing rubric wants **evidence of code coverage** from 2/5 upward — a coverage report, not a
-test count. Slide 22 currently shows counts. Run IntelliJ's coverage tool or add JaCoCo, screenshot
-the result, and put it on that slide. Targets: >70% interactor line coverage for Excellent, >90% for
-Exceptional, with >50%/>70% overall.
+### 4. ~~No coverage evidence~~ — CLOSED
 
-### 5. Nobody has confirmed the backend boots
+JaCoCo on the backend, Vitest coverage on the frontend, **both gated** — the build fails below
+threshold. CI uploads both reports. Backend refreshed 2026-08-08; frontend retained from 2026-08-07:
 
-`mvn test` and `mvn spring-boot:run` have not been run on Albert's machine (no Java, no Maven), and
-`backend/cache/` and `backend/data/` have never been created there. Boot has broken once before —
-commit `8ea562a`, *"make the backend start again by wiring the create-Pokemon beans"* — and
-`TournamentConfiguration` and `CreatePokemonRestController` both landed after that fix.
+| Area | Tests | Line | Branch |
+| --- | ---: | ---: | ---: |
+| Java backend | 308 | 90.00% | 75.99% |
+| Java `use_case` | — | 94%+ | — |
+| TypeScript frontend | 325 | 90.01% | 77.62% |
+| TypeScript `usecases` | — | 95.67% | 87.95% |
 
-Before recording anything, on a machine with Maven:
+That clears the Exceptional band (>90% interactor, >70% overall). Slide 22 now leads with these
+percentages instead of test counts.
+
+### 5. Backend boot — mostly confirmed
+
+`scripts/verify.ps1` passed on 2026-08-07, so `clean verify` works and the Maven **wrapper is now
+committed** (`backend/mvnw`) — a fresh clone needs only a JDK, no Maven install. That removes the
+old blocker.
+
+**Still worth doing once:** a genuine fresh `git clone` into an empty folder, both terminals, one
+battle. Verification proves the tests; it does not prove `backend/cache/` and `backend/data/` get
+created on a machine that has never run this before.
+
+### 6. ~~Party switching may be unreachable~~ — RESOLVED, cut from the demo by decision
+
+`frontend/src/usecases/singleBattleSetup.ts` still builds `party: [player]`, and **that is fine** —
+the team decided not to demo switching. It stays in the codebase as an extension point.
+
+The deck now frames it that way rather than promising it. Slide 14 carries a card saying parties and
+`SwitchPokemon` are built and tested but deliberately not demoed, and that enabling them is a
+setup-screen change with no entity, interactor or endpoint edits — which is open/closed evidence
+rather than a gap. Its speaker notes say **do not narrate switching**, and there is a Q&A entry for
+it if a grader asks.
+
+Capability claims were tightened to match on slides 2, 3, 4, 14, 27 and 28: the deck no longer tells
+the audience a user can switch a Pokémon out, because on the shipped path they cannot.
+
+**If anyone later changes the setup screen to build a real party, reverse all of that** — the deck
+would then be understating what works.
+
+### 7. ~~Confirm the user-story owners~~ — CONFIRMED by the team, 2026-08-08
+
+Slide 4 now lists **seven use cases, all shipped**, in demo order. The cut sharing story is gone from
+the slide entirely, and the Status column went with it since every row was "Built".
+
+| Use case | Owner |
+| --- | --- |
+| User Accounts | Will Xu |
+| Trainer Panel | Will Xu |
+| Pokédex | Aman Shah |
+| Battling with Custom Pokémon | Edison Cai |
+| Build a Pokémon | Cindy Liu |
+| Single Battle | Albert Wang |
+| Tournament | Dorothy Zheng |
+
+Two things this correction changed beyond the table:
+
+**"Yiming Xu" is Will.** The deck had the accounts section under Yiming Xu; the committer is
+`Will-Xv <xuy413682@gmail.com>` and there is no separate Yiming in the history. Renamed throughout —
+section headings, speaker tags, avatar initials, and `yiming-demo.mp4` → `will-demo.mp4`. The git
+branch name `yiming/library-api` on slide 23 was **left alone**, because that is what the branch is
+actually called. Will's section now covers both his use cases; his code slide was already
+`AddToLibraryInteractor`, which is the Trainer Panel.
+
+**Edison's headline use case moved.** His section led with the PokéAPI cache; his assigned use case
+is Battling with Custom Pokémon. His story slide and demo beats were rewritten to that — owner-scoped
+storage, user-scoped API loading, sprite loading, custom entrants fighting like official ones —
+and his clip now picks up where Cindy's ends.
+
+**His code slide now uses `LoadCustomPokemonSpriteInteractor`.** That aligns the individual rubric
+with his assigned use case: before/after demo beats show a created Pokémon entering battle, and the
+code/class-diagram slide explains the backend loading path behind that workflow. The catalog
+and cache work still appears on the API Usage and SOLID slides as group-level evidence.
+
+Note the earlier misattribution this fixed: the clean-architecture pass (PR #40) is **Dorothy's**, not
+Cindy's. `cindy-pokemon-customization` is unmerged and carries only checkstyle fixes.
 
 ```bash
-cd backend && mvn test && mvn spring-boot:run
+git log main --format='%an %s' --no-merges | sort | uniq -c | sort -rn
 ```
-
-Then exercise all three backend paths by hand: one battle, one tournament round, one custom Pokémon.
-
-### 6. Party switching may be unreachable in the running app
-
-Per `docs/presentation-plan.md` §1.2, every playable route into the arena builds a party of one
-(`usecases/singleBattleSetup.ts`), so the party screen and switching are invisible even though the
-backend, the use cases and their tests all support them. **Either fix the setup screen to hand the
-player three party members, or cut switching from the demo** — do not narrate a feature the screen
-cannot show. Slide 14 currently lists switching as demoable.
-
-### 7. Confirm the user-story owners
-
-The owner column on slide 4, and the six individual sections, were reconstructed from commit history
-and branch names. It is a good-faith reading, not an authoritative one. **Each person should confirm
-their own row before you present** — a wrong attribution in front of the graders is worse than any
-formatting issue in this deck.
 
 ### 8. Verified numbers
 
-Two numbers on the deck were measured on 2026-08-07 against the local checkout:
+Backend coverage on the deck now comes from the 2026-08-08 JaCoCo verification pass rather than
+from counting `@Test` occurrences. The deck says 633 tests, 90.0% / 90.0% line coverage, and 40
+merged pull requests.
 
-- **311 frontend tests across 42 files** — `npm test`, all passing. Verified.
-- **223 Java test methods across 38 files** — counted `@Test` occurrences. **Not executed**; no Maven
-  on this machine. Run `mvn test` and replace this with the real pass count before presenting.
+**If any code lands after 2026-08-08, re-run `scripts/verify.ps1` and update slides 22 and 28.**
+Quoting stale coverage to a grader who can run the command themselves is worse than quoting none.
+
+### 9. One genuinely new claim to sanity-check
+
+Slide 19 now claims the dependency rule is **executable**: four ArchUnit rules in
+`backend/src/test/java/architecture/CleanArchitectureTest.java` and three import rules in
+`frontend/src/__tests__/architecture.test.ts`, both running in CI. This is the deck's strongest
+Clean Architecture evidence, so make sure whoever presents it can open both files on demand.
 
 ## Submission checklist
 
 From the course submission page:
 
 - [ ] GitHub link to the project repo
-- [ ] `ai.txt` — required; if the team used no AI, you must say so explicitly
+- [ ] `ai.txt` — **started, not finished.** The file now exists at the root of the project repo with
+      Albert's section complete and a per-person template. **Five sections are still placeholders**
+      (Dorothy, Aman, Cindy, Will, Edison) — each person must write their own; nobody can declare
+      another person's AI use for them. If you used none, the file must say so explicitly.
 - [ ] `slides.pdf` (or `.pptx`, or any format) — listed as required to remind you to upload slides.
       This deck prints to PDF with `Ctrl+P` → Save as PDF; the print stylesheet puts one slide per
       page and hides the chrome.

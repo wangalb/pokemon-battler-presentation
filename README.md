@@ -53,7 +53,7 @@ what the one-minute-per-section budget allows.
 
 | File | Slide | Beats the clip has to hit |
 | --- | --- | --- |
-| `will-demo.mp4` | Will | Sign up as `USER` → menu shows only reachable panels → sign in with a `TRAINER` invite code → trainer panel with that user's library |
+| `will-demo.mp4` | Will | Sign up as `PLAYER` → menu shows only the panels that role can reach → add one from the Pokédex and the trainer panel holds it → sign up again with the `developer` invite code and Dev Tools appears → sign in with Google as an existing admin and the Admin Panel appears |
 | `aman-demo.mp4` | Aman | Open the Pokédex → search and filter by type → detail view with real stat bars → save one to the library |
 | `albert-demo.mp4` | Albert | Setup at full HP → super-effective hit, HP drops → an item that would do nothing is refused → faint ends the battle |
 | `dorothy-demo.mp4` | Dorothy | Hand-pick entrants leaving `?` slots → open slots fill at random → round resolves → bracket completes with a champion |

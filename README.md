@@ -53,7 +53,7 @@ what the one-minute-per-section budget allows.
 
 | File | Slide | Beats the clip has to hit |
 | --- | --- | --- |
-| `will-demo.mp4` | Will | Sign up as `USER` → menu shows only reachable panels → sign in with a `TRAINER` invite code → trainer panel with that user's library |
+| `will-demo.mp4` | Will | Sign up as `PLAYER` → menu shows only the panels that role can reach → trainer panel with that user's library → sign up again with the `admin` invite code and the Admin Panel appears |
 | `aman-demo.mp4` | Aman | Open the Pokédex → search and filter by type → detail view with real stat bars → save one to the library |
 | `edison-demo.mp4` | Edison | Cindy's custom Pokémon in the library → pick it as a battle entrant → its uploaded sprite loads in the arena → it takes and deals damage |
 | `cindy-demo.mp4` | Cindy | Empty creation form → validation rejects a bad stat → upload a sprite and pick moves → it appears in the library |

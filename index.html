@@ -159,7 +159,7 @@
         <td><strong>User Accounts</strong></td>
         <td>As a user, I want to log in.</td>
         <td>Will Xu</td>
-        <td>Signup, login, four roles, invite codes, guest mode, Google sign-in, soft delete with 60-day restore</td>
+        <td>Signup, login, three roles, invite codes, guest mode, Google sign-in, soft delete with 60-day restore</td>
       </tr>
       <tr>
         <td><strong>Trainer Panel</strong></td>
@@ -311,7 +311,7 @@
         <h3>What the use case does</h3>
         <ul class="tight" style="margin-bottom:0">
           <li>Sign up, sign in, or continue as a guest</li>
-          <li>Four roles — <code>USER</code>, <code>TRAINER</code>, <code>ADMIN</code>, <code>DEV</code>, with elevated ones behind invite codes</li>
+          <li>Three roles — <code>PLAYER</code>, <code>ADMIN</code>, <code>DEVELOPER</code>, with the two elevated ones behind invite codes</li>
           <li>The main menu shows only the panels your role can reach</li>
           <li>Admins can soft-delete a user, and restore them for 60 days</li>
           <li>Passwords hashed with PBKDF2, 100,000 iterations, per-user salt</li>
@@ -333,10 +333,10 @@
           <div class="placeholder"><span class="ph-icon">▶</span>Sign up, sign in, role-gated menu, trainer panel<span class="ph-file">assets/will-demo.mp4</span></div>
         </div>
         <ol class="demo-beats">
-          <li>Sign up as a plain <code>USER</code></li>
-          <li>Menu shows only reachable panels</li>
-          <li>Sign in with a <code>TRAINER</code> invite code</li>
+          <li>Sign up as a plain <code>PLAYER</code></li>
+          <li>Menu shows only the panels that role can reach</li>
           <li>Trainer panel, with that user's library</li>
+          <li>Sign up again with the <code>admin</code> invite code, and the Admin Panel appears</li>
         </ol>
       </div>
     </div>

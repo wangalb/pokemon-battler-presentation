@@ -1,0 +1,243 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 720" role="img" aria-labelledby="title description">
+  <title id="title">Tournament use case UML class diagram</title>
+  <desc id="description">Clean Architecture class diagram for the tournament use case, from the React view through controllers and boundaries to the interactor, presenter, data interfaces, strategies, and tournament entities.</desc>
+  <defs>
+    <style>
+      .box { stroke: #5b4a37; stroke-width: 3; rx: 0; }
+      .framework { fill: #eee7f5; }
+      .adapter { fill: #e6eefb; }
+      .usecase { fill: #e9f4e5; }
+      .entity { fill: #fff3cf; }
+      .data { fill: #e4f5f7; }
+      .title { font: 700 17px Arial, sans-serif; fill: #27241f; text-anchor: middle; }
+      .stereo { font: 700 12px Arial, sans-serif; fill: #655d51; text-anchor: middle; letter-spacing: 1px; }
+      .method { font: 13px Consolas, monospace; fill: #3f3a33; text-anchor: middle; }
+      .section { font: 700 13px Arial, sans-serif; fill: #655d51; letter-spacing: 2px; }
+      .label { font: 12px Arial, sans-serif; fill: #4e483f; }
+      .uses { fill: none; stroke: #474139; stroke-width: 2.5; marker-end: url(#open-arrow); }
+      .dependency { fill: none; stroke: #474139; stroke-width: 2.5; stroke-dasharray: 8 6; marker-end: url(#open-arrow); }
+      .realizes { fill: none; stroke: #2f6d43; stroke-width: 2.5; stroke-dasharray: 8 6; marker-end: url(#triangle); }
+      .composition { fill: none; stroke: #474139; stroke-width: 2.5; marker-start: url(#diamond); }
+    </style>
+    <marker id="open-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#474139" stroke-width="1.5" />
+    </marker>
+    <marker id="triangle" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 1 1 L 11 6 L 1 11 Z" fill="#f8f1df" stroke="#2f6d43" stroke-width="1.5" />
+    </marker>
+    <marker id="diamond" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="10" markerHeight="8" orient="auto">
+      <path d="M 1 5 L 7 1 L 13 5 L 7 9 Z" fill="#474139" />
+    </marker>
+  </defs>
+
+  <text class="section" x="20" y="22">RUNTIME ENTRY AND OUTPUT</text>
+
+  <g transform="translate(20 38)">
+    <rect class="box framework" width="210" height="72" />
+    <text class="stereo" x="105" y="18">&lt;&lt;VIEW COMPONENT&gt;&gt;</text>
+    <text class="title" x="105" y="42">TournamentFlowScreen</text>
+    <text class="method" x="105" y="61">renders bracket / rounds</text>
+  </g>
+  <g transform="translate(270 38)">
+    <rect class="box framework" width="210" height="72" />
+    <text class="stereo" x="105" y="18">&lt;&lt;WEB GATEWAY MODULE&gt;&gt;</text>
+    <text class="title" x="105" y="42">services/tournament.ts</text>
+    <text class="method" x="105" y="61">runTournamentRound()</text>
+  </g>
+  <g transform="translate(520 38)">
+    <rect class="box framework" width="210" height="72" />
+    <text class="stereo" x="105" y="18">&lt;&lt;HTTP CONTROLLER&gt;&gt;</text>
+    <text class="title" x="105" y="42">TournamentController</text>
+    <text class="method" x="105" y="61">POST /tournaments/rounds</text>
+  </g>
+  <g transform="translate(770 38)">
+    <rect class="box adapter" width="210" height="72" />
+    <text class="stereo" x="105" y="18">&lt;&lt;CONTROLLER&gt;&gt;</text>
+    <text class="title" x="105" y="42">TournamentRoundController</text>
+    <text class="method" x="105" y="61">execute(raw request)</text>
+  </g>
+  <g transform="translate(1020 38)">
+    <rect class="box usecase" width="245" height="72" />
+    <text class="stereo" x="122.5" y="18">&lt;&lt;INTERFACE&gt;&gt;</text>
+    <text class="title" x="122.5" y="42" textLength="220" lengthAdjust="spacingAndGlyphs">RunTournamentRoundInputBoundary</text>
+    <text class="method" x="122.5" y="61">execute(InputData)</text>
+  </g>
+  <g transform="translate(1310 38)">
+    <rect class="box usecase" width="270" height="72" />
+    <text class="stereo" x="135" y="18">&lt;&lt;USE CASE INTERACTOR&gt;&gt;</text>
+    <text class="title" x="135" y="42">RunTournamentRoundInteractor</text>
+    <text class="method" x="135" y="61">execute() / runMatches()</text>
+  </g>
+
+  <path class="uses" d="M230 74 H270" />
+  <path class="uses" d="M480 74 H520" />
+  <path class="uses" d="M730 74 H770" />
+  <path class="dependency" d="M980 74 H1020" />
+  <path class="realizes" d="M1310 74 H1265" />
+
+  <g transform="translate(20 138)">
+    <rect class="box adapter" width="245" height="72" />
+    <text class="stereo" x="122.5" y="18">&lt;&lt;VIEW MODEL&gt;&gt;</text>
+    <text class="title" x="122.5" y="42">TournamentRoundViewModel</text>
+    <text class="method" x="122.5" y="61">display-ready result</text>
+  </g>
+  <g transform="translate(315 138)">
+    <rect class="box adapter" width="245" height="72" />
+    <text class="stereo" x="122.5" y="18">&lt;&lt;PRESENTER&gt;&gt;</text>
+    <text class="title" x="122.5" y="42">TournamentRoundPresenter</text>
+    <text class="method" x="122.5" y="61">prepareSuccessView()</text>
+  </g>
+  <g transform="translate(610 138)">
+    <rect class="box usecase" width="270" height="72" />
+    <text class="stereo" x="135" y="18">&lt;&lt;INTERFACE&gt;&gt;</text>
+    <text class="title" x="135" y="42" textLength="245" lengthAdjust="spacingAndGlyphs">RunTournamentRoundOutputBoundary</text>
+    <text class="method" x="135" y="61">success / failure</text>
+  </g>
+  <path class="uses" d="M315 174 H265" />
+  <path class="realizes" d="M560 174 H610" />
+  <path class="dependency" d="M1445 110 V174 H880" />
+
+  <g transform="translate(930 138)">
+    <rect class="box usecase" width="280" height="72" />
+    <text class="stereo" x="140" y="18">&lt;&lt;INPUT DATA&gt;&gt;</text>
+    <text class="title" x="140" y="42" textLength="248" lengthAdjust="spacingAndGlyphs">RunTournamentRoundInputData</text>
+    <text class="method" x="140" y="61">id / owner / entrants</text>
+  </g>
+  <g transform="translate(1260 138)">
+    <rect class="box usecase" width="300" height="72" />
+    <text class="stereo" x="150" y="18">&lt;&lt;OUTPUT DATA&gt;&gt;</text>
+    <text class="title" x="150" y="42" textLength="265" lengthAdjust="spacingAndGlyphs">RunTournamentRoundOutputData</text>
+    <text class="method" x="150" y="61">tournament / round / message</text>
+  </g>
+  <path class="dependency" d="M875 110 V126 H1070 V138" />
+  <path class="dependency" d="M1410 138 V122 H1445 V110" />
+
+  <text class="section" x="20" y="250">USE-CASE-OWNED PORTS AND OUTER IMPLEMENTATIONS</text>
+
+  <g transform="translate(20 270)">
+    <rect class="box usecase" width="245" height="72" />
+    <text class="stereo" x="122.5" y="18">&lt;&lt;INTERFACE&gt;&gt;</text>
+    <text class="title" x="122.5" y="42" textLength="218" lengthAdjust="spacingAndGlyphs">TournamentDataAccessInterface</text>
+    <text class="method" x="122.5" y="61">findById() / save()</text>
+  </g>
+  <g transform="translate(315 270)">
+    <rect class="box usecase" width="215" height="72" />
+    <text class="stereo" x="107.5" y="18">&lt;&lt;INTERFACE&gt;&gt;</text>
+    <text class="title" x="107.5" y="42">TournamentIdGenerator</text>
+    <text class="method" x="107.5" y="61">newId()</text>
+  </g>
+  <g transform="translate(580 270)">
+    <rect class="box usecase" width="275" height="72" />
+    <text class="stereo" x="137.5" y="18">&lt;&lt;INTERFACE&gt;&gt;</text>
+    <text class="title" x="137.5" y="42" textLength="248" lengthAdjust="spacingAndGlyphs">TournamentPokemonDataAccessInterface</text>
+    <text class="method" x="137.5" y="61">loadPokemon(owner, name, source)</text>
+  </g>
+  <g transform="translate(905 270)">
+    <rect class="box usecase" width="235" height="72" />
+    <text class="stereo" x="117.5" y="18">&lt;&lt;STRATEGY INTERFACE&gt;&gt;</text>
+    <text class="title" x="117.5" y="42">TournamentMatchRunner</text>
+    <text class="method" x="117.5" y="61">run(first, second)</text>
+  </g>
+  <g transform="translate(1190 270)">
+    <rect class="box usecase" width="235" height="72" />
+    <text class="stereo" x="117.5" y="18">&lt;&lt;INPUT BOUNDARY&gt;&gt;</text>
+    <text class="title" x="117.5" y="42">ResolveTurnInputBoundary</text>
+    <text class="method" x="117.5" y="61">resolve(InputData)</text>
+  </g>
+  <g transform="translate(1470 270)">
+    <rect class="box usecase" width="110" height="72" />
+    <text class="stereo" x="55" y="18">&lt;&lt;SERVICE&gt;&gt;</text>
+    <text class="title" x="55" y="42">Executor</text>
+    <text class="method" x="55" y="61">execute()</text>
+  </g>
+
+  <path class="dependency" d="M1375 110 V238 H142 V270" />
+  <path class="dependency" d="M1400 110 V230 H422 V270" />
+  <path class="dependency" d="M1425 110 V222 H717 V270" />
+  <path class="dependency" d="M1450 110 V214 H1022 V270" />
+  <path class="dependency" d="M1475 110 V206 H1525 V270" />
+
+  <g transform="translate(20 380)">
+    <rect class="box data" width="245" height="72" />
+    <text class="stereo" x="122.5" y="18">&lt;&lt;DATA ACCESS&gt;&gt;</text>
+    <text class="title" x="122.5" y="42">InMemoryTournamentDataAccess</text>
+    <text class="method" x="122.5" y="61">ConcurrentHashMap / UUID</text>
+  </g>
+  <g transform="translate(580 380)">
+    <rect class="box data" width="275" height="72" />
+    <text class="stereo" x="137.5" y="18">&lt;&lt;GATEWAY ADAPTER&gt;&gt;</text>
+    <text class="title" x="137.5" y="42">TournamentPokemonDataAccess</text>
+    <text class="method" x="137.5" y="61">PokeAPI or custom repository</text>
+  </g>
+  <g transform="translate(905 380)">
+    <rect class="box usecase" width="235" height="72" />
+    <text class="stereo" x="117.5" y="18">&lt;&lt;STRATEGY&gt;&gt;</text>
+    <text class="title" x="117.5" y="42">RandomBattleRunner</text>
+    <text class="method" x="117.5" y="61">fresh Battle per match</text>
+  </g>
+  <g transform="translate(1470 380)">
+    <rect class="box framework" width="110" height="72" />
+    <text class="stereo" x="55" y="18">&lt;&lt;CONFIG&gt;&gt;</text>
+    <text class="title" x="55" y="42">ThreadPool</text>
+    <text class="method" x="55" y="61">size = 4</text>
+  </g>
+
+  <path class="realizes" d="M142 380 V342" />
+  <path class="realizes" d="M210 380 V360 H422 V342" />
+  <path class="realizes" d="M717 380 V342" />
+  <path class="realizes" d="M1022 380 V342" />
+  <path class="dependency" d="M1140 416 H1307 V342" />
+  <path class="realizes" d="M1525 380 V342" />
+
+  <text class="section" x="20" y="500">ENTERPRISE BUSINESS RULES</text>
+
+  <g transform="translate(175 525)">
+    <rect class="box entity" width="230" height="86" />
+    <text class="stereo" x="115" y="18">&lt;&lt;AGGREGATE ENTITY&gt;&gt;</text>
+    <text class="title" x="115" y="42">Tournament</text>
+    <text class="method" x="115" y="62">recordRound()</text>
+    <text class="method" x="115" y="79">getChampion()</text>
+  </g>
+  <g transform="translate(490 525)">
+    <rect class="box entity" width="230" height="86" />
+    <text class="stereo" x="115" y="18">&lt;&lt;ENTITY&gt;&gt;</text>
+    <text class="title" x="115" y="42">TournamentRound</text>
+    <text class="method" x="115" y="62">roundNumber / matches</text>
+    <text class="method" x="115" y="79">getWinners()</text>
+  </g>
+  <g transform="translate(805 525)">
+    <rect class="box entity" width="230" height="86" />
+    <text class="stereo" x="115" y="18">&lt;&lt;ENTITY&gt;&gt;</text>
+    <text class="title" x="115" y="42">TournamentMatch</text>
+    <text class="method" x="115" y="62">winner / HP / turns</text>
+    <text class="method" x="115" y="79">validates participant</text>
+  </g>
+  <g transform="translate(1120 525)">
+    <rect class="box entity" width="230" height="86" />
+    <text class="stereo" x="115" y="18">&lt;&lt;ENTITY&gt;&gt;</text>
+    <text class="title" x="115" y="42">Battle</text>
+    <text class="method" x="115" y="62">current HP / winner</text>
+    <text class="method" x="115" y="79">applyDamageTo()</text>
+  </g>
+
+  <path class="composition" d="M405 568 H490" />
+  <path class="composition" d="M720 568 H805" />
+  <path class="dependency" d="M290 525 V485 H1445 V110" />
+  <path class="dependency" d="M1022 452 V490 H1235 V525" />
+
+  <g transform="translate(20 640)">
+    <rect x="0" y="0" width="1560" height="58" fill="#f8f1df" stroke="#9d8d72" stroke-width="2" />
+    <path class="uses" d="M30 21 H95" />
+    <text class="label" x="105" y="25">calls / depends on</text>
+    <path class="realizes" d="M270 21 H335" />
+    <text class="label" x="345" y="25">implements interface</text>
+    <path class="composition" d="M530 21 H595" />
+    <text class="label" x="605" y="25">owns as aggregate</text>
+    <text class="label" x="820" y="25">Runtime control may travel outward; source-code dependencies still point toward use-case-owned abstractions and entities.</text>
+    <text class="label" x="30" y="47">Purple: frameworks/drivers</text>
+    <text class="label" x="250" y="47">Blue: interface adapters</text>
+    <text class="label" x="470" y="47">Green: application rules</text>
+    <text class="label" x="690" y="47">Gold: enterprise rules</text>
+    <text class="label" x="890" y="47">Cyan: data implementations</text>
+  </g>
+</svg>

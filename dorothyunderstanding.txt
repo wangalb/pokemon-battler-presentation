@@ -1,0 +1,1786 @@
+DOROTHY'S TOURNAMENT USE CASE - COMPLETE UNDERSTANDING GUIDE
+
+This guide assumes pull request #47, "Reorganize backend use cases and complete project
+documentation," is the final submitted project. It explains the implementation as merged into
+main by PR #47 at commit ad2ab75.
+
+COURSE MATERIAL USED
+
+1. 09-SOLID.pdf
+   - Page 6 defines the five principles.
+   - Pages 8-11 explain Single Responsibility as one reason or actor for change.
+   - Pages 14-17 explain Open-Closed: extend behaviour without modifying existing code.
+   - Pages 19-20 explain Liskov Substitution.
+   - Pages 22-23 explain small, client-specific interfaces.
+   - Pages 25-28 explain Dependency Inversion and the difference between control flow and
+     source-code dependency.
+
+2. 10-CleanArchitecture.pdf
+   - Page 18 distinguishes Entity business rules from application-specific Use Case rules.
+   - Page 21 defines dependency as source-code dependency, not runtime flow.
+   - Pages 24-27 explain the Dependency Rule and ownership of boundaries.
+   - Page 31 explains testing an Interactor with fake repositories and a test Presenter.
+   - Pages 32-42 define Controller, Input Data, Input Boundary, Interactor, Entity, Data Access
+     Interface, Output Data, Output Boundary, Presenter, View Model, and View.
+   - Pages 44-45 connect Clean Architecture to SOLID.
+
+3. 14-DesignPatterns-1.pdf
+   - Pages 5-6 define patterns, loose coupling, and high cohesion.
+   - Pages 15-17 explain Dependency Injection.
+   - Pages 30-35 explain Strategy: separate a varying algorithm from stable high-level logic.
+   - Pages 47-49 explain Adapter.
+   - Page 55 summarizes the relationship: SOLID supplies design rules, Clean Architecture supplies
+     the layered representation, and design patterns implement the rules.
+
+
+1. THE USE CASE IN ONE SENTENCE
+
+A player chooses any number of official or custom Pokemon for eight opening bracket positions,
+leaves the other positions random, starts the tournament, and watches a single-elimination 8-4-2-1
+bracket run until one champion remains.
+
+The three visible stages are:
+
+- Before: eight setup slots contain selected Pokemon or question marks for random choices.
+- During: the current round is displayed as four, two, or one battle panels.
+- After: all winners from that round are populated in the bracket, and the next-round action is
+  offered until the champion is known.
+
+The important domain rules are:
+
+- Exactly eight entrants begin the tournament.
+- Bracket order determines the opening matchups.
+- A round has exactly four, two, or one matches.
+- Every match is one battle with exactly one winner.
+- Matches within one round are submitted in parallel.
+- A round is recorded only after all of its matches finish.
+- Every match creates a fresh Battle, so HP and battle state reset between matches.
+- Winners advance in bracket order.
+- After three completed rounds, exactly one champion remains.
+
+
+2. WHAT IS RANDOM, AND WHERE RANDOMNESS HAPPENS
+
+Random setup slots are resolved in the frontend before the first backend request. The tournament
+setup state is an array of eight PokemonSpecies-or-null values. A null value corresponds to a
+question mark. resolveTournamentSelectionFromCatalog selects a random Pokedex catalog entry for
+each null slot and loads its full species data. The backend therefore always receives eight named
+entrants; it does not receive blank random slots.
+
+Move choice is random in the backend. RandomBattleRunner asks a MoveSelector for the first
+Pokemon's move. ResolveTurnInteractor asks an OpponentMoveSelector for the second Pokemon's move.
+These selectors are injected. The PokeAPI loader supplies damaging moves and the existing battle
+policy supplies Struggle when there is no normal usable move, so a match still has a damaging
+fallback.
+
+Do not say that the backend randomizes empty bracket slots. The accurate explanation is:
+
+"The frontend resolves question-mark slots from the shared Pokedex catalog before creating the
+tournament. The backend receives eight complete entrant descriptors and randomly chooses moves
+during each match."
+
+
+3. END-TO-END RUNTIME FLOW
+
+STEP 1: THE PLAYER CREATES THE OPENING BRACKET
+
+TournamentSetupScreen is the React View for setup. It renders eight TournamentSlot buttons.
+Clicking a slot opens PokemonSelectionOverlay, which uses the same Pokedex data and selection
+experience as the single-battle setup.
+
+useTournamentSetup owns transient setup state:
+
+- selection: eight PokemonSpecies-or-null positions.
+- pickerSlot: the position currently being edited.
+- starting: whether random slots are being resolved.
+- startError: user-facing setup failure text.
+
+The pure functions in frontend/src/usecases/tournamentSetup.ts implement setup rules. Keeping these
+functions outside the React component makes them independently testable and avoids burying the
+selection policy inside JSX.
+
+Official and custom Pokemon use one PokemonSpecies shape in the frontend. A custom Pokemon has a
+negative dexNumber. When the tournament request is created, negative dexNumber becomes source
+"custom"; other entries become source "pokeapi".
+
+STEP 2: THE FRONTEND STARTS THE FIRST ROUND
+
+TournamentFlowScreen is the View for the active tournament. Its useEffect starts the first round
+once. The useTournament hook owns the frontend flow state:
+
+- tournament: the tournament id, initial entrants, and winners by round.
+- view: either "round" or "bracket".
+- activeEntrants: the Pokemon fighting in the current round.
+- roundResult: the backend result when it arrives.
+- pendingTournament: the state that will be displayed after the round animation.
+- loading, skipRequested, and error: interaction state.
+
+The hook calls runTournamentRound in frontend/src/services/tournament.ts. This is an outer web
+gateway. It sends POST /api/tournaments/rounds.
+
+The first request contains:
+
+- tournamentId: null, because no aggregate has been created yet.
+- owner: the signed-in username.
+- entrants: eight objects containing name and source.
+
+Later requests contain the saved tournamentId and do not resend the original entrants. The backend
+loads the tournament aggregate and derives the current entrants from the previous round's winners.
+
+STEP 3: THE FRAMEWORK CONTROLLER ACCEPTS HTTP
+
+app.web.TournamentController is the Spring RestController. It is a Frameworks and Drivers class.
+Its responsibilities are deliberately HTTP-specific:
+
+- accept TournamentRoundRequest JSON;
+- map raw entrant requests into interface-adapter request models;
+- call the interface-adapter Controller;
+- read the Presenter's View Model;
+- return either HTTP 200 or a mapped failure response.
+
+This class is allowed to know Spring, HttpServletRequest, ResponseEntity, and JSON request records.
+The Interactor is not.
+
+STEP 4: THE INTERFACE-ADAPTER CONTROLLER CREATES INPUT DATA
+
+interface_adapter.tournament.TournamentRoundController converts raw strings into use-case data.
+For example, it converts "pokeapi" or "custom" into TournamentPokemonSource. It constructs
+TournamentEntrantInputData and RunTournamentRoundInputData, then calls
+RunTournamentRoundInputBoundary.
+
+This follows the Controller responsibility from Clean Architecture lecture pages 34-35: react to
+user input, convert raw data into the use case's data structure, and call the Input Boundary.
+
+STEP 5: THE INPUT BOUNDARY ENTERS THE USE CASE
+
+RunTournamentRoundInputBoundary is the public interface for invoking the application use case.
+RunTournamentRoundInteractor implements it. The Controller knows the interface, not the concrete
+Interactor.
+
+This gives two benefits:
+
+- The outer controller is not coupled to the Interactor implementation.
+- Tests or alternate delivery mechanisms could call the same boundary without HTTP.
+
+STEP 6: THE INTERACTOR CREATES OR LOADS THE TOURNAMENT
+
+RunTournamentRoundInteractor.resolveTournament has two paths.
+
+First round:
+
+- tournamentId is blank.
+- Validate exactly eight entrant inputs.
+- Reject blank names or missing source values.
+- If any entrant is custom, require an owner username.
+- Ask TournamentPokemonDataAccessInterface to load each Pokemon.
+- Ask TournamentIdGenerator for a new id.
+- Construct a Tournament aggregate with the eight Pokemon in bracket order.
+
+Later rounds:
+
+- tournamentId is present.
+- Ask TournamentDataAccessInterface.findById for the saved aggregate.
+- Reject a missing or already-complete tournament.
+- Ask Tournament.getCurrentEntrants for the previous round's winners.
+
+The Interactor does not know whether tournament state is in memory, a file, or a database. It also
+does not know whether Pokemon came from PokeAPI or a custom-Pokemon file. Those are outer details
+behind interfaces owned by the use-case layer.
+
+STEP 7: THE INTERACTOR SUBMITS MATCHES IN PARALLEL
+
+runMatches walks through the current entrants in pairs: indexes 0 and 1, then 2 and 3, and so on.
+For each pair it submits:
+
+CompletableFuture.supplyAsync(
+    () -> matchRunner.run(firstPokemon, secondPokemon),
+    executor
+)
+
+TournamentConfiguration injects a fixed thread pool of size four. Therefore all four quarterfinal
+tasks can execute concurrently, both semifinal tasks can execute concurrently, and the final uses
+one task.
+
+The Interactor joins the futures in their original bracket order. This is important. Completion
+time must not reorder the winners. A slow first matchup is still bracket match one.
+
+"Parallel" here means each match is submitted independently to the Executor. It does not mean the
+HTTP response streams every turn. The backend returns after the full round has completed.
+
+STEP 8: RANDOMBATTLERUNNER REUSES SINGLE-BATTLE LOGIC
+
+TournamentMatchRunner is the Strategy interface for simulating one tournament match.
+RandomBattleRunner is the production Strategy.
+
+For one match, RandomBattleRunner:
+
+1. Constructs a fresh Battle(firstPokemon, secondPokemon).
+2. Chooses a random move for the first Pokemon.
+3. Calls ResolveTurnInputBoundary with that Battle and move name.
+4. Records the returned TurnResult.
+5. Repeats until Battle.isComplete is true.
+6. Returns a TournamentMatch containing both entrants, the winner, remaining HP, and turn history.
+
+ResolveTurnInputBoundary belongs to Albert's single-battle use case. The concrete
+ResolveTurnInteractor applies speed order, speed ties, move validation, random opponent moves,
+accuracy, damage, critical hits, type effectiveness, fainting, and the winner rule.
+
+The tournament depends on Albert's boundary, not his concrete Interactor. Same-layer use-case
+collaboration is permitted by the course's Dependency Rule, and depending on the boundary keeps the
+coupling narrow. Tournament code does not duplicate the battle algorithm.
+
+STEP 9: ENTITIES VALIDATE THE COMPLETED ROUND
+
+TournamentRound validates the round number and match count:
+
+- round 1 must contain 4 matches;
+- round 2 must contain 2 matches;
+- round 3 must contain 1 match.
+
+TournamentMatch validates that:
+
+- both Pokemon exist;
+- the winner is one of those two exact participants;
+- remaining HP is not negative;
+- the turn list is copied rather than retained as a mutable external list.
+
+Tournament.recordRound validates that:
+
+- the tournament is not already complete;
+- the round number is exactly the next number;
+- each match uses the correct pair in current bracket order.
+
+Only after these checks does the aggregate append the completed round. This is why Tournament is
+called the aggregate root: it controls access to the round and match structure and protects the
+bracket's consistency as one unit.
+
+STEP 10: THE INTERACTOR SAVES AND SENDS OUTPUT DATA
+
+After every future has joined and the entities accept the round, the Interactor saves the
+Tournament through TournamentDataAccessInterface. It then creates RunTournamentRoundOutputData and
+calls RunTournamentRoundOutputBoundary.prepareSuccessView.
+
+If loading, simulation, or validation fails, the Interactor calls prepareFailView with a
+TournamentFailure value. A failed simulation is not saved as a partially completed round.
+
+STEP 11: THE PRESENTER CREATES THE VIEW MODEL
+
+TournamentRoundPresenter implements RunTournamentRoundOutputBoundary. It converts domain output
+into display-ready data:
+
+- tournament id and round number;
+- completion and champion values;
+- one TournamentMatchViewModel per match;
+- Pokemon names, sprites, max HP, and remaining HP;
+- turn count;
+- human-readable battle log strings.
+
+This formatting does not belong in the Interactor because deciding how results are displayed is an
+interface-adapter responsibility. This matches Clean Architecture lecture page 39.
+
+The Spring TournamentController reads TournamentRoundViewModel and serializes it as JSON. The
+frontend receives data already suitable for its round cards and bracket state.
+
+STEP 12: THE FRONTEND DISPLAYS RESULTS
+
+TournamentRoundBattles displays four, two, or one battle panels. When the backend result is ready,
+the useTournament hook calls recordRoundResult. That pure function identifies each winner within
+the correct pair and appends the winner list to winnersByRound.
+
+TournamentProgressBracket renders the original eight entrants and every winner list accumulated so
+far. nextRoundLabel changes the action from Start Quarterfinals to Start Semifinals, Start Final,
+and finally Finish Tournament.
+
+The 2.5-second frontend delay is presentation timing, not simulation time. "Skip to Results" removes
+that display delay after the response arrives. It does not cancel or bypass backend work.
+
+
+4. CLASS-BY-CLASS RESPONSIBILITIES
+
+FRONTEND VIEW AND FLOW
+
+TournamentSetupScreen
+- Draws setup bracket and selection overlay.
+- Sends user events to the setup hook.
+- Does not implement random-selection rules itself.
+
+useTournamentSetup
+- Coordinates React state for eight slots and the picker.
+- Calls the pure setup use-case functions.
+- Exposes starting and failure state to the View.
+
+frontend usecases/tournamentSetup.ts
+- Creates an eight-slot selection.
+- Resolves null slots from the catalog.
+- Has no React, DOM, or HTTP dependency.
+
+TournamentFlowScreen
+- Switches between round and bracket Views.
+- Renders controls, status messages, and the champion.
+- Starts the first round once.
+
+useTournament
+- Coordinates frontend tournament progress and asynchronous service calls.
+- Does not calculate damage or choose winners.
+
+frontend usecases/tournament.ts
+- Creates frontend tournament state.
+- Derives current entrants.
+- Validates and records backend winners in bracket order.
+- Determines completion and next-round label.
+
+frontend services/tournament.ts
+- Outer HTTP gateway.
+- Knows fetch, JSON, URL configuration, and network error messages.
+
+FRAMEWORKS AND DRIVERS
+
+app.web.TournamentController
+- Spring REST endpoint.
+- Maps HTTP request and response concerns.
+- Delegates application work to the interface-adapter Controller.
+
+app.config.TournamentConfiguration
+- Composition root.
+- Constructs and wires concrete implementations.
+- Selects RandomBattleRunner as the match Strategy.
+- Selects a four-thread ExecutorService.
+- Selects InMemoryTournamentDataAccess.
+- Connects the tournament to ResolveTurnInteractor.
+
+The composition root is supposed to know concrete classes. Dependency Injection moves this
+knowledge out of the Interactor and into one outer location.
+
+INTERFACE ADAPTERS
+
+TournamentRoundController
+- Converts request models and strings into Input Data and enums.
+- Calls the Input Boundary.
+
+TournamentRoundPresenter
+- Implements the Output Boundary.
+- Formats Output Data into View Model records.
+
+TournamentRoundViewModel and child View Models
+- Carry display-ready, serializable values.
+- Prevent the View from needing to inspect domain entities directly.
+
+APPLICATION BUSINESS RULES
+
+RunTournamentRoundInputBoundary
+- Public API of the use case.
+
+RunTournamentRoundInputData
+- Contains tournament id, owner username, and initial entrant descriptors.
+
+RunTournamentRoundInteractor
+- Coordinates one complete round.
+- Owns no UI, HTTP, Spring, file, database, or PokeAPI code.
+
+RunTournamentRoundOutputData
+- Carries the aggregate, completed round, and result message to the output side.
+
+RunTournamentRoundOutputBoundary
+- Interface the Interactor calls for success or failure.
+
+TournamentDataAccessInterface
+- Repository port for finding and saving tournament aggregates.
+
+TournamentPokemonDataAccessInterface
+- Gateway port for loading either official or custom Pokemon.
+
+TournamentIdGenerator
+- Port for id creation.
+
+TournamentMatchRunner
+- Strategy port for one match.
+
+RandomBattleRunner
+- Production Strategy that repeatedly calls the single-battle Input Boundary.
+
+ENTERPRISE BUSINESS RULES
+
+Tournament
+- Aggregate root for opening order, completed rounds, current entrants, and champion.
+
+TournamentRound
+- Immutable completed round with a required number of matches.
+
+TournamentMatch
+- Immutable result of one match, including winner and turn history.
+
+Battle
+- Owns mutable battle-specific HP and winner state for one fresh match.
+
+DATA ACCESS IMPLEMENTATIONS
+
+InMemoryTournamentDataAccess
+- Implements TournamentDataAccessInterface and TournamentIdGenerator.
+- Uses ConcurrentHashMap and UUID.
+- Can be replaced without changing the Interactor.
+
+TournamentPokemonDataAccess
+- Implements TournamentPokemonDataAccessInterface.
+- Delegates official Pokemon to the cached PokeAPI loader.
+- Delegates custom Pokemon to CustomPokemonRepository using the owner username.
+
+
+5. CLEAN ARCHITECTURE EXPLANATION
+
+ENTITY VS. USE CASE
+
+The course defines an Entity as critical business data plus critical business rules, while a Use
+Case describes application-specific steps for a user goal.
+
+Tournament, TournamentRound, TournamentMatch, and Battle are Entities because their validity does
+not depend on React, HTTP, Spring, PokeAPI, or a particular database. Their rules would still be
+true in a desktop, command-line, or mobile version.
+
+RunTournamentRoundInteractor is an application Use Case because it describes the sequence for the
+specific user action: load entrants, run pairings, record a round, save, and present the result.
+
+THE DEPENDENCY RULE
+
+The course definition is source-code based. A depends on B when A imports, names, stores, receives,
+returns, or constructs B. It is not simply "who calls whom."
+
+Runtime flow for this use case travels:
+
+View -> web gateway -> HTTP Controller -> interface-adapter Controller -> Input Boundary ->
+Interactor -> Output Boundary -> Presenter -> View Model -> View.
+
+Some runtime calls travel outward from the Interactor to the Presenter and data implementations.
+The source-code dependency still points inward because:
+
+- The Interactor names RunTournamentRoundOutputBoundary, not TournamentRoundPresenter.
+- The Presenter imports and implements the use-case-owned Output Boundary.
+- The Interactor names TournamentDataAccessInterface, not InMemoryTournamentDataAccess.
+- InMemoryTournamentDataAccess imports and implements the use-case-owned interface.
+- The Interactor names TournamentMatchRunner, not RandomBattleRunner.
+- RandomBattleRunner implements the Strategy selected by outer configuration.
+
+This is Dependency Inversion. Runtime control can leave the use case, while the source dependency
+continues to point toward its abstraction.
+
+WHY THE INTERFACES LIVE IN USE_CASE/TOURNAMENT
+
+Clean Architecture lecture page 27 says an interface only inverts a dependency when the inner,
+higher-level policy owns it. If TournamentDataAccessInterface lived in data_access, the Interactor
+would still depend outward on the data layer. By declaring the interface in use_case/tournament,
+the outer implementation depends inward.
+
+TESTABILITY AS ARCHITECTURAL EVIDENCE
+
+RunTournamentRoundInteractorTest constructs the Interactor directly with:
+
+- RecordingPresenter as the Output Boundary;
+- FakeTournamentDataAccess as the repository;
+- FakePokemonDataAccess as the Pokemon gateway;
+- FirstPokemonWinsRunner as the match Strategy;
+- a fixed id lambda;
+- Runnable::run as a same-thread Executor.
+
+The test needs no Spring context, network, browser, file system, real thread pool, or PokeAPI. This
+is exactly the Clean Architecture testing consequence described on lecture page 31.
+
+
+6. SOLID PRINCIPLES IN THE TOURNAMENT
+
+S - SINGLE RESPONSIBILITY PRINCIPLE
+
+Course definition: a class should have one reason to change, tied to one actor or business
+function.
+
+Concrete tournament split:
+
+- RunTournamentRoundInteractor changes when round orchestration changes.
+- Tournament changes when bracket progression rules change.
+- TournamentRound changes when round validity changes.
+- RandomBattleRunner changes when one-match automation changes.
+- InMemoryTournamentDataAccess changes when tournament persistence changes.
+- TournamentPokemonDataAccess changes when entrant-loading policy changes.
+- TournamentRoundPresenter changes when result formatting changes.
+- React Views change when visual presentation changes.
+
+This is not "every class has only one method." It means unrelated actors do not force changes in
+the same class.
+
+O - OPEN-CLOSED PRINCIPLE
+
+Course definition: software should be open for extension but closed for modification.
+
+TournamentMatchRunner is the clearest example. The stable Interactor knows only run(first, second).
+RandomBattleRunner supplies the current algorithm. A SeededBattleRunner, RecordedTurnBattleRunner,
+or PlayerControlledBattleRunner could implement the same interface. Tournament progression,
+persistence, output formatting, and UI would not need edits.
+
+The repository port is another extension seam. A database-backed implementation can replace the
+in-memory one through configuration.
+
+L - LISKOV SUBSTITUTION PRINCIPLE
+
+Course definition: an implementation of an interface must be usable wherever that interface is
+expected without surprising the client.
+
+The Interactor can use RandomBattleRunner or the FirstPokemonWinsRunner test fake through
+TournamentMatchRunner. Both must return a TournamentMatch whose winner is one of the two supplied
+participants. TournamentMatch enforces that contract.
+
+Similarly, FakeTournamentDataAccess and InMemoryTournamentDataAccess are substitutable through
+TournamentDataAccessInterface. Both preserve findById/save semantics expected by the Interactor.
+
+Do not claim LSP merely because interfaces exist. The behavioural contracts and valid results are
+what make substitution safe.
+
+I - INTERFACE SEGREGATION PRINCIPLE
+
+Course definition: clients should not be forced to depend on methods they do not use.
+
+The tournament has narrow, client-specific interfaces:
+
+- TournamentDataAccessInterface has only findById and save.
+- TournamentPokemonDataAccessInterface has only loadPokemon.
+- TournamentIdGenerator has only newId.
+- TournamentMatchRunner has only run.
+- RunTournamentRoundOutputBoundary has only the success and failure operations the Interactor
+  requires.
+
+The Interactor is not forced to depend on a large PokeAPI service, a complete custom-Pokemon file
+API, or unrelated account methods.
+
+D - DEPENDENCY INVERSION PRINCIPLE
+
+Course definition: high-level modules should not depend on low-level modules; both depend on
+abstractions, and details depend on abstractions.
+
+RunTournamentRoundInteractor is the high-level application policy. It depends on the interfaces
+listed above and java.util.concurrent.Executor. Concrete repositories, gateways, Strategies, and
+thread pools are supplied from TournamentConfiguration. The Interactor does not use new on any of
+those details.
+
+
+7. DESIGN PATTERNS
+
+STRATEGY
+
+The Strategy lecture describes stable high-level logic with one varying algorithm. Here:
+
+- Context/high-level client: RunTournamentRoundInteractor.
+- Strategy interface: TournamentMatchRunner.
+- Concrete Strategy: RandomBattleRunner.
+- Varying algorithm: how one pair produces a winner.
+
+The bracket algorithm remains stable while match simulation can vary.
+
+DEPENDENCY INJECTION
+
+The Interactor receives all collaborators through its constructor. It does not construct them.
+TournamentConfiguration chooses concrete production objects. Tests choose deterministic fakes.
+
+This is different from Dependency Inversion:
+
+- Dependency Inversion is the SOLID principle about the direction of source dependencies.
+- Dependency Injection is the construction technique used to supply the abstractions.
+
+REPOSITORY / DATA ACCESS INTERFACE
+
+TournamentDataAccessInterface hides persistence behind aggregate-oriented operations. The current
+implementation is in memory. A database implementation could preserve the same use-case contract.
+The course Clean Architecture terminology treats DAO, Gateway, and Repository as related outer
+data-access roles.
+
+ADAPTER
+
+TournamentRoundController adapts raw request values to Input Data. TournamentRoundPresenter adapts
+Output Data and Entities to a View Model. TournamentPokemonDataAccess adapts a tournament-specific
+load operation to either the PokeAPI loader or custom repository.
+
+PRESENTER AND VIEW MODEL
+
+The Presenter is an output adapter. It converts rich domain output into raw strings and numbers
+that are safe and convenient for display. The View Model is the result of that conversion. This
+keeps formatting out of the Interactor and avoids exposing domain objects directly over JSON.
+
+AGGREGATE
+
+Tournament is the aggregate root. TournamentRound and TournamentMatch are owned parts of the
+bracket history. External code records progression through Tournament.recordRound instead of
+mutating a public list. The aggregate validates the consistency of the whole bracket transition.
+
+
+8. HOW DOROTHY'S CODE INTERACTS WITH OTHER MEMBERS' WORK
+
+ALBERT - SINGLE BATTLE
+
+RandomBattleRunner calls ResolveTurnInputBoundary. This is the most important reuse relationship.
+Albert's turn logic determines move validity, attack order, accuracy, damage, type effectiveness,
+critical hits, fainting, and the winner. Dorothy's code supplies random moves and repeats turns
+until the Battle is complete.
+
+The dependency is on Albert's boundary rather than ResolveTurnInteractor. That keeps the
+tournament open to another turn-resolution implementation and avoids a concrete cross-use-case
+dependency.
+
+AMAN - POKEDEX
+
+TournamentSetupScreen uses usePokedex and fetchSpecies to populate the selection overlay and load
+full official Pokemon data. Random setup positions are selected from Aman's catalog. On the
+backend, official entrant names are loaded through the cached PokeAPI path.
+
+CINDY - BUILD A POKEMON
+
+Pokemon created through Cindy's flow is saved as custom Pokemon data. The tournament picker can
+select that Pokemon, and the frontend marks it with source "custom." Tournament logic does not
+need a second bracket implementation for created Pokemon because both official and custom records
+become the same Pokemon entity before battle simulation.
+
+EDISON - BATTLING WITH CUSTOM POKEMON
+
+The final PR extends TournamentEntrantInputData with a source and passes the owner username.
+TournamentPokemonDataAccess routes custom entrants to CustomPokemonRepository. This is the direct
+integration that allows a custom Pokemon to participate in every round and remain represented in
+the winner bracket.
+
+WILL - TRAINER PANEL AND USER ACCOUNTS
+
+The signed-in username flows into TournamentSetupScreen and then into the first tournament request
+as owner. That owner scopes custom-Pokemon lookup to the correct trainer's collection. Official
+Pokemon do not require owner-scoped loading, but custom Pokemon do. The backend rejects a custom
+entrant when no owner is supplied.
+
+
+9. CONCURRENCY, STATE, AND FAILURE BEHAVIOUR
+
+WHY A FOUR-THREAD POOL
+
+The largest round has four matches, so four workers let every quarterfinal be submitted at once.
+Semifinals use two workers and the final uses one. The Executor is created once by Spring and shut
+down with the application.
+
+WHY THE EXECUTOR IS INJECTED
+
+Constructing a thread pool inside the Interactor would couple application policy to a concurrency
+detail and make tests timing-dependent. Injecting Executor lets production use a fixed pool and
+tests use Runnable::run for deterministic same-thread execution.
+
+WHAT HAPPENS IF ONE MATCH FAILS
+
+CompletableFuture.join throws CompletionException. The Interactor maps the underlying message to a
+SIMULATION_ERROR through the Output Boundary. Because recordRound and save happen after all joins,
+the failed round is not persisted as partially complete.
+
+WHERE TOURNAMENT STATE LIVES
+
+InMemoryTournamentDataAccess stores Tournament aggregates in ConcurrentHashMap. The id is returned
+to the frontend and sent on later round requests. Restarting the backend loses active tournament
+state. This is a documented course-project limitation, not a hidden claim of durable persistence.
+
+WHY HP RESETS
+
+Pokemon supplies base statistics, but current HP lives in Battle. RandomBattleRunner constructs a
+new Battle for every match. A Pokemon that won with low remaining HP in a quarterfinal enters a new
+Battle at full HP in the semifinal.
+
+WHY THERE ARE NO TIES
+
+The battle runs until Battle.isComplete and requires a winner. RandomBattleRunner rejects a match
+that reaches its safety limit without a winner. TournamentMatch also rejects a winner that is not
+one of its participants.
+
+
+10. TESTING EVIDENCE YOU SHOULD UNDERSTAND
+
+RunTournamentRoundInteractorTest verifies:
+
+- creation of four opening matches in bracket order;
+- custom Pokemon loading from the owning trainer's collection;
+- rejection of custom Pokemon without an owner;
+- 4-2-1 progression to a champion;
+- rejection of any initial entrant count other than eight;
+- rejection of blank entrant names;
+- missing saved tournaments;
+- Pokemon-not-found and upstream data failures;
+- match simulation failures without saving partial state;
+- rejection of another round after completion.
+
+TournamentTest verifies:
+
+- 4-2-1 entity progression;
+- exactly eight entrants;
+- rejection of matchups outside bracket order;
+- rejection of additional rounds after the champion is known.
+
+Other tournament tests cover:
+
+- RandomBattleRunner;
+- InMemoryTournamentDataAccess;
+- TournamentPokemonDataAccess;
+- TournamentRoundController;
+- TournamentRoundPresenter;
+- the Spring HTTP TournamentController;
+- frontend setup, hooks, pure use-case functions, services, and Views.
+
+The architecture point is more important than reciting test counts: the Interactor test controls
+every nondeterministic dependency. The fake match runner controls winners, and Runnable::run
+controls scheduling.
+
+
+11. HOW TO READ THE UML SLIDE
+
+COLOURS
+
+- Purple: Frameworks and Drivers, including React/web modules and Spring HTTP/configuration.
+- Blue: Interface Adapters, including the Controller, Presenter, and View Model.
+- Green: Application Business Rules, including boundaries, Input/Output Data, Interactor, ports,
+  and Strategies.
+- Gold: Enterprise Business Rules, including Tournament, TournamentRound, TournamentMatch, and
+  Battle.
+- Cyan: concrete data-access implementations.
+
+ARROWS
+
+- Solid arrow: runtime call or ordinary use.
+- Dashed black arrow: source-code dependency on a type or abstraction.
+- Dashed green arrow with hollow triangle: a concrete class implements an interface.
+- Black diamond: aggregate composition; Tournament owns rounds, and rounds own matches.
+
+THE TRACE TO SAY OUT LOUD
+
+Do not explain every box. Trace this path:
+
+TournamentFlowScreen -> services/tournament.ts -> Spring TournamentController ->
+TournamentRoundController -> RunTournamentRoundInputBoundary -> RunTournamentRoundInteractor ->
+Tournament entities -> RunTournamentRoundOutputBoundary -> TournamentRoundPresenter ->
+TournamentRoundViewModel -> View.
+
+Then prove one inverted dependency:
+
+"The Interactor imports TournamentDataAccessInterface. InMemoryTournamentDataAccess implements
+that inner interface. The inner policy does not import the outer storage detail."
+
+Then prove one extension seam:
+
+"The Interactor imports TournamentMatchRunner. RandomBattleRunner implements it. A different match
+algorithm can be added without changing the Interactor."
+
+
+12. LIMITATIONS AND HONEST ANSWERS
+
+The strongest presentation is precise about boundaries rather than pretending the project is a
+production service.
+
+- Tournament state is in memory and is lost on backend restart.
+- The round response is returned after every match completes; turns are not streamed live.
+- Random setup slots are resolved in the frontend before the backend request.
+- Skip to Results changes frontend display timing; it does not cancel backend work.
+- The UI prevents duplicate round starts while loading, but the backend is not designed as a
+  distributed, idempotent tournament service for multiple simultaneous requests to the same id.
+- PokeAPI availability matters for official Pokemon that are not already cached.
+- Custom Pokemon require the correct owner username.
+
+These limitations do not violate the use-case specification. They are implementation boundaries
+that could be changed behind existing ports.
+
+
+13. LIKELY GRADER QUESTIONS AND STRONG ANSWERS
+
+Q: Why is Tournament an Entity instead of putting the bracket in the Interactor?
+A: Bracket validity is an enterprise rule independent of UI, HTTP, and persistence. Tournament
+protects round order, matchup order, completion, and the champion wherever the application is run.
+The Interactor only coordinates the user action.
+
+Q: Is the tournament really parallel?
+A: Yes within each round. The Interactor submits one CompletableFuture per matchup to an injected
+fixed thread pool of size four, then joins all futures before recording the round. The API is not
+streaming; parallel execution happens before the completed round response.
+
+Q: Why use TournamentMatchRunner?
+A: Match simulation is the algorithm that varies while bracket progression remains stable. The
+Strategy interface applies Open-Closed and Dependency Inversion and lets tests use deterministic
+winners.
+
+Q: How do you reset HP?
+A: Current HP belongs to a fresh Battle object, not the reusable Pokemon entity. RandomBattleRunner
+constructs a new Battle for every matchup.
+
+Q: How do custom Pokemon work?
+A: The frontend sends name, source "custom," and owner. TournamentPokemonDataAccess uses the owner
+to load the Pokemon from CustomPokemonRepository. It then becomes the same Pokemon entity used by
+all battle and bracket rules.
+
+Q: What happens to a random question-mark slot?
+A: The frontend chooses a random entry from the shared Pokedex catalog and loads it before sending
+the first request. The backend always receives exactly eight concrete entrant descriptors.
+
+Q: What proves the Dependency Rule?
+A: The Interactor imports only entities, use-case data, boundaries, and abstractions. Presenters,
+repositories, gateways, Spring controllers, and configuration import and implement those inner
+interfaces. Architecture tests also enforce package dependencies.
+
+Q: Why not instantiate RandomBattleRunner and the thread pool in the Interactor?
+A: That would couple high-level application policy to low-level details and make testing
+nondeterministic. Constructor injection lets outer configuration choose production details and
+tests supply fakes.
+
+Q: What design pattern did you add?
+A: Strategy. TournamentMatchRunner defines the varying one-match algorithm, RandomBattleRunner is
+the production strategy, and the round Interactor is the stable client. Dependency Injection and
+the Presenter/Adapter structure support that design.
+
+Q: How does this interact with single battle without violating Clean Architecture?
+A: RandomBattleRunner calls ResolveTurnInputBoundary, which is Albert's application-layer
+interface. Same-layer dependency is allowed, and using the boundary avoids importing his concrete
+Interactor or duplicating battle rules.
+
+Q: Why can tests run without a server?
+A: Every external or nondeterministic collaborator is injected. The Interactor test uses fake data
+access, a fake Strategy, a recording Output Boundary, a fixed id generator, and a same-thread
+Executor.
+
+
+14. THE FIVE SENTENCES TO REMEMBER IF YOU FORGET EVERYTHING ELSE
+
+1. The Interactor coordinates one round; the Tournament aggregate enforces the bracket rules.
+2. Four, two, and one matches are submitted through an injected Executor, and the round is recorded
+   only after every future joins.
+3. TournamentMatchRunner is a Strategy, so the battle algorithm can change without changing the
+   bracket use case.
+4. RandomBattleRunner creates a fresh Battle and reuses Albert's ResolveTurnInputBoundary, so HP
+   resets and battle logic is not duplicated.
+5. Runtime control travels outward, but source-code dependencies point inward because the use case
+   owns the boundaries that Presenters, repositories, and gateways implement.
+
+
+15. FILE-BY-FILE MAP OF THE TOURNAMENT AND EVERYTHING IT USES
+
+All paths below are relative to the pokemon-battler repository. This section deliberately includes
+the shared selection, Pokedex, custom-Pokemon, and single-battle files because the tournament is an
+orchestrator: it does not own every rule or every piece of data that it uses.
+
+THE SHORTEST READING ORDER
+
+If you have limited time, read these files in this order:
+
+1. frontend/src/App.tsx
+2. frontend/src/components/battle-setup/TournamentSetupScreen.tsx
+3. frontend/src/hooks/useTournamentSetup.ts
+4. frontend/src/usecases/tournamentSetup.ts
+5. frontend/src/components/tournament/TournamentFlowScreen.tsx
+6. frontend/src/hooks/useTournament.ts
+7. frontend/src/usecases/tournament.ts
+8. frontend/src/services/tournament.ts
+9. backend/src/main/java/app/web/TournamentController.java
+10. backend/src/main/java/interface_adapter/tournament/TournamentRoundController.java
+11. backend/src/main/java/use_case/tournament/RunTournamentRoundInteractor.java
+12. backend/src/main/java/use_case/tournament/RandomBattleRunner.java
+13. backend/src/main/java/use_case/resolve_turn/ResolveTurnInteractor.java
+14. backend/src/main/java/entity/Tournament.java
+15. backend/src/main/java/entity/Battle.java
+16. backend/src/main/java/interface_adapter/tournament/TournamentRoundPresenter.java
+17. frontend/src/components/tournament/TournamentProgressBracket.tsx
+
+That sequence follows runtime control from navigation, to setup, to HTTP, through the backend use
+case and battle engine, and finally back to the displayed bracket.
+
+
+15A. FRONTEND ENTRY POINT AND TOURNAMENT NAVIGATION
+
+- frontend/src/main.tsx
+  React's entry point. It mounts App, so every tournament screen is ultimately reached through this
+  file even though it contains no tournament rules.
+
+- frontend/src/App.tsx
+  The frontend composition root and top-level view router. It moves from HomeScreen to
+  TournamentSetupScreen, stores the resolved eight entrants, then mounts TournamentFlowScreen with
+  those entrants and the signed-in username. It also injects battleApiGateway into useBattle for
+  the separate single-battle flow.
+
+- frontend/src/components/home/HomeScreen.tsx
+  Main-menu View. Its Tournament button invokes the callback supplied by App, so it begins
+  navigation without knowing how tournament setup or simulation is implemented.
+
+- frontend/src/hooks/useAuth.ts
+  Supplies App with the current signed-in user. App passes that user's username through tournament
+  setup and flow so the backend can scope custom-Pokemon lookup to the correct stored collection.
+
+- frontend/src/domain/auth.ts
+  Defines the frontend authentication/user state types consumed by useAuth and App; tournament code
+  uses only the resulting username and has no dependency on login implementation details.
+
+- frontend/src/index.css
+  Global frontend styling and font setup. It affects the common visual shell but contains no
+  tournament or battle policy.
+
+- frontend/public/PokemonBackground.jpg
+  Shared forest background used by the main menu, setup, tournament, and other project views.
+
+- frontend/public/single-battle-bolt.png
+  Decorative lightning divider used only by the single-battle setup screen.
+
+- frontend/public/Pokeball.png
+  Shared Pokeball image used as the application icon/branding asset; it has no application logic.
+
+
+15B. TOURNAMENT SETUP, RANDOM SLOTS, AND THE SHARED PICKER
+
+- frontend/src/components/battle-setup/TournamentSetupScreen.tsx
+  The setup View. It renders eight clickable bracket slots, opens PokemonSelectionOverlay, draws
+  TournamentBracketLines, waits for random slots to resolve, and passes eight concrete
+  PokemonSpecies objects back to App. It calls useTournamentSetup for state, usePokedex for the
+  catalog, fetchSpecies for full details, and services/sprites.ts for images.
+
+- frontend/src/hooks/useTournamentSetup.ts
+  The React interface adapter for setup. It owns the eight selections, currently open picker slot,
+  loading flag, and setup error, then delegates the actual random-resolution rule to
+  usecases/tournamentSetup.ts.
+
+- frontend/src/usecases/tournamentSetup.ts
+  Pure application rules for setup. It creates eight null slots and resolves every null by choosing
+  a random SpeciesSummary and calling an injected SpeciesLoader. It reuses pickRandomEntry and the
+  SpeciesLoader type from singleBattleSetup.ts instead of duplicating that policy.
+
+- frontend/src/components/battle-setup/PokemonSelectionOverlay.tsx
+  Shared modal View used by both tournament and single-battle setup. It displays searchable/filterable
+  catalog cards, a Random card, details for the selected Pokemon, and a Select button. It consumes
+  the PokedexState interface rather than fetching data itself.
+
+- frontend/src/components/common/useModalDialog.ts
+  Shared modal accessibility helper. PokemonSelectionOverlay uses it for initial focus, focus
+  containment, Escape handling, and restoring focus when the picker closes.
+
+- frontend/src/components/battle-setup/singleBattleSetup.css
+  Shared styling for both setup screens, the selection overlay, the tournament bracket, tournament
+  round cards, and responsive layouts. It contains layout only; the bracket and battle rules live in
+  TypeScript and Java.
+
+- frontend/src/usecases/singleBattleSetup.ts
+  Shared pure setup rules. Tournament setup imports its random-entry helper and loader boundary;
+  single battle also uses this file to resolve two slots and convert PokemonSpecies into a
+  BattleState. createBattlePokemon filters unusable/status moves and inserts STRUGGLE_MOVE when no
+  damaging move remains.
+
+- frontend/src/domain/pokedex.ts
+  Defines SpeciesSummary, PokemonSpecies, SpeciesMove, base stats, and STRUGGLE_MOVE. Tournament setup
+  and progression use PokemonSpecies as the stable frontend representation of both official and
+  custom entrants.
+
+- frontend/src/domain/typeChart.ts
+  Owns the frontend type chart and type utilities used by Pokedex filtering/detail calculations.
+  Tournament does not calculate damage here; backend TypeEffectiveness controls simulated attacks.
+
+- frontend/src/usecases/pokedex.ts
+  Pure Pokedex search/filter and species-to-library mapping functions. usePokedex uses its filtering
+  functions to supply the picker with matching entries.
+
+- frontend/src/hooks/usePokedex.ts
+  Shared React adapter for the Pokedex and both selection screens. It loads the full summary index,
+  tracks search/type filters and paging, loads details for one selection, and exposes every summary
+  through entries so random slots draw from the complete catalog.
+
+- frontend/src/services/pokedexApi.ts
+  Browser-side PokeAPI gateway. For the catalog it calls GET /pokemon?limit=100000&offset=0 and the
+  18 /type/{type} endpoints; for details it calls /pokemon/{id}, the species URL, and selected
+  /move/{name} endpoints. It memoizes results, excludes moves with null power, and uses Struggle when
+  no damaging move is available. When a dex number is negative it delegates to services/pokemon.ts
+  instead of PokeAPI.
+
+- frontend/src/services/pokemon.ts
+  Frontend gateway for custom Pokemon. fetchCustomPokemonSpecies calls the backend custom-Pokemon
+  list endpoint, maps records into PokemonSpecies with negative dex numbers, and preserves backend
+  sprite URLs. Tournament setup interprets those negative numbers as source "custom" later.
+
+- frontend/src/types/pokemonRequest.ts
+  Defines the request shape used when creating a custom Pokemon. It is imported by services/pokemon.ts;
+  it matters before a custom entrant can exist, but it does not affect bracket progression.
+
+- frontend/src/services/apiAuth.ts
+  Builds the project's development Authorization header sent with custom-Pokemon requests. It is
+  explicitly unverified identity transport; the current CustomPokemonController does not validate
+  it, so it must not be described as production authentication.
+
+- frontend/src/services/apiConfig.ts
+  Centralizes the backend base URL. apiUrl points to http://localhost:8080 by default or to
+  VITE_API_BASE_URL when configured; tournament, battle, library, and custom-Pokemon gateways all use
+  it.
+
+- frontend/src/services/sprites.ts
+  Central sprite URL adapter. Tournament setup/progress use speciesFrontUrl and speciesArtworkUrl;
+  custom /api sprite paths are expanded through apiUrl, while official images use the PokeAPI sprite
+  CDN. Single battle also uses its animated/static fallback functions.
+
+
+15C. ACTIVE TOURNAMENT FRONTEND
+
+- frontend/src/domain/tournament.ts
+  Defines the frontend TournamentState and the JSON result shapes returned by the backend. It joins
+  the frontend application rules to services/tournament.ts without importing React or fetch.
+
+- frontend/src/components/tournament/TournamentFlowScreen.tsx
+  Main tournament View after setup. It starts the quarterfinal round once, switches between the
+  round-battle and bracket views, renders errors/champion status, and delegates state transitions to
+  useTournament.
+
+- frontend/src/hooks/useTournament.ts
+  React interface adapter for tournament flow. It holds the tournament state, active entrants,
+  current result, pending bracket update, loading/error flags, and the 2.5-second display delay. On
+  the first request it sends all eight entrants and labels negative dex numbers as custom; later
+  requests send only the tournament id.
+
+- frontend/src/usecases/tournament.ts
+  Pure frontend application rules. It creates TournamentState, derives current entrants, maps each
+  backend winner name back to one of that match's two frontend PokemonSpecies objects, records
+  winners in 8-4-2-1 order, and calculates completion/button labels.
+
+- frontend/src/services/tournament.ts
+  HTTP gateway for POST /api/tournaments/rounds. It serializes tournamentId, owner, and source-aware
+  entrants, reads TournamentRoundResult JSON, and converts network or non-2xx responses into
+  displayable errors. It does not simulate battles itself.
+
+- frontend/src/components/tournament/TournamentRoundBattles.tsx
+  Presentational View for the current four, two, or one match cards. It combines the original
+  frontend entrants with backend HP, winner, turn-count, and battle-log data, and exposes loading and
+  HP through accessible status/progress semantics.
+
+- frontend/src/components/tournament/TournamentProgressBracket.tsx
+  Presentational View for the accumulated bracket. It places the original eight entrants,
+  quarterfinal winners, semifinal winners, and champion in fixed bracket positions, reusing the SVG
+  line component exported by TournamentSetupScreen.
+
+IMPORTANT FRONTEND DATA DETAIL
+
+The frontend does not replace its PokemonSpecies objects with the backend's Pokemon view models.
+recordRoundResult uses winnerName to find the winner among the two current frontend entrants. That
+preserves frontend-only fields such as dexNumber and spriteKey while still trusting the backend to
+decide the winner.
+
+
+15D. SPRING ENTRY, HTTP DTOs, AND CONFIGURATION
+
+- backend/src/main/java/app/PokemonBattlerApplication.java
+  Spring Boot entry point. @SpringBootApplication starts component/configuration scanning rooted at
+  app, which discovers the web controllers and configuration classes below.
+
+- backend/src/main/java/app/config/WebConfiguration.java
+  Enables CORS for /api/** from the configured frontend origin, defaulting to
+  http://localhost:5173. This is what permits the Vite frontend to call the Spring backend in local
+  development.
+
+- backend/src/main/java/app/config/TournamentConfiguration.java
+  Tournament composition root. It wires the repository/id generator, cached official Pokemon
+  gateway, custom repository, Presenter, Controller, Interactor, four-thread ExecutorService, and
+  RandomBattleRunner. It constructs a tournament-specific ResolveTurnInteractor and gives the same
+  RandomOpponentMoveSelector to player and opponent random move selection.
+
+- backend/src/main/java/app/web/TournamentRoundRequest.java
+  JSON request record with tournamentId, owner, and entrants. The first request has a null id and
+  eight entrants; later requests have the id and normally an empty entrant list.
+
+- backend/src/main/java/app/web/TournamentEntrantRequest.java
+  Small HTTP DTO containing one entrant's name and raw source string. It deliberately knows JSON
+  values, not the use-case enum.
+
+- backend/src/main/java/app/web/TournamentController.java
+  Spring REST adapter for POST /api/tournaments/rounds. It maps web DTOs into interface-adapter
+  request models, invokes TournamentRoundController, reads the request-scoped Presenter, and returns
+  either HTTP 200 or an ApiError.
+
+- backend/src/main/java/app/web/TournamentFailureResponses.java
+  Maps TournamentFailure values to HTTP status codes: 400 invalid input, 404 not found, 502 upstream
+  data failure, and 500 simulation failure.
+
+- backend/src/main/java/app/web/ApiError.java
+  Shared JSON error record used by tournament, battle, Pokemon, custom-Pokemon, and other web
+  controllers.
+
+SECURITY DETAIL TO STATE ACCURATELY
+
+The tournament service sends owner in the JSON body, and TournamentController passes it through.
+It does not resolve the caller from the Authorization header. The frontend also sends its unverified
+header to custom-Pokemon endpoints, but CustomPokemonController currently uses the owner path
+directly and does not consult CallerResolver; CallerResolver is used by LibraryController. Owner is
+therefore a data-scoping value, not securely authenticated identity, in both of these custom-
+Pokemon paths. This is acceptable as a documented course-project limitation, but do not claim that
+the tournament or custom-Pokemon endpoint enforces production authentication.
+
+
+15E. TOURNAMENT INTERFACE ADAPTERS
+
+- backend/src/main/java/interface_adapter/tournament/TournamentEntrantRequestModel.java
+  Delivery-neutral request model containing the raw entrant name/source passed from the Spring web
+  controller to the Clean Architecture Controller.
+
+- backend/src/main/java/interface_adapter/tournament/TournamentRoundController.java
+  Clean Architecture Controller. It converts source strings to TournamentPokemonSource, creates
+  TournamentEntrantInputData and RunTournamentRoundInputData, and calls only the Input Boundary.
+  Unknown source strings become null so the Interactor can reject them consistently.
+
+- backend/src/main/java/interface_adapter/tournament/TournamentRoundPresenter.java
+  Output adapter implementing RunTournamentRoundOutputBoundary. It turns entities and output data
+  into a display-ready View Model, including flattened battle-log sentences generated from
+  TurnResult and TurnAction.
+
+- backend/src/main/java/interface_adapter/tournament/TournamentRoundViewModel.java
+  Top-level response View Model: success/failure, message, failure kind, id, round number,
+  completion/champion, and match list. The Spring controller serializes this record to JSON.
+
+- backend/src/main/java/interface_adapter/tournament/TournamentMatchViewModel.java
+  One completed match in the View Model, including both Pokemon summaries, winner, remaining HP,
+  turn count, and formatted log.
+
+- backend/src/main/java/interface_adapter/tournament/TournamentPokemonViewModel.java
+  Minimal display representation of a Pokemon: name, maximum HP, and sprites. It prevents the API
+  response from exposing the complete Pokemon entity unnecessarily.
+
+
+15F. TOURNAMENT APPLICATION BUSINESS RULES
+
+- backend/src/main/java/use_case/tournament/RunTournamentRoundInputBoundary.java
+  Public input port for the use case. Controllers invoke execute through this interface rather than
+  importing the concrete Interactor.
+
+- backend/src/main/java/use_case/tournament/RunTournamentRoundInputData.java
+  Use-case request data containing tournament id, owner, and initial entrant descriptors. Its
+  compatibility constructor treats a list of plain names as official PokeAPI entrants.
+
+- backend/src/main/java/use_case/tournament/TournamentEntrantInputData.java
+  One validated-layer entrant descriptor: name plus the TournamentPokemonSource enum.
+
+- backend/src/main/java/use_case/tournament/TournamentPokemonSource.java
+  Enum distinguishing POKEAPI from CUSTOM so loading policy is explicit rather than inferred from a
+  name or sprite URL.
+
+- backend/src/main/java/use_case/tournament/RunTournamentRoundInteractor.java
+  Core use-case coordinator. It creates or reloads a Tournament, validates initial data, loads
+  Pokemon through a port, submits each pair through CompletableFuture on the injected Executor,
+  constructs/records the completed round, saves the aggregate, and calls the Output Boundary. It
+  joins futures in submission order so concurrency never changes bracket order.
+
+- backend/src/main/java/use_case/tournament/RunTournamentRoundOutputBoundary.java
+  Presenter-facing output port with success and failure operations. The Interactor owns this
+  interface, so the concrete Presenter depends inward.
+
+- backend/src/main/java/use_case/tournament/RunTournamentRoundOutputData.java
+  Successful output containing the Tournament aggregate, newly completed TournamentRound, and
+  result message. The Presenter reads it but the web View never receives these entities directly.
+
+- backend/src/main/java/use_case/tournament/TournamentFailure.java
+  Closed set of use-case failure categories used by the Presenter and HTTP failure mapper.
+
+- backend/src/main/java/use_case/tournament/TournamentDataAccessInterface.java
+  Repository port with only findById and save. The Interactor depends on it; the in-memory data
+  access class implements it.
+
+- backend/src/main/java/use_case/tournament/TournamentPokemonDataAccessInterface.java
+  Entrant-loading gateway port. It hides whether an entrant comes from cached PokeAPI data or a
+  trainer's custom-Pokemon file.
+
+- backend/src/main/java/use_case/tournament/TournamentIdGenerator.java
+  One-method id port. InMemoryTournamentDataAccess supplies UUIDs in production; tests can inject a
+  fixed id.
+
+- backend/src/main/java/use_case/tournament/TournamentMatchRunner.java
+  Strategy interface for turning a pair of Pokemon into one TournamentMatch. It is the main
+  Open-Closed extension point in the tournament.
+
+- backend/src/main/java/use_case/tournament/RandomBattleRunner.java
+  Production match Strategy. It creates a fresh one-on-one Battle, randomly chooses the first
+  Pokemon's move, calls ResolveTurnInputBoundary for each turn, records TurnResults, and returns a
+  TournamentMatch after a winner exists. Its 10,000-turn cap converts an impossible/nonterminating
+  simulation into a failure instead of hanging forever.
+
+
+15G. TOURNAMENT ENTITIES
+
+- backend/src/main/java/entity/Tournament.java
+  Aggregate root for id, immutable opening order, completed rounds, current entrants, and champion.
+  recordRound enforces next-round order and exact pair identity before mutating the aggregate.
+
+- backend/src/main/java/entity/TournamentRound.java
+  Immutable completed round. Its constructor enforces round 1 = four matches, round 2 = two, and
+  round 3 = one; getWinners preserves match order.
+
+- backend/src/main/java/entity/TournamentMatch.java
+  Immutable match result. It requires two Pokemon, requires the winner to be one of those same
+  objects, rejects negative remaining HP, and copies the turn list.
+
+
+15H. SINGLE-BATTLE ENGINE REUSED INSIDE TOURNAMENTS
+
+The tournament does not call the HTTP /api/battles/turn endpoint. RandomBattleRunner calls
+ResolveTurnInputBoundary directly inside the Java process. The interactive single-battle frontend
+does call /api/battles/turn. Both paths therefore share the same ResolveTurnInteractor and entities
+without making the tournament pay for an internal HTTP round trip.
+
+- backend/src/main/java/use_case/resolve_turn/ResolveTurnInputBoundary.java
+  Shared application-layer input port for resolving one turn. RandomBattleRunner depends on this
+  interface, and BattleController also receives it.
+
+- backend/src/main/java/use_case/resolve_turn/ResolveTurnInputData.java
+  Carries the mutable Battle entity and the player's chosen move name into turn resolution.
+
+- backend/src/main/java/use_case/resolve_turn/ResolveTurnInteractor.java
+  Albert's core turn algorithm. It rejects completed battles/unknown moves, selects the opponent
+  move, orders attacks by speed with an injected random tie-breaker, applies attacks through
+  BattleSimulator, skips a fainted second attacker, updates Battle, and returns TurnResult.
+
+- backend/src/main/java/use_case/resolve_turn/ResolveTurnOutputData.java
+  Returns success, TurnResult, and a safe message. RandomBattleRunner converts an unsuccessful turn
+  into a simulation exception.
+
+- backend/src/main/java/entity/Battle.java
+  Mutable per-match state: parties, active indexes, current HP, completion, and winner. The
+  two-Pokemon constructor starts both at maximum HP; therefore every new Tournament match resets HP.
+  resume exists for stateless single-battle HTTP requests.
+
+- backend/src/main/java/entity/Pokemon.java
+  Reusable combatant definition containing maximum/base values, moves, types, sprites, and sounds.
+  Current HP is intentionally absent and belongs to Battle, which is what makes reset-between-match
+  behaviour natural.
+
+- backend/src/main/java/entity/Move.java
+  Move value object with name, power, type, and accuracy. It owns the canonical neutral 50-power,
+  100-accuracy Struggle fallback.
+
+- backend/src/main/java/entity/MoveSelector.java
+  General move-selection Strategy used by RandomBattleRunner for the first Pokemon.
+
+- backend/src/main/java/entity/OpponentMoveSelector.java
+  Marker/specialized MoveSelector used by ResolveTurnInteractor for the opponent.
+
+- backend/src/main/java/entity/RandomOpponentMoveSelector.java
+  Random move Strategy. It filters to moves with power greater than zero and returns Move.struggle()
+  when none are usable.
+
+- backend/src/main/java/entity/BattleSimulator.java
+  Enterprise damage policy: accuracy, critical chance, attack/defense ratio, same-type attack bonus,
+  type effectiveness, minimum damage, and neutral Struggle behaviour. Random is injected for tests.
+
+- backend/src/main/java/entity/TypeEffectiveness.java
+  Backend 18-type matchup table. BattleSimulator calls it; this is the authoritative type multiplier
+  for both interactive battles and tournament simulations.
+
+- backend/src/main/java/entity/AttackResult.java
+  Immutable result of one attempted attack: hit, critical, damage, same-type bonus, and type
+  multiplier.
+
+- backend/src/main/java/entity/TurnAction.java
+  One attack in a turn, including attacker, defender, move, AttackResult, or a skipped marker when a
+  fainted Pokemon cannot answer.
+
+- backend/src/main/java/entity/TurnResult.java
+  Immutable snapshot of both actions plus HP/completion/winner after a turn. TournamentMatch stores
+  the sequence, and TournamentRoundPresenter formats it into the battle log.
+
+- backend/src/main/java/entity/BattleSides.java
+  Shared party helper used by resolve-turn, switching, and item use for opponent attacks,
+  auto-switching, and party lookup. Tournament one-on-one battles normally need only its
+  sendOutNextOpponent no-op/completion behaviour.
+
+
+15I. INTERACTIVE SINGLE-BATTLE FRONTEND AND HTTP PATH
+
+- frontend/src/components/battle-setup/SingleBattleSetupScreen.tsx
+  Two-slot setup View using the same picker, Pokedex hook, random-resolution rules, and sprite
+  service as TournamentSetupScreen.
+
+- frontend/src/hooks/useSingleBattleSetup.ts
+  Holds two setup slots and converts the resolved selection into a frontend BattleState using
+  usecases/singleBattleSetup.ts and the starter bag from mockBattle.
+
+- frontend/src/domain/battle.ts
+  Frontend battle entities and pure rules: Pokemon/Move/Item/BattleState shapes, HP clamping,
+  completion, switching, and item eligibility. It is separate from domain/pokedex.ts because a
+  battle Pokemon has current HP, level, PP, and calculated stats.
+
+- frontend/src/usecases/ports.ts
+  Frontend use-case-owned BattleGateway boundary plus BattleAction, TurnEvent, and TurnOutcome. The
+  HTTP adapter implements this interface, preserving Dependency Inversion.
+
+- frontend/src/usecases/battle.ts
+  Frontend application rules for validating actions, calling BattleGateway, handling network
+  failures, spending PP, narrating events, switching, item use, and refusing to run from a trainer
+  battle.
+
+- frontend/src/hooks/useBattle.ts
+  React adapter around the battle use case. It stores BattleState, blocks duplicate requests with a
+  ref, and exposes move/item/switch/run callbacks to the View.
+
+- frontend/src/services/battleApi.ts
+  HTTP implementation of BattleGateway. It maps the entire frontend battle, bag, and action to the
+  Spring wire format, POSTs /api/battles/turn, then merges returned HP/bag state back into frontend
+  objects so UI-only sprite, level, and PP fields are retained.
+
+- frontend/src/components/battle/BattleArena.tsx
+  Main single-battle View. It composes combatant status, sprites, ActionPanel, bag/party overlays,
+  forced switching, and BattleResult while delegating actions to useBattle callbacks.
+
+- frontend/src/components/battle/ActionPanel.tsx
+  Fight/Bag/Pokemon/Run controls and move picker. This is display/interaction logic only; move
+  validity and turn resolution live in the use case/backend.
+
+- frontend/src/components/battle/StatusCard.tsx
+  Displays a combatant's name, level, and HP information; it does not change battle state.
+
+- frontend/src/components/battle/HpBar.tsx
+  Accessible HP meter that converts current/max HP to a clamped visual percentage.
+
+- frontend/src/components/battle/PokemonSprite.tsx
+  Displays a battle sprite with animated, static, and artwork fallbacks, including custom direct
+  URLs through services/sprites.ts.
+
+- frontend/src/components/battle/Overlay.tsx
+  Shared visual/modal shell for the bag and party interfaces.
+
+- frontend/src/components/battle/BagScreen.tsx
+  Item selection View. It chooses an item but leaves eligibility and effects to domain/use-case code.
+
+- frontend/src/components/battle/PartyScreen.tsx
+  Party/switching and item-target View. It uses injected selection rules so the same UI supports
+  voluntary switches, forced switches, and item targets.
+
+- frontend/src/components/battle/BattleResult.tsx
+  End-of-battle dialog for victory, defeat, or fleeing, with rematch and main-menu actions.
+
+- frontend/src/components/battle/typeColors.ts
+  Static mapping from Pokemon move types to UI colours; presentation only.
+
+- frontend/src/components/battle/battle.css
+  Styling and responsive layout for the interactive arena and its overlays; no battle rules.
+
+- frontend/src/data/mockBattle.ts
+  Stable initial/test battle and starter bag. Real single-battle setup replaces its combatants, but
+  useSingleBattleSetup currently reuses its bag contents.
+
+
+15J. INTERACTIVE SINGLE-BATTLE BACKEND WEB PATH
+
+- backend/src/main/java/app/config/BattleApiConfiguration.java
+  Composition root for interactive battle actions. It wires shared BattleSimulator and randomness
+  into ResolveTurnInteractor, SwitchPokemonInteractor, and UseItemInteractor. TournamentConfiguration
+  currently constructs a separate but equivalent resolve-turn stack for automated matches.
+
+- backend/src/main/java/app/web/BattleController.java
+  POST /api/battles/turn adapter. It rebuilds Battle and Bag entities from the request, routes MOVE,
+  SWITCH, or ITEM to the corresponding Input Boundary, and maps results/errors to HTTP. The backend
+  stores no single-battle session between requests.
+
+- backend/src/main/java/app/web/BattleTurnRequest.java
+  Wire request containing full battle state, bag, and a tagged action payload. RUN is absent because
+  the frontend handles that non-state-changing refusal locally.
+
+- backend/src/main/java/app/web/BattleStatePayload.java
+  Maps between JSON battle state and Battle entities. toBattle calls Battle.resume; from returns all
+  party HP and active indexes after the action.
+
+- backend/src/main/java/app/web/BattleTurnResponse.java
+  Wire response containing updated battle, bag, flattened actions, message, completion/winner, and
+  whether the player must switch.
+
+- backend/src/main/java/app/web/PokemonResponse.java
+  Shared Pokemon wire DTO with to/from entity conversion. BattleStatePayload uses it for stateless
+  requests; PokemonController also returns it for catalog detail.
+
+- backend/src/main/java/app/web/MoveResponse.java
+  Shared Move wire DTO with validation and conversion to/from Move.
+
+- backend/src/main/java/app/web/TurnActionResponse.java
+  Flattens TurnAction and AttackResult into frontend log/event fields.
+
+- backend/src/main/java/app/web/ItemPayload.java
+  Maps JSON item stacks to/from Bag and Item entities.
+
+- backend/src/main/java/use_case/switch_pokemon/SwitchPokemonInputBoundary.java
+- backend/src/main/java/use_case/switch_pokemon/SwitchPokemonInputData.java
+- backend/src/main/java/use_case/switch_pokemon/SwitchPokemonOutputData.java
+  These three files define the switch use case's input/output contract around Battle and the target
+  Pokemon name.
+
+- backend/src/main/java/use_case/switch_pokemon/SwitchPokemonInteractor.java
+  Validates and performs voluntary/forced switches. A voluntary switch costs the player's action, so
+  it calls BattleSides to let the opponent attack.
+
+- backend/src/main/java/use_case/use_item/UseItemInputBoundary.java
+- backend/src/main/java/use_case/use_item/UseItemInputData.java
+- backend/src/main/java/use_case/use_item/UseItemOutputData.java
+  These three files define the item-use contract around Battle, Bag, item name, target, result, and
+  remaining inventory.
+
+- backend/src/main/java/use_case/use_item/UseItemInteractor.java
+  Validates inventory/target/effect, applies heal or revive, consumes the item immutably, and gives
+  the opponent its attack. Tournament matches do not use bags or these item/switch use cases.
+
+- backend/src/main/java/entity/Bag.java
+  Inventory entity that owns item lookup and immutable consumption.
+
+- backend/src/main/java/entity/Item.java
+  Validated item stack with kind, effect amount, quantity, and one-item consumption.
+
+- backend/src/main/java/entity/ItemKind.java
+  Enumerates HEAL_HP, REVIVE, RESTORE_PP, POKEBALL, and STAT_BOOST behaviour categories.
+
+
+15K. OFFICIAL POKEMON AND THE JAVA POKEAPI PATH
+
+Tournament setup first displays data fetched directly by the browser, but the backend does not
+trust or receive all those stats. On the first round request it receives official entrant names and
+loads fresh Pokemon entities through this Java chain:
+
+TournamentPokemonDataAccess -> LoadPokemonDataAccessInterface -> CachedPokeApiDataAccess ->
+PokeApiClient -> PokemonJsonMapper/MoveJsonMapper -> Pokemon and Move entities.
+
+- backend/src/main/java/use_case/load_pokemon/LoadPokemonDataAccessInterface.java
+  Inner data-access port implemented by CachedPokeApiDataAccess. TournamentPokemonDataAccess depends
+  on this abstraction for official entrants.
+
+- backend/src/main/java/data_access/CachedPokeApiDataAccess.java
+  Cached PokeAPI gateway implementing Pokemon, move, and catalog ports. It reads/writes JSON under
+  backend/cache, loads up to four damaging moves, ignores a failed individual move lookup, and adds
+  Move.struggle() if no usable move survives.
+
+- backend/src/main/java/data_access/PokeApiClient.java
+  Lowest-level Java HTTP client for https://pokeapi.co/api/v2. It calls /pokemon/{name-or-id},
+  /move/{name-or-id}, and /pokemon?limit=&offset=, mapping 404 and connection/upstream failures to
+  use-case exceptions.
+
+- backend/src/main/java/data_access/PokemonJsonMapper.java
+  Converts PokeAPI Pokemon JSON plus loaded Move objects into the Pokemon entity and extracts move
+  names, stats, types, sprites, and sounds.
+
+- backend/src/main/java/data_access/MoveJsonMapper.java
+  Converts move JSON into Move. A null power returns null, excluding status moves from backend
+  battle use, while missing/invalid fields become data-access failures.
+
+- backend/src/main/java/data_access/PokemonListJsonMapper.java
+  Maps paged PokeAPI catalog JSON for the backend /api/pokemon list endpoint. Tournament entrant
+  loading does not call this list method, although the shared cached gateway owns it.
+
+- backend/src/main/java/entity/PokemonSummary.java
+  Minimal id/name entity returned by backend catalog listing. It is not a tournament entrant, but
+  it is part of the additional catalog responsibility implemented by CachedPokeApiDataAccess.
+
+- backend/src/main/java/use_case/list_pokemon/ListPokemonDataAccessInterface.java
+  Catalog-listing port also implemented by CachedPokeApiDataAccess. Tournament does not invoke it;
+  it explains why the shared adapter includes PokemonListJsonMapper and PokemonSummary.
+
+- backend/src/main/java/use_case/list_pokemon/PokemonCatalogPageData.java
+  Data object carrying one backend catalog page and its count/offset metadata from the shared
+  cached adapter to the list-Pokemon use case.
+
+- backend/src/main/java/use_case/load_move/LoadMoveDataAccessInterface.java
+  Move-loading port implemented by CachedPokeApiDataAccess. The tournament reaches move loading
+  indirectly when that adapter constructs a battle-ready official Pokemon.
+
+- backend/src/main/java/use_case/PokemonDataAccessException.java
+  Checked boundary exception for unavailable, malformed, or unreadable Pokemon data.
+
+- backend/src/main/java/use_case/PokemonNotFoundException.java
+  Specialized data-access exception used for missing official or custom entrants and mapped to a
+  tournament NOT_FOUND result.
+
+- backend/src/main/java/app/config/PokemonApiConfiguration.java
+  Creates the singleton CachedPokeApiDataAccess at Path.of("cache") and wires general list/load
+  Pokemon and move interactors. TournamentConfiguration receives that same cached data object.
+
+- backend/src/main/java/use_case/load_pokemon/LoadPokemonInputBoundary.java
+- backend/src/main/java/use_case/load_pokemon/LoadPokemonInputData.java
+- backend/src/main/java/use_case/load_pokemon/LoadPokemonOutputData.java
+- backend/src/main/java/use_case/load_pokemon/LoadPokemonInteractor.java
+  These files form the general "load one Pokemon" use case used by PokemonController. Tournament does
+  not call this Interactor; its own adapter calls the lower data-access port because entrant loading
+  is one step inside RunTournamentRoundInteractor.
+
+- backend/src/main/java/app/web/PokemonController.java
+  GET /api/pokemon and GET /api/pokemon/{nameOrId} web endpoints for the backend catalog. The current
+  selection picker instead uses frontend pokedexApi.ts directly, but other frontend library code can
+  use this backend endpoint.
+
+
+15L. CUSTOM POKEMON PATH INTO A TOURNAMENT
+
+The frontend custom list call and the tournament simulation are separate operations. The picker
+loads custom Pokemon through HTTP so it can display them. The first tournament request then sends
+only name/source/owner, and the backend tournament gateway reads the production repository directly.
+
+- backend/src/main/java/use_case/CustomPokemonRepository.java
+  Inner repository interface for saving, listing, finding, and deleting Pokemon by owner. Both the
+  custom-Pokemon use cases and TournamentPokemonDataAccess depend on it.
+
+- backend/src/main/java/data_access/FileCustomPokemonRepository.java
+  Production repository implementation. It stores one JSON array per Base64URL-encoded username,
+  maps stored moves/types/sprites back into Pokemon entities, and performs case-insensitive name
+  lookup for tournament entrants.
+
+- backend/src/main/java/data_access/InMemoryCustomPokemonRepository.java
+  In-memory implementation used in tests and alternate wiring. It obeys the same repository
+  contract without file I/O.
+
+- backend/src/main/java/use_case/CustomPokemonStorageException.java
+  Runtime exception translating file/storage failures into use-case-safe failure handling.
+
+- backend/src/main/java/data_access/TournamentPokemonDataAccess.java
+  Tournament-specific Adapter implementing TournamentPokemonDataAccessInterface. POKEAPI delegates
+  to LoadPokemonDataAccessInterface; CUSTOM calls CustomPokemonRepository.getPokemon(owner, name).
+  It is the exact integration point that makes custom entrants work in all rounds.
+
+- backend/src/main/java/app/config/CreatePokemonConfiguration.java
+  Creates the production FileCustomPokemonRepository and image repository, then wires create/list/
+  load/sprite use cases. TournamentConfiguration receives the same CustomPokemonRepository bean.
+
+- backend/src/main/java/app/web/CustomPokemonController.java
+  REST endpoints for creating, listing, detailing, and serving sprites for owner-scoped custom
+  Pokemon. services/pokemon.ts calls its list endpoint during picker loading; services/sprites.ts
+  displays its returned /api sprite URLs.
+
+- backend/src/main/java/use_case/list_custom_pokemon/ListCustomPokemonInputBoundary.java
+- backend/src/main/java/use_case/list_custom_pokemon/ListCustomPokemonOutputData.java
+- backend/src/main/java/use_case/list_custom_pokemon/ListCustomPokemonInteractor.java
+  The custom-list use case used by CustomPokemonController and ultimately by the frontend picker.
+
+- backend/src/main/java/use_case/load_custom_pokemon/LoadCustomPokemonInputBoundary.java
+- backend/src/main/java/use_case/load_custom_pokemon/LoadCustomPokemonOutputData.java
+- backend/src/main/java/use_case/load_custom_pokemon/LoadCustomPokemonInteractor.java
+  The custom-detail use case for the HTTP detail endpoint. Tournament loading bypasses this
+  presentation-oriented output and calls the same repository through its own gateway.
+
+- backend/src/main/java/use_case/ImageRepository.java
+- backend/src/main/java/data_access/LocalImageRepository.java
+- backend/src/main/java/use_case/load_custom_pokemon_sprite/LoadCustomPokemonSpriteInputBoundary.java
+- backend/src/main/java/use_case/load_custom_pokemon_sprite/LoadCustomPokemonSpriteOutputData.java
+- backend/src/main/java/use_case/load_custom_pokemon_sprite/LoadCustomPokemonSpriteInteractor.java
+  These files store and retrieve uploaded sprite bytes. They affect how a custom tournament entrant
+  looks in the picker/bracket, not how it fights or advances.
+
+
+15M. TOURNAMENT PERSISTENCE
+
+- backend/src/main/java/data_access/InMemoryTournamentDataAccess.java
+  Implements both TournamentDataAccessInterface and TournamentIdGenerator with ConcurrentHashMap and
+  UUID. It is safe for the four worker threads to share, but all tournament state disappears when
+  the backend process restarts.
+
+
+15N. TEST FILES THAT PROVE THE PATH
+
+DIRECT BACKEND TOURNAMENT TESTS
+
+- backend/src/test/java/use_case/tournament/RunTournamentRoundInteractorTest.java
+  Most important use-case test: bracket order, custom owner loading, 4-2-1 progression, all major
+  failures, no partial save, and rejection after completion using deterministic fakes.
+
+- backend/src/test/java/use_case/tournament/RandomBattleRunnerTest.java
+  Proves the Strategy repeatedly uses resolve-turn until a winner and starts every match at full HP.
+
+- backend/src/test/java/entity/TournamentTest.java
+  Proves entity-level entrant count, 4-2-1 progression, matchup order, and completion invariants.
+
+- backend/src/test/java/data_access/InMemoryTournamentDataAccessTest.java
+  Proves id creation plus save/find semantics of the production tournament repository.
+
+- backend/src/test/java/data_access/TournamentPokemonDataAccessTest.java
+  Proves official delegation, correct owner-scoped custom loading, and isolation from another
+  trainer's collection.
+
+- backend/src/test/java/interface_adapter/tournament/TournamentRoundControllerTest.java
+  Proves raw source strings become use-case input and unknown sources remain invalid for the
+  Interactor to reject.
+
+- backend/src/test/java/interface_adapter/tournament/TournamentRoundPresenterTest.java
+  Proves match/log/champion formatting and failure View Models.
+
+- backend/src/test/java/app/web/TournamentControllerTest.java
+  Proves the HTTP request is passed through and every TournamentFailure maps to the intended status.
+
+DIRECT FRONTEND TOURNAMENT TESTS
+
+- frontend/src/usecases/__tests__/tournamentSetup.test.ts
+  Proves random filling, preservation of selected bracket order, and asynchronous detail loading.
+
+- frontend/src/usecases/__tests__/tournament.test.ts
+  Proves 8-4-2-1 state, impossible-winner rejection, and matching backend slugs to display names.
+
+- frontend/src/hooks/__tests__/useTournament.test.ts
+  Proves hook-level error handling plus owner/source mapping for custom entrants.
+
+- frontend/src/services/__tests__/tournament.test.ts
+  Proves the exact source-aware POST body sent to the backend.
+
+- frontend/src/components/battle-setup/__tests__/TournamentSetupScreen.test.tsx
+  Proves all eight slots use the shared picker and random entrants are loaded before starting.
+
+- frontend/src/components/tournament/__tests__/TournamentViews.test.tsx
+  Proves round accessibility/HP output, bracket population, champion controls, and safe error return.
+
+SHARED BATTLE, API, CUSTOM, AND ARCHITECTURE TESTS
+
+- backend/src/test/java/use_case/resolve_turn/ResolveTurnInteractorTest.java
+  Proves the turn algorithm that tournament matches reuse.
+
+- backend/src/test/java/entity/BattleTest.java
+- backend/src/test/java/entity/BattlePartyTest.java
+- backend/src/test/java/entity/BattleSimulatorTest.java
+- backend/src/test/java/entity/TypeEffectivenessTest.java
+  Together these prove HP/winner/party rules, damage, random outcomes under controlled inputs, and
+  the type chart used by tournament simulation.
+
+- backend/src/test/java/app/web/BattleControllerTest.java
+  Proves interactive MOVE/SWITCH/ITEM HTTP mapping; tournament does not use HTTP internally, but it
+  relies on the same resolve-turn behaviour.
+
+- backend/src/test/java/data_access/CachedPokeApiDataAccessTest.java
+- backend/src/test/java/data_access/PokeApiClientTest.java
+  Prove cache/fallback/mapping behaviour and low-level PokeAPI HTTP error handling for official
+  entrants.
+
+- backend/src/test/java/data_access/FileCustomPokemonRepositoryTest.java
+- backend/src/test/java/data_access/InMemoryCustomPokemonRepositoryTest.java
+- backend/src/test/java/app/web/CustomPokemonControllerTest.java
+  Prove owner-scoped custom persistence and the HTTP path that supplies the tournament picker.
+
+- frontend/src/usecases/__tests__/singleBattleSetup.test.ts
+- frontend/src/hooks/__tests__/useSingleBattleSetup.test.ts
+- frontend/src/services/__tests__/battleApi.test.ts
+- frontend/src/hooks/__tests__/useBattle.test.ts
+- frontend/src/components/battle-setup/__tests__/SingleBattleSetupScreen.test.tsx
+- frontend/src/components/battle/__tests__/BattleArena.test.tsx
+  Prove the shared random picker, conversion to battle state, HTTP gateway mapping, React action
+  coordination, setup View, and interactive arena.
+
+- frontend/src/services/__tests__/pokedexApi.test.ts
+- frontend/src/hooks/__tests__/usePokedex.test.ts
+  Prove the browser-side catalog/detail loader and the Pokedex state consumed by tournament setup.
+
+- backend/src/test/java/architecture/CleanArchitectureTest.java
+- frontend/src/__tests__/architecture.test.ts
+  Executable Dependency Rule checks. They prevent inner entities/use cases from importing outer
+  framework/data modules and provide project-wide evidence for the architecture claims in the
+  presentation.
+
+
+15O. BUILD AND RUNTIME SUPPORT FILES
+
+- backend/pom.xml
+  Maven dependencies/plugins for Spring Boot, Jackson, tests, JaCoCo, Checkstyle, and architecture
+  checks. It builds the backend executable JAR that hosts tournament and battle endpoints.
+
+- backend/mvnw
+  Maven Wrapper launcher for Unix-like systems; it makes the documented backend build reproducible
+  without a separately installed Maven version.
+
+- backend/mvnw.cmd
+  Windows Maven Wrapper launcher for the same pinned build, and the command Dorothy should use from
+  PowerShell when demonstrating the backend locally.
+
+- frontend/package.json
+  Declares the React/Vite application scripts and test/lint dependencies used to build and verify
+  the tournament frontend.
+
+- frontend/vite.config.ts
+  Vite/test configuration. Runtime backend routing still comes from services/apiConfig.ts rather
+  than from tournament components.
+
+
+FINAL CONNECTION SUMMARY
+
+There are two PokeAPI paths and two battle paths, and keeping them distinct prevents confusion:
+
+1. Selection display: browser -> usePokedex -> frontend services/pokedexApi.ts -> PokeAPI.
+2. Official tournament simulation data: tournament Interactor -> TournamentPokemonDataAccess ->
+   CachedPokeApiDataAccess -> PokeApiClient -> PokeAPI/cache.
+3. Interactive battle: BattleArena -> useBattle -> frontend battle use case -> battleApi ->
+   POST /api/battles/turn -> BattleController -> ResolveTurnInteractor.
+4. Tournament battle: RunTournamentRoundInteractor -> RandomBattleRunner ->
+   ResolveTurnInputBoundary -> ResolveTurnInteractor, entirely inside the backend process.
+
+The tournament is therefore not a second battle engine. It is a bracket and concurrency use case
+that loads entrants, delegates each pair to the shared battle policy, validates aggregate
+progression, persists the bracket, and presents the completed round.
+
+
+16. HOW TO READ THE ADDITIONAL DETAILED UML CLASS DIAGRAM
+
+The presentation now has two complementary tournament UML slides. The first is a full
+Clean Architecture map: it emphasizes layers, runtime control, source-code dependency direction,
+and the complete path from the React View to the entities and back through the Presenter. The
+second follows conventional class-diagram notation like the supplied Vehicle and Ticket examples:
+each box has a name compartment, an attribute compartment, and an operation compartment.
+
+NOTATION
+
+- A minus sign means a private field, for example `- id: String`.
+- A plus sign means a public constant or operation, for example
+  `+ recordRound(round: TournamentRound): void`.
+- A filled diamond means composition or strong ownership. The object at the diamond end owns the
+  contained objects as part of its aggregate structure.
+- A solid association with an open arrow means one class references another but does not inherit
+  from it.
+- A dashed line ending in a hollow triangle means realization: a concrete class implements an
+  interface. This matches the implementation notation in the supplied UML examples.
+- A dashed line ending in an open arrow means an ordinary dependency or creation relationship.
+- Multiplicity labels such as `0..3` and `1..4` state how many related objects may exist.
+
+THE DOMAIN HALF
+
+`Tournament` is marked as the aggregate root. It owns the tournament ID, the immutable list of
+eight initial Pokemon, and the mutable list of completed rounds. Its important operations are not
+simple getters: `getCurrentEntrants` derives the active bracket participants, `isComplete` reports
+whether all three rounds exist, `getChampion` exposes the final winner only after completion, and
+`recordRound` protects round order and matchup order.
+
+The filled diamond from `Tournament` to `TournamentRound` says that completed rounds are part of
+the tournament aggregate. The multiplicity is zero to three because a new tournament has no
+completed round, while a completed tournament has quarterfinal, semifinal, and final rounds.
+
+`TournamentRound` owns its `TournamentMatch` results, so the second relationship is also
+composition. The round constructor computes the required number of matches as 4, 2, or 1 from the
+round number. The diagram summarizes this as the `1..4 matches` multiplicity and records the exact
+4-2-1 constraint inside the class box.
+
+`TournamentMatch` references exactly two participant Pokemon and exactly one winner. It also keeps
+remaining HP and the complete list of `TurnResult` objects needed by the Presenter to build each
+battle log. Its constructor rejects a winner that is not one of the two participants and rejects
+negative remaining HP.
+
+`Pokemon` is shared by official and custom entrants. There is no `OfficialPokemon` versus
+`CustomPokemon` inheritance hierarchy: both data sources are mapped into the same entity shape
+before simulation. This is why the same Battle and turn logic work for both kinds of entrant.
+
+THE APPLICATION AND INTERFACE HALF
+
+`RunTournamentRoundInteractor` implements `RunTournamentRoundInputBoundary`. The dashed hollow
+triangle communicates that realization relationship. Its fields expose Dependency Inversion:
+the Interactor is typed against the Output Boundary, tournament repository interface, Pokemon
+gateway interface, ID-generator interface, match-runner Strategy, and Java `Executor`, rather than
+constructing concrete outer-layer classes.
+
+`RandomBattleRunner` implements `TournamentMatchRunner`. This is the Strategy seam: production
+uses a runner that creates a fresh Battle and repeatedly calls `ResolveTurnInputBoundary`, while
+tests can inject a deterministic runner. The runner also depends on `MoveSelector`, so random move
+choice is replaceable rather than hidden inside the tournament Interactor.
+
+`TournamentRoundPresenter` implements `RunTournamentRoundOutputBoundary`. The Interactor calls the
+interface it owns; the outer Presenter converts entity-rich Output Data into the frontend-oriented
+`TournamentRoundViewModel`. This dashed realization arrow is the visual proof of dependency
+inversion on the output side.
+
+`InMemoryTournamentDataAccess` implements both `TournamentDataAccessInterface` and
+`TournamentIdGenerator`. Two dashed realization arrows are intentional, just as one concrete class
+can implement several capability interfaces in the supplied Ticket example. The same class stores
+tournaments in a `ConcurrentHashMap` and creates UUIDs, while the Interactor sees only the two
+narrow use-case-owned contracts.
+
+WHY THERE IS NO INHERITANCE ARROW
+
+The sample UML explains that a solid arrow denotes inheritance, but a correct diagram should only
+draw relationships present in the code. No tournament class extends a tournament base class, and
+no tournament entity is abstract. Adding a solid inheritance arrow would be visually familiar but
+factually wrong. The design gets polymorphism from interfaces and gets domain structure from
+composition, so the additional diagram explicitly says that no inheritance arrow is expected.
+
+WHAT THE DETAILED DIAGRAM OMITS
+
+Basic getters and setters are omitted because the specification says they are optional and listing
+all of them would hide the meaningful behaviour. Request models, Input Data, Output Data, View
+Models, the Pokemon gateway implementation, Executor implementation, Battle internals, and React
+classes remain on the earlier full architecture UML or in this document's file map. The second
+diagram is therefore detailed about class state, operations, multiplicities, composition, and
+realization without pretending to be a second copy of the full architecture map.

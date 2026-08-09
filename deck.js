@@ -118,9 +118,10 @@
 
   /* ----------------------------------------------------------------- timer */
 
-  // 15:00 is the group rubric's hard limit for the Excellent band.
-  var TARGET_SECONDS = 15 * 60;
-  var WARN_SECONDS = 12 * 60;
+  // Rehearse to 18 minutes, turn gold at 16, and keep a full minute of buffer
+  // before the 20-minute upper bound in the supplied presentation schedule.
+  var TARGET_SECONDS = 19 * 60;
+  var WARN_SECONDS = 16 * 60;
 
   var elapsed = 0;
   var ticking = null;
@@ -244,6 +245,55 @@
   // embedding hosts execute scripts while the HTML is still streaming, and an
   // early query would find one section instead of twenty-nine.
   function start() {
+    // The source stays grouped by author for easy editing. Presentation order
+    // follows the course's recommended flow: specification, API/artifact,
+    // functionality, architecture/design, process evidence, and wrap-up.
+    var presentationOrder = [
+      "Title",
+      "Introduction",
+      "Specification",
+      "Scope",
+      "API usage",
+      "Run it",
+      "Will — Accounts & Panel",
+      "Will — Code",
+      "Aman — Pokédex",
+      "Aman — Code",
+      "Aman — Frontend architecture",
+      "Albert — Battle",
+      "Albert — Code",
+      "Dorothy - Tournament demo",
+      "Dorothy - Interactor",
+      "Dorothy - UML",
+      "Dorothy - Class UML",
+      "Cindy — Create Pokémon",
+      "Cindy — Code",
+      "Edison — Custom Pokémon",
+      "Edison — Code",
+      "Architecture primer",
+      "Clean Architecture",
+      "SOLID",
+      "Design patterns",
+      "Code organization",
+      "Code quality",
+      "Testing",
+      "Accessibility",
+      "Limitations",
+      "Wrap",
+      "Q & A — architecture & data",
+      "Q & A — testing, design & process"
+    ];
+    var rank = new Map(presentationOrder.map(function (name, index) {
+      return [name, index];
+    }));
+    var deckElement = document.getElementById("deck");
+    Array.prototype.slice.call(document.querySelectorAll("#deck > .slide"))
+      .sort(function (left, right) {
+        return (rank.get(left.dataset.section) ?? Number.MAX_SAFE_INTEGER)
+          - (rank.get(right.dataset.section) ?? Number.MAX_SAFE_INTEGER);
+      })
+      .forEach(function (slide) { deckElement.appendChild(slide); });
+
     slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
     if (!slides.length) return;
 

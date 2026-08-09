@@ -670,7 +670,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         <h3>Why laying it early mattered</h3>
         <p style="margin-bottom:0">
           A dependency rule is cheap to follow when the folders already encode it and the first tests
-          already enforce it. The frontend's <strong>324 tests need no server</strong> in large part
+          already enforce it. The frontend's <strong>325 tests need no server</strong> in large part
           because this shape kept <code>fetch</code> at the edge from day one — a component literally
           has nowhere to put a network call.
         </p>
@@ -735,15 +735,16 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
     <div>
       <div class="demo">
-        <div class="ba-label">Recorded demo · ~45s</div>
+        <div class="ba-label">Recorded demo · ~2 min · narrated</div>
         <div class="media-slot" data-src="assets/albert-demo.mp4">
           <div class="placeholder"><span class="ph-icon">▶</span>A turn resolved by the Java engine, start to faint<span class="ph-file">assets/albert-demo.mp4</span></div>
         </div>
         <ol class="demo-beats">
-          <li>Setup, both Pokémon at full HP</li>
-          <li>A super-effective hit, HP bar drops</li>
-          <li>An item that would do nothing is refused</li>
-          <li>Faint, and the battle ends</li>
+          <li>Setup — Weedle vs Caterpie, both at full HP</li>
+          <li>Speed decides who moves first</li>
+          <li>Damage: power, attack over defense, STAB and type</li>
+          <li>Accuracy can miss, and a critical hit multiplies</li>
+          <li>An item is used, then a faint ends the battle</li>
         </ol>
       </div>
     </div>
@@ -751,10 +752,16 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
   <div class="notes-source">
     <ul>
-      <li>Every turn is a <strong>real round trip to the Java backend</strong>. Say that over the demo —
-        it is the one moment the backend is visible to the audience.</li>
-      <li>Let the message box be readable on the super-effective hit. Don't speed through it.</li>
-      <li>Speed up the last few HP grinding turns — nobody needs twelve turns.</li>
+      <li>The clip is <strong>narrated, with audio</strong>. Play it with sound up and don't talk over
+        it — it already walks through speed, the damage formula, accuracy, critical hits, an item and
+        the faint. At ~2 min it is the longest clip in the deck; budget for that.</li>
+      <li>Every turn in the clip is a <strong>real round trip to the Java backend</strong>. Worth
+        restating once it finishes — it is the one moment the backend is visible to the audience.</li>
+      <li>Weedle and Caterpie are both Bug, so <strong>there is no super-effective hit</strong> in this
+        clip. Type effectiveness is covered by the formula on this slide, not on screen.</li>
+      <li>If asked to see a <strong>refused item</strong> live: it cannot be shown. The interactor
+        refuses without consuming, and that is tested, but the bag disables the only valid target for a
+        stat booster, so the action can never be submitted from the UI.</li>
       <li><strong>Do not narrate switching.</strong> The clip is a 1v1 and the screen cannot show it.
         If it comes up in Q&amp;A: the party model and the switch use case exist and are tested, the
         setup screen just never builds a party bigger than one.</li>
@@ -1665,11 +1672,11 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 <!-- ========================================================= 25. TESTING -->
 <section class="slide" data-section="Testing">
   <p class="eyebrow">Testing</p>
-  <h2>633 tests, and the coverage report that backs them</h2>
+  <h2>634 tests, and the coverage report that backs them</h2>
 
   <div class="metrics">
-    <div class="metric green"><div class="m-value">89.79%</div><div class="m-label">frontend line coverage<br><span style="color:var(--dim)">324 tests · 77.42% branch</span></div></div>
-    <div class="metric blue"><div class="m-value">90.00%</div><div class="m-label">backend line coverage<br><span style="color:var(--dim)">309 tests · 75.99% branch</span></div></div>
+    <div class="metric green"><div class="m-value">89.79%</div><div class="m-label">frontend line coverage<br><span style="color:var(--dim)">325 tests · 77.42% branch</span></div></div>
+    <div class="metric blue"><div class="m-value">90.05%</div><div class="m-label">backend line coverage<br><span style="color:var(--dim)">309 tests · 75.99% branch</span></div></div>
     <div class="metric gold"><div class="m-value">94%+</div><div class="m-label">use-case line coverage<br><span style="color:var(--dim)">both stacks, the layer that matters</span></div></div>
     <div class="metric red"><div class="m-value">0</div><div class="m-label">tests needing a server<br><span style="color:var(--dim)">or a network call</span></div></div>
   </div>
@@ -1721,12 +1728,12 @@ components/  <span class="cm">humble views            (outermost)</span></code><
   <div class="notes-source">
     <ul>
       <li>The rubric wants <em>evidence of coverage</em>, not test counts — so lead with the
-        percentages, not the 633. JaCoCo and Vitest coverage both run in CI and upload as artifacts;
+        percentages, not the 634. JaCoCo and Vitest coverage both run in CI and upload as artifacts;
         <strong>have one report open in a tab</strong> in case a grader asks to see it.</li>
       <li>We clear the Exceptional thresholds: use cases are 94.29% backend and 95.67% frontend;
-        overall line coverage is 90.00% backend and 89.79% frontend.</li>
+        overall line coverage is 90.05% backend and 89.79% frontend.</li>
       <li>All figures were regenerated from merged PR #47 on 2026-08-09 by
-        <code>scripts/verify.ps1</code>: 309 Java tests plus 324 TypeScript tests equals 633.</li>
+        <code>scripts/verify.ps1</code>: 309 Java tests plus 325 TypeScript tests equals 634.</li>
       <li>"What is not tested, and why" is explicitly required at the Excellent band. Keep it.</li>
     </ul>
   </div>
@@ -1903,8 +1910,9 @@ App.tsx       <span class="cm">composition root</span></code></pre>
             screens explain one next action at a time</li>
           <li><strong>Perceptible information</strong> — HP is a number <em>and</em> a bar <em>and</em> a
             colour; effectiveness is stated in words, never colour alone</li>
-          <li><strong>Tolerance for error</strong>, an item that would do nothing is
-            <em>refused rather than consumed</em>, so a mistaken tap costs neither the item nor the turn</li>
+          <li><strong>Tolerance for error</strong> — an item that would do nothing
+            <em>cannot be submitted at all</em>: the invalid target is disabled, and the interactor
+            refuses without consuming as a second line of defence</li>
           <li><strong>Low physical effort</strong> — random filling, sticky selection controls, short
             menu paths, and no dragging or timed input</li>
         </ul>
@@ -1941,8 +1949,11 @@ App.tsx       <span class="cm">composition root</span></code></pre>
         <h3>A remaining perceptibility gap</h3>
         <p style="margin-bottom:0; color:var(--muted)">
           Named dialogs, focus restoration, <code>aria-pressed</code> toggles, and reduced-motion
-          support landed. The tournament bracket still has no linear text equivalent, and no
-          screen-reader session has been run; the report says this rather than claiming completeness.
+          support landed. Two gaps remain: the <strong>battle message box is not an
+          <code>aria-live</code> region</strong>, so a screen reader knows a turn happened but not what
+          it did — that one is a single attribute — and the tournament bracket still has no linear text
+          equivalent, which is real work. No screen-reader session has been run; the report says this
+          rather than claiming completeness.
         </p>
       </div>
     </div>
@@ -2123,7 +2134,7 @@ npm run dev</code></pre>
     <div class="stack">
       <div class="metrics">
         <div class="metric green"><div class="m-value">7/7</div><div class="m-label">presented use cases shipped</div></div>
-        <div class="metric blue"><div class="m-value">633</div><div class="m-label">tests across both stacks</div></div>
+        <div class="metric blue"><div class="m-value">634</div><div class="m-label">tests across both stacks</div></div>
         <div class="metric"><div class="m-value">2</div><div class="m-label">languages, one architecture</div></div>
         <div class="metric red"><div class="m-value">5+3</div><div class="m-label">dependency guards in CI</div></div>
       </div>
@@ -2260,8 +2271,8 @@ npm run dev</code></pre>
       deterministic, that is the main reason the injection exists.</p></div></details>
 
     <details class="qa"><summary>What is your coverage?</summary>
-      <div class="answer"><p><strong>89.79% line on the frontend</strong> (324 tests, 77.42% branch) and
-      <strong>90.00% on the backend</strong> (309 tests, 75.99% branch), measured by Vitest and JaCoCo.
+      <div class="answer"><p><strong>89.79% line on the frontend</strong> (325 tests, 77.42% branch) and
+      <strong>90.05% on the backend</strong> (309 tests, 75.99% branch), measured by Vitest and JaCoCo.
       Use cases are 95.67% and 94.29% respectively. Both gates fail the build
       if coverage drops, and CI uploads the reports as artifacts on every run.</p></div></details>
 

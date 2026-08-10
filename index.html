@@ -1064,19 +1064,12 @@ components/  <span class="cm">humble views            (outermost)</span></code><
           <div class="ca-flow" style="margin-top:0.4rem">
             <div class="ca-node l-usecase"><span class="n-layer">Interactor</span><span class="n-name">CreatePokemonInteractor</span></div>
             <div class="ca-arrow">→</div>
-            <div class="ca-node l-entity"><span class="n-layer">Entity</span><span class="n-name">Pokemon · Move</span></div>
-            <div class="ca-arrow">→</div>
             <div class="ca-node l-usecase"><span class="n-layer">Output boundary</span><span class="n-name">CreatePokemonOutputBoundary</span></div>
           </div>
           <div class="ca-flow" style="margin-top:0.4rem">
             <div class="ca-node l-adapter"><span class="n-layer">Presenter</span><span class="n-name">CreatePokemonPresenter</span></div>
-            <div class="ca-arrow">→</div>
-            <div class="ca-node l-usecase"><span class="n-layer">Repositories (interfaces)</span><span class="n-name">CustomPokemonRepository · ImageRepository</span></div>
-            <div class="ca-arrow">↑</div>
-            <div class="ca-node l-data"><span class="n-layer">Implements</span><span class="n-name">InMemoryCustomPokemonRepository<br>LocalImageRepository</span></div>
           </div>
         </div>
-
       </div>
     </div>
 

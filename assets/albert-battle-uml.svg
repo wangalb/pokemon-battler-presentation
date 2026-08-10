@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 700" role="img" aria-labelledby="title description">
+  <title id="title">Single Battle use case UML class diagram</title>
+  <desc id="description">Clean Architecture class diagram for resolving one battle turn, from the React arena through the HTTP controller to the input boundary, interactor, battle entities, and the injected move-selector strategy and randomness. Every arrow points downward or inward: the entity band imports nothing from the bands above it.</desc>
+  <defs>
+    <style>
+      .box { stroke: #5b4a37; stroke-width: 3; rx: 0; }
+      .framework { fill: #eee7f5; }
+      .adapter { fill: #e6eefb; }
+      .usecase { fill: #e9f4e5; }
+      .entity { fill: #fff3cf; }
+      .data { fill: #e4f5f7; }
+      .title { font: 700 17px Arial, sans-serif; fill: #27241f; text-anchor: middle; }
+      .title-sm { font: 700 14px Arial, sans-serif; fill: #27241f; text-anchor: middle; }
+      .stereo { font: 700 12px Arial, sans-serif; fill: #655d51; text-anchor: middle; letter-spacing: 1px; }
+      .method { font: 13px Consolas, monospace; fill: #3f3a33; text-anchor: middle; }
+      .section { font: 700 13px Arial, sans-serif; fill: #655d51; letter-spacing: 2px; }
+      .label { font: 12px Arial, sans-serif; fill: #4e483f; }
+      .note { font: italic 13px Arial, sans-serif; fill: #4e483f; }
+      .uses { fill: none; stroke: #474139; stroke-width: 2.5; marker-end: url(#open-arrow); }
+      .dependency { fill: none; stroke: #474139; stroke-width: 2.5; stroke-dasharray: 8 6; marker-end: url(#open-arrow); }
+      .realizes { fill: none; stroke: #2f6d43; stroke-width: 2.5; stroke-dasharray: 8 6; marker-end: url(#triangle); }
+      .composition { fill: none; stroke: #474139; stroke-width: 2.5; marker-start: url(#diamond); }
+    </style>
+    <marker id="open-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#474139" stroke-width="1.5" />
+    </marker>
+    <marker id="triangle" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 1 1 L 11 6 L 1 11 Z" fill="#f8f1df" stroke="#2f6d43" stroke-width="1.5" />
+    </marker>
+    <marker id="diamond" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="10" markerHeight="8" orient="auto">
+      <path d="M 1 5 L 7 1 L 13 5 L 7 9 Z" fill="#474139" />
+    </marker>
+  </defs>
+
+  <!-- ============================================ BAND A — frameworks -->
+  <text class="section" x="20" y="22">FRAMEWORKS AND DRIVERS</text>
+
+  <g transform="translate(20 38)">
+    <rect class="box framework" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;VIEW COMPONENT&gt;&gt;</text>
+    <text class="title" x="115" y="44">BattleArena.tsx</text>
+    <text class="method" x="115" y="64">onMoveSelect(move)</text>
+  </g>
+  <g transform="translate(270 38)">
+    <rect class="box framework" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;WEB GATEWAY MODULE&gt;&gt;</text>
+    <text class="title-sm" x="115" y="44">services/battleApi.ts</text>
+    <text class="method" x="115" y="64">resolveTurn(battle, action)</text>
+  </g>
+  <g transform="translate(520 38)">
+    <rect class="box framework" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;HTTP CONTROLLER&gt;&gt;</text>
+    <text class="title" x="115" y="44">BattleController</text>
+    <text class="method" x="115" y="64">POST /api/battles/turn</text>
+  </g>
+
+  <!-- ============================================= BAND B — use case -->
+  <text class="section" x="20" y="184">USE CASE</text>
+
+  <g transform="translate(270 200)">
+    <rect class="box usecase" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;INPUT DATA&gt;&gt;</text>
+    <text class="title-sm" x="115" y="44">ResolveTurnInputData</text>
+    <text class="method" x="115" y="64">battle · playerMoveName</text>
+  </g>
+  <g transform="translate(520 200)">
+    <rect class="box usecase" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;INPUT BOUNDARY&gt;&gt;</text>
+    <text class="title-sm" x="115" y="44">ResolveTurnInputBoundary</text>
+    <text class="method" x="115" y="64">resolve(in) : out</text>
+  </g>
+  <g transform="translate(770 200)">
+    <rect class="box usecase" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;INTERACTOR&gt;&gt;</text>
+    <text class="title-sm" x="115" y="44">ResolveTurnInteractor</text>
+    <text class="method" x="115" y="64">resolve(inputData)</text>
+  </g>
+  <g transform="translate(1020 200)">
+    <rect class="box usecase" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;OUTPUT DATA&gt;&gt;</text>
+    <text class="title-sm" x="115" y="44">ResolveTurnOutputData</text>
+    <text class="method" x="115" y="64">success · message</text>
+  </g>
+
+  <!-- ============================================== BAND C — entities -->
+  <text class="section" x="20" y="346">ENTITIES — DOMAIN RULES, NO FRAMEWORK IMPORTS</text>
+
+  <g transform="translate(20 362)">
+    <rect class="box entity" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;ENTITY&gt;&gt;</text>
+    <text class="title" x="115" y="44">Battle</text>
+    <text class="method" x="115" y="64">isComplete() · getPlayer()</text>
+  </g>
+  <g transform="translate(270 362)">
+    <rect class="box entity" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;ENTITY&gt;&gt;</text>
+    <text class="title" x="115" y="44">Pokemon</text>
+    <text class="method" x="115" y="64">getAttack() · getTypes()</text>
+  </g>
+  <g transform="translate(520 362)">
+    <rect class="box entity" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;ENTITY&gt;&gt;</text>
+    <text class="title" x="115" y="44">Move</text>
+    <text class="method" x="115" y="64">power · type · accuracy</text>
+  </g>
+  <g transform="translate(770 362)">
+    <rect class="box entity" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;ENTITY&gt;&gt;</text>
+    <text class="title" x="115" y="44">BattleSimulator</text>
+    <text class="method" x="115" y="64">simulateAttack() : AttackResult</text>
+  </g>
+  <g transform="translate(1020 362)">
+    <rect class="box entity" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;ENTITY&gt;&gt;</text>
+    <text class="title" x="115" y="44">TurnResult</text>
+    <text class="method" x="115" y="64">actions · complete · winner</text>
+  </g>
+
+  <!-- ================================== BAND D — injected collaborators -->
+  <text class="section" x="20" y="508">INJECTED COLLABORATORS — STRATEGY AND RANDOMNESS</text>
+
+  <g transform="translate(270 524)">
+    <rect class="box entity" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;STRATEGY&gt;&gt;</text>
+    <text class="title-sm" x="115" y="44">RandomOpponentMoveSelector</text>
+    <text class="method" x="115" y="64">picks a legal move at random</text>
+  </g>
+  <g transform="translate(520 524)">
+    <rect class="box entity" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;INTERFACE&gt;&gt;</text>
+    <text class="title-sm" x="115" y="44">OpponentMoveSelector</text>
+    <text class="method" x="115" y="64">selectMove(pokemon) : Move</text>
+  </g>
+  <g transform="translate(770 524)">
+    <rect class="box data" width="230" height="76" />
+    <text class="stereo" x="115" y="20">&lt;&lt;JAVA STANDARD LIBRARY&gt;&gt;</text>
+    <text class="title" x="115" y="44">java.util.Random</text>
+    <text class="method" x="115" y="64">a test passes a fake</text>
+  </g>
+
+  <!-- ===================================================== connectors -->
+
+  <!-- A: view -> gateway -> controller -->
+  <path class="uses" d="M 250 76 H 264" />
+  <path class="dependency" d="M 500 76 H 514" />
+  <text class="label" x="382" y="66" text-anchor="middle">HTTP</text>
+
+  <!-- A -> B: controller depends on the boundary, not the interactor -->
+  <path class="uses" d="M 635 114 V 194" />
+  <text class="label" x="645" y="158">calls</text>
+
+  <!-- B: interactor realizes the boundary -->
+  <path class="realizes" d="M 770 238 H 756" />
+
+  <!-- B: boundary takes input data -->
+  <path class="dependency" d="M 520 238 H 506" />
+
+  <!-- B: interactor returns output data -->
+  <path class="uses" d="M 1000 238 H 1014" />
+
+  <!-- B -> C: interactor uses BattleSimulator -->
+  <path class="uses" d="M 885 276 V 356" />
+  <text class="label" x="895" y="320">uses</text>
+
+  <!-- B -> C: output data carries a TurnResult -->
+  <path class="composition" d="M 1135 276 V 356" />
+  <text class="label" x="1145" y="320">1</text>
+
+  <!-- C: party and move composition -->
+  <path class="composition" d="M 250 400 H 264" />
+  <text class="label" x="257" y="392" text-anchor="middle">1..*</text>
+  <path class="composition" d="M 500 400 H 514" />
+  <text class="label" x="507" y="392" text-anchor="middle">1..4</text>
+
+  <!-- C -> D: the simulator holds the injected Random -->
+  <path class="composition" d="M 885 438 V 518" />
+  <text class="label" x="895" y="482">1</text>
+
+  <!-- B -> D: interactor uses the selector strategy (routed down the gutter) -->
+  <path class="uses" d="M 770 262 H 760 V 562 H 756" />
+  <text class="label" x="668" y="556" text-anchor="middle">strategy</text>
+
+  <!-- B -> D: interactor also holds a tie-breaker Random (routed right gutter) -->
+  <path class="dependency" d="M 1000 262 H 1010 V 562 H 1004" />
+  <text class="label" x="1016" y="500">tieBreaker</text>
+
+  <!-- D: the random selector realizes the interface -->
+  <path class="realizes" d="M 500 562 H 514" />
+
+  <!-- ========================================================== note -->
+  <text class="note" x="20" y="648">Every arrow points down or inward. The entity band imports nothing from the bands above it, which is what makes the turn testable</text>
+  <text class="note" x="20" y="668">without a server: swap java.util.Random for a fake and the crit roll, the accuracy roll and the opponent's choice all become the test's decision.</text>
+</svg>

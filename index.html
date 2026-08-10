@@ -774,102 +774,30 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 </section>
 
 <!-- ================================================== 12. ALBERT — CODE -->
-<section class="slide" data-section="Albert — Code">
+<section class="slide albert-uml-slide" data-section="Albert — UML">
   <div class="speaker-tag"><span class="avatar a6">AW</span> Albert Wang</div>
-  <p class="eyebrow">Interactor &amp; class diagram</p>
-  <h2>Randomness is injected, so every turn is testable</h2>
+  <p class="eyebrow">Full use-case class diagram and Dependency Rule</p>
+  <h2>Runtime control travels out. Source-code dependencies point in.</h2>
 
-  <div class="cols side">
-    <div>
-      <div class="code-label">backend/src/main/java/use_case/resolve_turn/ResolveTurnInteractor.java</div>
-      <pre><code><span class="kw">public class</span> <span class="typ">ResolveTurnInteractor</span> <span class="kw">implements</span> <span class="typ">ResolveTurnInputBoundary</span> {
-    <span class="kw">private final</span> <span class="typ">BattleSimulator</span> battleSimulator;
-<span class="hl">    <span class="kw">private final</span> <span class="typ">OpponentMoveSelector</span> opponentMoveSelector;
-    <span class="kw">private final</span> <span class="typ">Random</span> tieBreaker;</span>
-
-    <span class="cm">// ... constructor injects all three ...</span>
-
-    <span class="kw">@Override</span>
-    <span class="kw">public</span> <span class="typ">ResolveTurnOutputData</span> <span class="fn">resolve</span>(<span class="typ">ResolveTurnInputData</span> inputData) {
-        <span class="typ">Battle</span> battle = inputData.<span class="fn">getBattle</span>();
-        <span class="kw">if</span> (battle.<span class="fn">isComplete</span>()) {
-            <span class="kw">return new</span> <span class="typ">ResolveTurnOutputData</span>(<span class="kw">false</span>, <span class="kw">null</span>, <span class="str">"Battle is already complete."</span>);
-        }
-        <span class="typ">Move</span> playerMove = battle.<span class="fn">getPlayer</span>().<span class="fn">getMoves</span>().<span class="fn">stream</span>()
-                .<span class="fn">filter</span>(move -&gt; move.<span class="fn">getName</span>().<span class="fn">equalsIgnoreCase</span>(inputData.<span class="fn">getPlayerMoveName</span>()))
-                .<span class="fn">findFirst</span>().<span class="fn">orElse</span>(<span class="kw">null</span>);
-        <span class="kw">if</span> (playerMove == <span class="kw">null</span>) { <span class="cm">/* rejected with a reason */</span> }
-
-        <span class="typ">Move</span> opponentMove = opponentMoveSelector.<span class="fn">selectMove</span>(battle.<span class="fn">getOpponent</span>());
-
-<span class="hl">        <span class="kw">boolean</span> opponentActsFirst =
-                battle.<span class="fn">getOpponent</span>().<span class="fn">getSpeed</span>() &gt; battle.<span class="fn">getPlayer</span>().<span class="fn">getSpeed</span>()
-                || (battle.<span class="fn">getOpponent</span>().<span class="fn">getSpeed</span>() == battle.<span class="fn">getPlayer</span>().<span class="fn">getSpeed</span>()
-                    &amp;&amp; !tieBreaker.<span class="fn">nextBoolean</span>());</span>
-        <span class="cm">// ... first/second attacker assigned from that flag ...</span>
-
-        <span class="typ">List</span>&lt;<span class="typ">TurnAction</span>&gt; actions = <span class="kw">new</span> <span class="typ">ArrayList</span>&lt;&gt;();
-        actions.<span class="fn">add</span>(<span class="fn">resolveAttack</span>(battle, firstAttacker, firstDefender, firstMove));
-
-        <span class="cm">// a Pokemon that has just fainted does not get to answer</span>
-        <span class="kw">if</span> (battle.<span class="fn">isComplete</span>() || battle.<span class="fn">isFainted</span>(secondAttacker)) {
-            actions.<span class="fn">add</span>(<span class="typ">TurnAction</span>.<span class="fn">skipped</span>(secondAttacker, secondDefender, secondMove));
-        } <span class="kw">else</span> {
-            actions.<span class="fn">add</span>(<span class="fn">resolveAttack</span>(battle, secondAttacker, secondDefender, secondMove));
-        }
-
-        <span class="typ">BattleSides</span>.<span class="fn">sendOutNextOpponent</span>(battle);
-        <span class="kw">return new</span> <span class="typ">ResolveTurnOutputData</span>(<span class="kw">true</span>, <span class="kw">new</span> <span class="typ">TurnResult</span>(actions, battle), <span class="str">"Turn resolved."</span>);
-    }
-}</code></pre>
-
-      <div class="card accent-gold" style="margin-top:0.8rem">
-        <h3>What injecting <code>Random</code> buys</h3>
-        <p style="margin-bottom:0">
-          A test pins the crit roll, the accuracy roll and the opponent's choice, so
-          <strong>every turn test is deterministic</strong>. Construct <code>Random</code> inside the
-          interactor and none of that is possible. This is the single decision the whole battle test
-          suite rests on.
-        </p>
-      </div>
-    </div>
-
-    <div class="stack">
-      <div class="card">
-        <h3>Full use case, layer by layer</h3>
-        <div class="ca-flow" style="margin-top:0.55rem">
-          <div class="ca-node l-view"><span class="n-layer">View</span><span class="n-name">BattleArena<br>ActionPanel · BagScreen · PartyScreen</span></div>
-          <div class="ca-arrow">→</div>
-          <div class="ca-node l-adapter"><span class="n-layer">Hook</span><span class="n-name">useBattle</span></div>
-        </div>
-        <div class="ca-flow" style="margin-top:0.4rem">
-          <div class="ca-node l-usecase"><span class="n-layer">TS use case</span><span class="n-name">usecases/battle.ts</span></div>
-          <div class="ca-arrow">→</div>
-          <div class="ca-node l-usecase"><span class="n-layer">Port</span><span class="n-name">BattleGateway</span></div>
-          <div class="ca-arrow">↑</div>
-          <div class="ca-node l-data"><span class="n-layer">Implements</span><span class="n-name">services/battleApi.ts</span></div>
-        </div>
-        <div class="ca-flow" style="margin-top:0.4rem">
-          <div class="ca-node l-adapter"><span class="n-layer">Adapter</span><span class="n-name">BattleController<br>BattleTurnRequest / Response</span></div>
-          <div class="ca-arrow">→</div>
-          <div class="ca-node l-usecase"><span class="n-layer">Boundary</span><span class="n-name">ResolveTurn · SwitchPokemon · UseItem<br>InputBoundary</span></div>
-        </div>
-        <div class="ca-flow" style="margin-top:0.4rem">
-          <div class="ca-node l-usecase"><span class="n-layer">Interactor</span><span class="n-name">ResolveTurnInteractor</span></div>
-          <div class="ca-arrow">→</div>
-          <div class="ca-node l-entity"><span class="n-layer">Entity</span><span class="n-name">Battle · Bag · BattleSimulator<br>TypeEffectiveness · TurnResult</span></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
+  <figure class="uml-figure">
+    <img
+      src="assets/albert-battle-uml.svg"
+      alt="UML class diagram for the single battle use case: the React arena and web gateway call the HTTP controller, which depends on the resolve-turn input boundary; the interactor realizes that boundary and uses the battle entities plus an injected move-selector strategy and java.util.Random"
+    >
+  </figure>
 
   <div class="notes-source">
     <ul>
-      <li>Two highlights: <strong>injected collaborators</strong>, and the <strong>speed-tie coin
-        flip</strong> that would otherwise be untestable.</li>
-      <li>The comment about a fainted Pokémon not answering is a real rule, not a guard clause — call
-        it out as domain logic living where it belongs.</li>
+      <li>Define dependency the way the course does: one source file imports, names, or uses another
+        type. That is not the same as the runtime flow of control.</li>
+      <li>Trace only the main path, left to right then down: arena, web gateway, HTTP controller,
+        input boundary, interactor, entities.</li>
+      <li>Then name the inverted one: <code>BattleController</code> depends on
+        <code>ResolveTurnInputBoundary</code>, <strong>not</strong> on the interactor. The interactor
+        realizes the boundary, so the arrow between them points the other way from the call.</li>
+      <li>The two bottom-band boxes are the point of the diagram. <code>OpponentMoveSelector</code>
+        is a Strategy and <code>java.util.Random</code> is handed in, so a test can decide the crit
+        roll, the accuracy roll and the opponent's choice.</li>
       <li>Ready for "why stateless?" — cost is a battle lost on refresh; benefit is a restart-safe API
         and a tournament that needs no server-side battle state.</li>
     </ul>
@@ -1681,30 +1609,37 @@ components/  <span class="cm">humble views            (outermost)</span></code><
   <div class="metrics">
     <div class="metric green"><div class="m-value">89.79%</div><div class="m-label">frontend line coverage<br><span style="color:var(--dim)">325 tests · 77.42% branch</span></div></div>
     <div class="metric blue"><div class="m-value">90.05%</div><div class="m-label">backend line coverage<br><span style="color:var(--dim)">309 tests · 75.99% branch</span></div></div>
-    <div class="metric gold"><div class="m-value">94%+</div><div class="m-label">use-case line coverage<br><span style="color:var(--dim)">both stacks, the layer that matters</span></div></div>
+    <div class="metric gold"><div class="m-value">94%+</div><div class="m-label">use-case line coverage<br><span style="color:var(--dim)">both stacks</span></div></div>
     <div class="metric red"><div class="m-value">0</div><div class="m-label">tests needing a server<br><span style="color:var(--dim)">or a network call</span></div></div>
   </div>
 
-  <div class="cols two" style="margin-top:1.1rem">
+  <div class="cols two fill" style="margin-top:1.1rem">
     <div class="stack">
       <div class="card accent-green">
         <h3>What is covered</h3>
         <ul class="tight" style="margin-bottom:0">
           <li><strong>Entities</strong> — damage, healing caps, type chart, party membership, win condition, bracket progression</li>
-          <li><strong>Interactors</strong>, every use case slice, driven by fake gateways</li>
-          <li><strong>Adapters</strong> — JSON mappers in both directions; controllers via MockMvc</li>
+          <li><strong>Interactors</strong>, every use case, driven by stand-in data sources</li>
+          <li><strong>Adapters</strong> — JSON mappers in both directions; controllers via MockMvc, which calls them without starting a server</li>
           <li><strong>React</strong> — components, hooks, forms, and modal keyboard behaviour</li>
-          <li><strong>The dependency rule itself</strong> — ArchUnit in Java, an import test in TypeScript</li>
+          <li><strong>The dependency rule itself</strong> — ArchUnit in Java, which is a unit test that
+            asserts which package is allowed to import which; an import test in TypeScript</li>
         </ul>
       </div>
 
       <div class="card accent-gold">
         <h3>Testing something random</h3>
-        <p style="margin-bottom:0">
-          <code>Random</code>, <code>OpponentMoveSelector</code> and the tournament <code>Executor</code>
-          are all <strong>injected, never constructed inside an interactor</strong>. A test pins the crit
-          roll, the accuracy roll, the opponent's choice and the thread of execution. That is why turn
-          tests are deterministic — the injection exists mainly for this reason.
+        <p style="margin:0 0 0.6rem; color:var(--muted)">
+          <code>Random</code>, <code>OpponentMoveSelector</code> and the tournament
+          <code>Executor</code> are <strong>constructor parameters, not <code>new</code> calls
+          inside an interactor</strong>. Production passes the real thing; a test passes a fake:
+        </p>
+        <pre style="max-height:none; margin:0 0 0.6rem"><code>new BattleSimulator(<span class="cm">new SequenceRandom(0.5, 0.5)</span>)</code></pre>
+        <p style="margin:0; color:var(--muted)">
+          A <code>Random</code> subclass that hands back those values <em>in order</em>,
+          so the crit roll and the accuracy roll are chosen by the test. It also
+          <strong>throws if the engine asks for more rolls than expected</strong>, so the number of
+          rolls a turn makes is fixed too.
         </p>
       </div>
     </div>
@@ -1713,9 +1648,8 @@ components/  <span class="cm">humble views            (outermost)</span></code><
       <div class="card accent-red">
         <h3>What is <em>not</em> tested, and why</h3>
         <ul class="tight" style="margin-bottom:0">
-          <li><strong>Live PokéAPI calls.</strong> Tests use recorded JSON on purpose — a suite that fails when Wi-Fi drops is a suite people ignore. Adapter error paths are covered; a real outage is not.</li>
-          <li><strong>Screen readers.</strong> Roles and keyboard interaction are asserted; NVDA and VoiceOver stay manual.</li>
-          <li><strong>Visual regression</strong>, and the dev bearer token, which identifies a caller but is not cryptographically verified.</li>
+          <li><strong>Live PokéAPI calls.</strong> Tests use recorded JSON so the suite does not fail when the network does. Adapter error paths are covered; a real outage is not.</li>
+          <li><strong>The dev bearer token</strong> &mdash; the string the frontend sends to say who it is. It identifies a caller, but it is not cryptographically verified, so the suite makes no security claim about it.</li>
         </ul>
       </div>
 
@@ -1723,7 +1657,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         <h3>One command reproduces all of it</h3>
         <pre style="max-height:none; margin-top:0.5rem"><code>.\scripts\verify.ps1</code></pre>
         <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
-          It <strong>fails below the configured gates</strong>, so these numbers cannot rot silently.
+          It <strong>fails below the configured gates</strong>, so the numbers stay honest.
         </p>
       </div>
     </div>
@@ -1748,29 +1682,31 @@ components/  <span class="cm">humble views            (outermost)</span></code><
   <p class="eyebrow">Process</p>
   <h2>How code got into <code>main</code></h2>
 
-  <div class="cols two">
+  <div class="cols two fill">
     <div class="stack">
       <div class="card accent-blue">
-        <h3>Feature work landed through numbered pull requests</h3>
-        <p style="margin-bottom:0.6rem; color:var(--muted)">
-          The merge history reaches PR <code>#47</code>, the final use-case reorganization and
-          documentation pass. Branches are named by owner and feature —
-          <code>dorothy/backend-tournament</code>, <code>yiming/library-api</code>, and
-          <code>albert/battle-message-and-plan</code> — so history reads as a list of slices.
+        <h3>Feature work on named branches, merged through pull requests</h3>
+        <p style="margin:0 0 0.5rem; color:var(--muted)">
+          Every branch is <strong>owner / feature</strong>, so the history reads as a list of slices:
         </p>
-        <p style="margin-bottom:0; color:var(--muted)">
-          Team rule: review the diff and merge only after both CI jobs are green.
+        <pre style="max-height:none; margin:0 0 0.7rem; font-size:var(--text-md)"><code>dorothy/backend-tournament
+yiming/library-api
+albert/battle-message-and-plan</code></pre>
+        <p style="margin:0; font-size:var(--text-md)">
+          <strong style="color:var(--red)">Nobody pushed to <code>main</code>.</strong>
+          Review the diff, and merge only once both CI jobs are green.
         </p>
       </div>
 
       <div class="card accent-green">
         <h3>CI gates the merge</h3>
-        <pre style="max-height:none; margin-top:0.5rem"><code><span class="cm"># .github/workflows/ci.yml — on every push and PR</span>
+        <pre style="max-height:none; margin-top:0.5rem"><code><span class="cm"># .github/workflows/ci.yml — every PR, and main after a merge</span>
 frontend:  npm ci → lint → test:coverage → build → audit
 backend:   ./mvnw -B clean verify</code></pre>
         <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
-          Lint is <strong>oxlint</strong>; <code>verify</code> runs <strong>Checkstyle</strong>,
-          the tests, <strong>JaCoCo</strong> and the <strong>ArchUnit</strong> dependency rules.
+          Lint is <strong>oxlint</strong>, the TypeScript linter. <code>verify</code> runs
+          <strong>Checkstyle</strong> (Java style), the tests, <strong>JaCoCo</strong> (measures how
+          much Java the tests reach) and <strong>ArchUnit</strong> (asserts the dependency direction).
           Both jobs upload their reports as artifacts. A red job means the change is not merge-ready.
         </p>
       </div>
@@ -1778,29 +1714,29 @@ backend:   ./mvnw -B clean verify</code></pre>
 
     <div class="stack">
       <div class="card accent-gold">
-        <h3>A pull request worth showing</h3>
-        <p style="margin-bottom:0.5rem"><code>#37 — fix(battle): keep the resolver's status message out of the arena</code></p>
-        <p style="color:var(--muted); margin-bottom:0">
-          The arena was printing <em>"Turn resolved. Arceus used Judgment!"</em>, an internal status
-          string leaking into player-facing copy. The fix narrates a resolved <strong>move</strong> from
-          its events alone, while a <strong>switch</strong> or an <strong>item</strong> keeps its message,
-          because "Go! Garchomp!" and "Pikachu recovered 20 HP!" genuinely <em>are</em> the copy. Pinned
-          by a test so it cannot come back.
-        </p>
-      </div>
-
-      <div class="card accent-green">
-        <h3>Both languages, the same standard</h3>
-        <table class="dense" style="margin-top:0.4rem">
+        <h3>One pull request</h3>
+        <p style="margin:0 0 0.7rem"><code>#37 — fix(battle): keep the resolver's status message out of the arena</code></p>
+        <table class="dense" style="margin:0 0 0.7rem">
           <tbody>
-            <tr><td>Style</td><td>Checkstyle (Maven <code>validate</code>)</td><td>oxlint</td></tr>
-            <tr><td>Coverage</td><td>JaCoCo, gated</td><td>Vitest, gated</td></tr>
-            <tr><td>Dependency rule</td><td>ArchUnit</td><td>import test</td></tr>
-            <tr><td>Dependencies</td><td>—</td><td><code>npm audit</code></td></tr>
+            <tr>
+              <td style="color:var(--red); white-space:nowrap">Was</td>
+              <td><em>"Turn resolved. Arceus used Judgment!"</em></td>
+            </tr>
+            <tr>
+              <td style="color:var(--green); white-space:nowrap">Now</td>
+              <td><em>"Arceus used Judgment!"</em></td>
+            </tr>
           </tbody>
         </table>
-        <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
-          None advisory. Each one fails the build.
+        <p style="color:var(--muted); margin:0 0 0.6rem">
+          An internal status string was leaking into player-facing copy. The fix narrates a resolved
+          <strong>move</strong> from its events alone, while a <strong>switch</strong> or an
+          <strong>item</strong> keeps its message — because "Go! Garchomp!" and "Pikachu recovered
+          20 HP!" are the copy.
+        </p>
+        <p style="margin:0; font-size:var(--text-md)">
+          <strong style="color:var(--green)">Pinned by a regression test</strong>, so it cannot come
+          back.
         </p>
       </div>
     </div>
@@ -1901,7 +1837,7 @@ App.tsx       <span class="cm">composition root</span></code></pre>
   <p class="eyebrow">Accessibility</p>
   <h2>Universal Design, target users, and barriers</h2>
 
-  <div class="cols two">
+  <div class="cols two fill">
     <div class="stack">
       <div class="card accent-blue">
         <h3>Universal Design principles we acted on</h3>
@@ -1915,8 +1851,7 @@ App.tsx       <span class="cm">composition root</span></code></pre>
           <li><strong>Perceptible information</strong> — HP is a number <em>and</em> a bar <em>and</em> a
             colour; effectiveness is stated in words, never colour alone</li>
           <li><strong>Tolerance for error</strong> — an item that would do nothing
-            <em>cannot be submitted at all</em>: the invalid target is disabled, and the interactor
-            refuses without consuming as a second line of defence</li>
+            <em>cannot be submitted at all</em>: the invalid target is disabled, and the server rejects it too</li>
           <li><strong>Low physical effort</strong> — random filling, sticky selection controls, short
             menu paths, and no dragging or timed input</li>
         </ul>
@@ -1946,18 +1881,6 @@ App.tsx       <span class="cm">composition root</span></code></pre>
           In E3I terms, these are <strong>mismatches created by design, technology, and marketing
           choices</strong>, not deficiencies in those groups. Localization, offline catalog support,
           broader onboarding, and clearer privacy information would widen participation.
-        </p>
-      </div>
-
-      <div class="card accent-green">
-        <h3>A remaining perceptibility gap</h3>
-        <p style="margin-bottom:0; color:var(--muted)">
-          Named dialogs, focus restoration, <code>aria-pressed</code> toggles, and reduced-motion
-          support landed. Two gaps remain: the <strong>battle message box is not an
-          <code>aria-live</code> region</strong>, so a screen reader knows a turn happened but not what
-          it did — that one is a single attribute — and the tournament bracket still has no linear text
-          equivalent, which is real work. No screen-reader session has been run; the report says this
-          rather than claiming completeness.
         </p>
       </div>
     </div>

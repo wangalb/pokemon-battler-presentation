@@ -289,6 +289,14 @@ th,
 
 .stack > * + * { margin-top: 0.8rem; }
 
+/* Opt-in for slides where one column is much shorter than the other and would
+   otherwise leave a hole at the bottom. Stretches both columns to the same
+   height and lets the cards in each share the space instead of bunching at the
+   top. Deliberately not the default — most slides read better ragged. */
+.cols.fill { align-items: stretch; }
+.cols.fill > .stack { display: flex; flex-direction: column; }
+.cols.fill > .stack > .card { flex: 1; }
+
 /* --------------------------------------------------------------------- cards */
 
 /* The app's window-in-a-window: lit cream on cream, squared, with the chunky
@@ -778,12 +786,16 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
   line-height: 1.38;
 }
 
-.dorothy-uml-figure {
+/* Generic name is the one to reach for on new slides; the dorothy- prefixed
+   selector stays so her two UML slides keep working untouched. */
+.dorothy-uml-figure,
+.uml-figure {
   margin: 0;
   min-height: 0;
 }
 
-.dorothy-uml-figure img {
+.dorothy-uml-figure img,
+.uml-figure img {
   display: block;
   width: 100%;
   max-height: 69vh;
@@ -793,7 +805,8 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
   box-shadow: 0.25rem 0.25rem 0 var(--drop);
 }
 
-.dorothy-uml-figure figcaption {
+.dorothy-uml-figure figcaption,
+.uml-figure figcaption {
   margin-top: 0.35rem;
   color: var(--dim);
   font-size: var(--text-xs);

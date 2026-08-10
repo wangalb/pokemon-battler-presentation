@@ -400,10 +400,13 @@
       preserveLimit: 1,
       visual: "side"
     },
-    "Next Steps": {
+    "Wrap": {
       bullets: [
-        "Connection to a database (MongoDB)",
-        "Multiplayer Support"
+        "Seven connected use cases ship today",
+        "Official and custom competitors share rules",
+        "Tests and architecture checks verify the build",
+        "Next: persistent sessions and cached Pokédex",
+        "Next: localization and stronger screen-reader support"
       ],
       notes: [
         "Spend one minute summarizing the shipped product and then naming future work.",

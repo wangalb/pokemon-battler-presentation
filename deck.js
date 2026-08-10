@@ -156,6 +156,164 @@
 
   /* ------------------------------------------------- demo media hydration */
 
+  function formatMediaTime(seconds) {
+    if (!isFinite(seconds) || seconds < 0) return "0:00";
+    var whole = Math.floor(seconds);
+    var minutes = Math.floor(whole / 60);
+    var remainder = whole % 60;
+    return minutes + ":" + String(remainder).padStart(2, "0");
+  }
+
+  function createVideoPlayer(video) {
+    var player = document.createElement("div");
+    var chrome = document.createElement("div");
+    var play = document.createElement("button");
+    var time = document.createElement("span");
+    var scrub = document.createElement("div");
+    var fill = document.createElement("span");
+    var thumb = document.createElement("span");
+    var mute = document.createElement("button");
+    var fullscreen = document.createElement("button");
+    var scrubbing = false;
+
+    video.controls = false;
+    video.className = "demo-video";
+
+    player.className = "video-player";
+    chrome.className = "video-controls";
+    play.className = "video-button";
+    mute.className = "video-button";
+    fullscreen.className = "video-button";
+    time.className = "video-time";
+    scrub.className = "video-scrub";
+    fill.className = "video-scrub-fill";
+    thumb.className = "video-scrub-thumb";
+
+    play.type = "button";
+    mute.type = "button";
+    fullscreen.type = "button";
+    play.setAttribute("aria-label", "Play video");
+    mute.setAttribute("aria-label", "Mute video");
+    fullscreen.setAttribute("aria-label", "Fullscreen video");
+    scrub.setAttribute("role", "slider");
+    scrub.setAttribute("tabindex", "0");
+    scrub.setAttribute("aria-label", "Video position");
+    scrub.setAttribute("aria-valuemin", "0");
+    scrub.setAttribute("aria-valuemax", "100");
+
+    scrub.appendChild(fill);
+    scrub.appendChild(thumb);
+    chrome.appendChild(play);
+    chrome.appendChild(time);
+    chrome.appendChild(scrub);
+    chrome.appendChild(mute);
+    chrome.appendChild(fullscreen);
+    player.appendChild(video);
+    player.appendChild(chrome);
+
+    function durationOrZero() {
+      return isFinite(video.duration) ? video.duration : 0;
+    }
+
+    function sync() {
+      var duration = durationOrZero();
+      var ratio = duration ? Math.min(1, Math.max(0, video.currentTime / duration)) : 0;
+      var percent = ratio * 100;
+
+      player.style.setProperty("--video-progress", percent + "%");
+      scrub.setAttribute("aria-valuenow", Math.round(percent));
+      scrub.setAttribute(
+        "aria-valuetext",
+        formatMediaTime(video.currentTime) + " of " + formatMediaTime(duration)
+      );
+      time.textContent = formatMediaTime(video.currentTime) + " / " + formatMediaTime(duration);
+      play.textContent = video.paused ? "▶" : "❚❚";
+      play.setAttribute("aria-label", video.paused ? "Play video" : "Pause video");
+      mute.textContent = video.muted ? "×" : "♪";
+      mute.setAttribute("aria-label", video.muted ? "Unmute video" : "Mute video");
+      fullscreen.textContent = "⛶";
+    }
+
+    function seekToRatio(ratio) {
+      var duration = durationOrZero();
+      if (!duration) return;
+      video.currentTime = Math.min(1, Math.max(0, ratio)) * duration;
+      sync();
+    }
+
+    function seekFromClientX(clientX) {
+      var rect = scrub.getBoundingClientRect();
+      seekToRatio((clientX - rect.left) / rect.width);
+    }
+
+    play.addEventListener("click", function () {
+      if (video.paused) {
+        var started = video.play();
+        if (started && started.catch) started.catch(function () { sync(); });
+      } else {
+        video.pause();
+      }
+      sync();
+    });
+    video.addEventListener("click", function () { play.click(); });
+    video.addEventListener("play", sync);
+    video.addEventListener("pause", sync);
+    video.addEventListener("ended", sync);
+    video.addEventListener("loadedmetadata", sync);
+    video.addEventListener("durationchange", sync);
+    video.addEventListener("timeupdate", sync);
+
+    scrub.addEventListener("pointerdown", function (event) {
+      scrubbing = true;
+      scrub.setPointerCapture(event.pointerId);
+      seekFromClientX(event.clientX);
+    });
+    scrub.addEventListener("pointermove", function (event) {
+      if (scrubbing) seekFromClientX(event.clientX);
+    });
+    scrub.addEventListener("pointerup", function (event) {
+      scrubbing = false;
+      scrub.releasePointerCapture(event.pointerId);
+    });
+    scrub.addEventListener("keydown", function (event) {
+      var duration = durationOrZero();
+      if (!duration) return;
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        event.stopPropagation();
+        video.currentTime = Math.max(0, video.currentTime - 5);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        event.stopPropagation();
+        video.currentTime = Math.min(duration, video.currentTime + 5);
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        event.stopPropagation();
+        video.currentTime = 0;
+      } else if (event.key === "End") {
+        event.preventDefault();
+        event.stopPropagation();
+        video.currentTime = duration;
+      }
+      sync();
+    });
+
+    mute.addEventListener("click", function () {
+      video.muted = !video.muted;
+      sync();
+    });
+    fullscreen.addEventListener("click", function () {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else if (player.requestFullscreen) {
+        player.requestFullscreen();
+      }
+    });
+
+    sync();
+    return player;
+  }
+
   // Each .media-slot names the file it is waiting for in data-src. If that file
   // exists, swap the placeholder out for it; otherwise leave the placeholder so
   // the deck still reads correctly with nothing recorded yet.
@@ -167,10 +325,12 @@
 
       if (isVideo) {
         node = document.createElement("video");
-        node.controls = true;
         node.preload = "metadata";
         node.playsInline = true;
-        node.addEventListener("loadedmetadata", function () { slot.innerHTML = ""; slot.appendChild(node); });
+        node.addEventListener("loadedmetadata", function () {
+          slot.innerHTML = "";
+          slot.appendChild(createVideoPlayer(node));
+        });
       } else {
         node = document.createElement("img");
         node.alt = "";
@@ -269,7 +429,7 @@
       "Cindy — Create Pokémon",
       "Cindy — Code",
       "Edison — Custom Pokémon",
-      "Edison — Code",
+      "Edison — Class UML",
       "Architecture primer",
       "Clean Architecture",
       "SOLID",

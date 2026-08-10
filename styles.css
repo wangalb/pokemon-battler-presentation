@@ -625,6 +625,110 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
   background: #10141b;
 }
 
+.video-player {
+  --video-progress: 0%;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #10141b;
+}
+
+.media-slot .video-player video {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  width: 100%;
+  object-fit: contain;
+}
+
+.video-controls {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.55rem;
+  background: #07090d;
+  border-top: 0.125rem solid #2a3340;
+  color: #edf3ff;
+  font-size: var(--text-xs);
+}
+
+.video-button {
+  flex: 0 0 2rem;
+  height: 2rem;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 0.125rem solid #d7e4f6;
+  border-radius: 0;
+  background: #172033;
+  color: #ffffff;
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.video-button:focus-visible,
+.video-scrub:focus-visible {
+  outline: 0.1875rem solid var(--focus-ring);
+  outline-offset: 0.125rem;
+}
+
+.video-time {
+  flex: 0 0 auto;
+  min-width: 5.8rem;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.video-scrub {
+  flex: 1 1 auto;
+  min-width: 4rem;
+  height: 1.35rem;
+  position: relative;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.video-scrub::before,
+.video-scrub-fill {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 0.45rem;
+  transform: translateY(-50%);
+  border-radius: 999px;
+}
+
+.video-scrub::before {
+  right: 0;
+  background: #40495a;
+}
+
+.video-scrub-fill {
+  width: var(--video-progress);
+  background: #58a6ff;
+}
+
+.video-scrub-thumb {
+  position: absolute;
+  left: var(--video-progress);
+  top: 50%;
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 0.125rem solid #ffffff;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 0.125rem #07090d;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
 /* Placeholder text sits on the dark screen, so it gets its own light inks
    instead of the cream-side variables. */
 .media-slot .placeholder {

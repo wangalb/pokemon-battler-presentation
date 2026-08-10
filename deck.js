@@ -672,6 +672,31 @@
       : '<p style="color:var(--dim);margin:0">No notes for this slide.</p>';
   }
 
+  function applySpeakerScripts() {
+    var orderedSlides = Array.prototype.slice.call(document.querySelectorAll("#deck > .slide"));
+    var scripts = window.SLIDE_SCRIPTS;
+
+    if (!Array.isArray(scripts) || scripts.length !== orderedSlides.length) {
+      throw new Error("Speaker scripts must match the 30-slide presentation order.");
+    }
+
+    orderedSlides.forEach(function (slide, index) {
+      var notes = slide.querySelector(".notes-source");
+      if (!notes) {
+        notes = document.createElement("div");
+        notes.className = "notes-source";
+        slide.appendChild(notes);
+      }
+
+      notes.innerHTML = "";
+      scripts[index].split(/\n\n+/).forEach(function (paragraph) {
+        var line = document.createElement("p");
+        line.textContent = paragraph;
+        notes.appendChild(line);
+      });
+    });
+  }
+
   function toggleNotes() {
     var on = elNotes.classList.toggle("show");
     btnNotes.classList.toggle("on", on);
@@ -1046,6 +1071,7 @@
       .forEach(function (slide) { deckElement.appendChild(slide); });
 
     applyConciseSlides();
+    applySpeakerScripts();
     slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
     if (!slides.length) return;
 

@@ -84,9 +84,8 @@ Individual sections run in use-case order: Will (User Accounts and Trainer Panel
 
 These are gaps in the **project repo**, not in this deck. Each maps to a rubric category.
 
-> **Updated 2026-08-09 against final `main` at `ad2ab75`.** PR #47
-> (`dorothy/clean-architecture-readmes`) completed the use-case reorganization and documentation
-> after the quality and architecture gates introduced in PR #40.
+> **Updated 2026-08-10 against current `main` at `edb1245`.**
+> The latest pass completed the use-case reorganization, MyStyle compliance, and documentation.
 
 ### 1. Rehearse the requested timing plan.
 
@@ -131,21 +130,21 @@ CI now runs `./mvnw -B clean verify` and uploads the reports as artifacts.
 ### 4. ~~No coverage evidence~~ — CLOSED
 
 JaCoCo on the backend, Vitest coverage on the frontend, **both gated** — the build fails below
-threshold. CI uploads both reports. Both stacks were regenerated from final `main` on 2026-08-09:
+threshold. CI uploads both reports. Both stacks were regenerated from current `main` on 2026-08-10:
 
 | Area | Tests | Line | Branch |
 | --- | ---: | ---: | ---: |
-| Java backend | 309 | 90.00% | 75.99% |
-| Java `use_case` | included above | 94.29% | 82.75% |
-| TypeScript frontend | 324 | 89.79% | 77.42% |
-| TypeScript `usecases` | included above | 95.67% | 87.96% |
+| Java backend | 309 | 90.96% | 76.21% |
+| Java `use_case` | included above | 95.14% | 84.09% |
+| TypeScript frontend | 325 | 89.80% | 77.32% |
+| TypeScript `usecases` | included above | 95.67% | 87.95% |
 
 That clears the Exceptional band (>90% interactor, >70% overall). Slide 26 now leads with these
 percentages instead of test counts.
 
 ### 5. Backend boot — mostly confirmed
 
-`scripts/verify.ps1` passed on final `main` on 2026-08-09. The Maven **wrapper is committed**
+The verification checks passed on current `main` on 2026-08-10. The Maven **wrapper is committed**
 (`backend/mvnw`), so the backend needs a JDK but no separate Maven install; the complete app also
 requires Node 22 for the frontend.
 
@@ -213,10 +212,10 @@ git log main --format='%an %s' --no-merges | sort | uniq -c | sort -rn
 
 ### 8. Verified numbers
 
-Coverage now comes from the 2026-08-09 final JaCoCo and Vitest reports rather than source counting.
-The deck says 633 tests: 309 backend plus 324 frontend, with 90.00% and 89.79% overall line coverage.
+Coverage now comes from the 2026-08-10 JaCoCo and Vitest reports rather than source counting.
+The deck says 634 tests: 309 backend plus 325 frontend, with 90.96% and 89.80% overall line coverage.
 
-**If any code lands after 2026-08-09, re-run `scripts/verify.ps1` and update slides 26 and 5.**
+**If any code lands after 2026-08-10, re-run `scripts/verify.ps1` and update slides 26 and 5.**
 Quoting stale coverage to a grader who can run the command themselves is worse than quoting none.
 
 ### 9. One genuinely new claim to sanity-check

@@ -1,8 +1,7 @@
 DOROTHY'S TOURNAMENT USE CASE - COMPLETE UNDERSTANDING GUIDE
 
-This guide assumes pull request #47, "Reorganize backend use cases and complete project
-documentation," is the final submitted project. It explains the implementation as merged into
-main by PR #47 at commit ad2ab75.
+This guide reflects the current project main branch at commit edb1245. It includes the use-case
+reorganization from pull request #47 and the later MyStyle compliance updates.
 
 COURSE MATERIAL USED
 
@@ -1056,7 +1055,7 @@ decide the winner.
 
 15D. SPRING ENTRY, HTTP DTOs, AND CONFIGURATION
 
-- backend/src/main/java/app/PokemonBattlerApplication.java
+- backend/src/main/java/app/MainApplication.java
   Spring Boot entry point. @SpringBootApplication starts component/configuration scanning rooted at
   app, which discovers the web controllers and configuration classes below.
 

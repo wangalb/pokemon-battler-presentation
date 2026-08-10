@@ -338,6 +338,7 @@
         "Stacked PRs preserve merge order",
         "CI checks gate merges",
         "Checkstyle enforces Java conventions",
+        "MyStyle checks single-exit methods",
         "Oxlint enforces frontend conventions"
       ],
       preserve: ".pr-evidence",
@@ -351,9 +352,9 @@
     "Testing": {
       bullets: [
         "634 automated tests",
-        "90.00% backend line coverage",
-        "89.79% frontend line coverage",
-        "94%+ use-case line coverage",
+        "90.96% backend line coverage",
+        "89.80% frontend line coverage",
+        "95%+ use-case line coverage",
         "Randomness is injected",
         "Tests require no external server"
       ],
@@ -382,7 +383,7 @@
       bullets: [
         "Install Java 17 and Node 22",
         "Clone the repository",
-        "Start the backend JAR",
+        "Start the Spring Boot backend",
         "Start the Vite frontend",
         "Open the local web address",
         "Verify backend health"

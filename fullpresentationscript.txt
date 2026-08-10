@@ -273,7 +273,7 @@ SAY:
 
 "We maintained code quality through feature branches, pull requests, automated checks, and review context. The screenshots show a stacked pull request documenting which change must merge first, why it temporarily targets another branch, and how it will retarget afterward. The timeline shows dependent work merging only after the required checks passed.
 
-"CI runs Checkstyle for Java conventions and Oxlint for TypeScript and React. It also runs backend and frontend tests, coverage gates, production builds, dependency checks, and architecture rules. A failed job means the change is not ready to merge. The Maven Wrapper permission is checked because CI must be able to execute the same build from a clean Linux checkout.
+"CI runs Checkstyle with the repository's MyStyle rules for Java conventions, including named constants, Javadoc, and single-exit methods. Oxlint checks TypeScript and React. CI also runs backend and frontend tests, coverage gates, production builds, dependency checks, and architecture rules. A failed job means the change is not ready to merge. The Maven Wrapper permission is checked because CI must execute the same build from a clean Linux checkout.
 
 "Pull requests give reviewers more than a diff. They preserve the reason for a change, affected use cases, test evidence, and known dependencies. Small commits make it easier to identify where a regression began, while reviews help catch duplicated responsibility or a dependency pointing into the wrong layer before it reaches main."
 
@@ -283,7 +283,7 @@ Speaker: Cindy
 
 SAY:
 
-"This slide is our proof of testing coverage. The final verification passed 309 Java tests and 325 TypeScript tests, for 634 total. JaCoCo reports just over 90 percent backend line coverage, and Vitest reports 89.79 percent frontend line coverage. The use-case layers are above 94 percent in both stacks, which matters because that is where application coordination lives.
+"This slide is our proof of testing coverage. The current verification passed 309 Java tests and 325 TypeScript tests, for 634 total. JaCoCo reports 90.96 percent backend line coverage, and Vitest reports 89.80 percent frontend line coverage. The use-case layers are above 95 percent in both stacks, which matters because that is where application coordination lives.
 
 "The suite is layered like the code. Entity tests cover damage, healing limits, type effectiveness, battle completion, and bracket progression. Interactor tests drive boundaries with stand-in repositories, presenters, runners, and random values. Frontend tests cover pure use-case functions, hooks, and user-visible component behaviour. Architecture tests separately inspect dependency direction.
 

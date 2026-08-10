@@ -721,35 +721,39 @@
       <pre class="dorothy-code"><code><span class="kw">public class</span> <span class="typ">ResolveTurnInteractor</span>
         <span class="kw">implements</span> <span class="typ">ResolveTurnInputBoundary</span> {
 
-<span class="hl">    <span class="kw">private final</span> <span class="typ">OpponentMoveSelector</span> opponentMoveSelector;
-    <span class="kw">private final</span> <span class="typ">BattleSimulator</span> simulator;
+<span class="hl">    <span class="kw">private final</span> <span class="typ">OpponentMoveSelector</span>
+            opponentMoveSelector;
+    <span class="kw">private final</span> <span class="typ">BattleSimulator</span>
+            battleSimulator;
     <span class="kw">private final</span> <span class="typ">Random</span> tieBreaker;</span>
 
-    <span class="kw">public</span> <span class="typ">ResolveTurnOutputData</span> <span class="fn">resolve</span>(<span class="typ">ResolveTurnInputData</span> input) {
-        <span class="typ">Battle</span> battle = input.<span class="fn">getBattle</span>();
+    <span class="kw">public</span> <span class="typ">ResolveTurnOutputData</span> <span class="fn">resolve</span>(
+            <span class="typ">ResolveTurnInputData</span> inputData) {
+        <span class="kw">final</span> <span class="typ">Battle</span> battle = inputData.<span class="fn">getBattle</span>();
+        <span class="kw">final</span> <span class="typ">Move</span> playerMove =
+                battle.<span class="fn">getPlayer</span>().<span class="fn">getMoves</span>().<span class="fn">stream</span>()
+                .<span class="fn">filter</span>(move -&gt; move.<span class="fn">getName</span>()
+                        .<span class="fn">equalsIgnoreCase</span>(
+                                inputData.<span class="fn">getPlayerMoveName</span>()))
+                .<span class="fn">findFirst</span>()
+                .<span class="fn">orElse</span>(<span class="kw">null</span>);
+        <span class="kw">final</span> <span class="typ">ResolveTurnOutputData</span> outcome;
         <span class="kw">if</span> (battle.<span class="fn">isComplete</span>()) {
-            <span class="kw">return</span> <span class="typ">ResolveTurnOutputData</span>.<span class="fn">failure</span>(<span class="str">"Battle is already complete."</span>);
+            outcome = <span class="kw">new</span> <span class="typ">ResolveTurnOutputData</span>(
+                    <span class="kw">false</span>, <span class="kw">null</span>,
+                    <span class="str">"Battle is already complete."</span>);
+        } <span class="kw">else if</span> (playerMove == <span class="kw">null</span>) {
+            outcome = <span class="kw">new</span> <span class="typ">ResolveTurnOutputData</span>(
+                    <span class="kw">false</span>, <span class="kw">null</span>,
+                    <span class="str">"Player does not know move."</span>);
+        } <span class="kw">else</span> {
+            outcome = <span class="kw">new</span> <span class="typ">ResolveTurnOutputData</span>(<span class="kw">true</span>,
+                    <span class="kw">new</span> <span class="typ">TurnResult</span>(
+                            <span class="fn">exchangeBlows</span>(battle, playerMove),
+                            battle),
+                    <span class="str">"Turn resolved."</span>);
         }
-        <span class="typ">Move</span> playerMove = <span class="fn">findMove</span>(battle, input.<span class="fn">getPlayerMoveName</span>());
-        <span class="typ">Move</span> opponentMove = opponentMoveSelector.<span class="fn">select</span>(battle);
-        <span class="typ">Pokemon</span> player = battle.<span class="fn">getActivePlayer</span>();
-        <span class="typ">Pokemon</span> opponent = battle.<span class="fn">getActiveOpponent</span>();
-
-<span class="hl">        <span class="cm">// Speed decides; an exact tie is an injected coin flip.</span>
-        <span class="kw">boolean</span> opponentActsFirst =
-                   opponent.<span class="fn">getSpeed</span>() &gt; player.<span class="fn">getSpeed</span>()
-                || (opponent.<span class="fn">getSpeed</span>() == player.<span class="fn">getSpeed</span>()
-                    &amp;&amp; !tieBreaker.<span class="fn">nextBoolean</span>());</span>
-
-        <span class="typ">TurnAction</span> first  = <span class="fn">attack</span>(battle, opponentActsFirst);
-<span class="hl">        <span class="cm">// A Pokemon that has just fainted does not get to answer.</span>
-        <span class="typ">TurnAction</span> second = <span class="fn">canAnswer</span>(battle)
-                ? <span class="fn">attack</span>(battle, !opponentActsFirst)
-                : <span class="typ">TurnAction</span>.<span class="fn">skipped</span>();</span>
-
-        <span class="typ">BattleSides</span>.<span class="fn">sendOutNextOpponent</span>(battle);
-        <span class="kw">return</span> <span class="typ">ResolveTurnOutputData</span>.<span class="fn">success</span>(
-                <span class="kw">new</span> <span class="typ">TurnResult</span>(first, second, battle), <span class="str">"Turn resolved."</span>);
+<span class="hl">        <span class="kw">return</span> outcome; <span class="cm">// one explicit exit</span></span>
     }
 }</code></pre>
     </div>
@@ -837,11 +841,23 @@
 <span class="hl">    <span class="kw">private final</span> <span class="typ">RunTournamentRoundOutputBoundary</span> presenter;
     <span class="kw">private final</span> <span class="typ">TournamentDataAccessInterface</span> tournamentDataAccess;
     <span class="kw">private final</span> <span class="typ">TournamentPokemonDataAccessInterface</span> pokemonDataAccess;
+    <span class="kw">private final</span> <span class="typ">TournamentIdGenerator</span> idGenerator;
     <span class="kw">private final</span> <span class="typ">TournamentMatchRunner</span> matchRunner;
     <span class="kw">private final</span> <span class="typ">Executor</span> executor;</span>
 
-    <span class="kw">public void</span> <span class="fn">execute</span>(<span class="typ">RunTournamentRoundInputData</span> input) {
-        <span class="typ">Tournament</span> tournament = <span class="fn">resolveTournament</span>(input);
+    <span class="kw">public void</span> <span class="fn">execute</span>(<span class="typ">RunTournamentRoundInputData</span> inputData) {
+        <span class="kw">try</span> {
+            <span class="typ">Tournament</span> tournament = <span class="fn">resolveTournament</span>(inputData);
+            <span class="kw">if</span> (tournament != <span class="kw">null</span> &amp;&amp; !tournament.<span class="fn">isComplete</span>()) {
+                <span class="fn">runNextRound</span>(tournament);
+            }
+        } <span class="kw">catch</span> (<span class="typ">PokemonNotFoundException</span> exception) {
+            presenter.<span class="fn">prepareFailView</span>(exception.<span class="fn">getMessage</span>(),
+                    <span class="typ">TournamentFailure</span>.NOT_FOUND);
+        } <span class="cm">// Other data and simulation failures map to typed failures.</span>
+    }
+
+    <span class="kw">private void</span> <span class="fn">runNextRound</span>(<span class="typ">Tournament</span> tournament) {
         <span class="typ">List</span>&lt;<span class="typ">TournamentMatch</span>&gt; matches =
                 <span class="fn">runMatches</span>(tournament.<span class="fn">getCurrentEntrants</span>());
         <span class="typ">TournamentRound</span> round = <span class="kw">new</span> <span class="typ">TournamentRound</span>(
@@ -850,7 +866,8 @@
 <span class="hl">        tournament.<span class="fn">recordRound</span>(round);  <span class="cm">// Entity validates bracket order</span></span>
         tournamentDataAccess.<span class="fn">save</span>(tournament);
         presenter.<span class="fn">prepareSuccessView</span>(
-                <span class="kw">new</span> <span class="typ">RunTournamentRoundOutputData</span>(<span class="cm">/* tournament, round, message */</span>));
+                <span class="kw">new</span> <span class="typ">RunTournamentRoundOutputData</span>(tournament, round,
+                        <span class="fn">outcomeMessage</span>(tournament, round)));
     }
 
     <span class="kw">private</span> <span class="typ">List</span>&lt;<span class="typ">TournamentMatch</span>&gt; <span class="fn">runMatches</span>(...) {
@@ -984,7 +1001,7 @@
 </section>
 
 <!-- ================================================== 17. CINDY — UseCase -->
-  <section class="slide" data-section="Cindy — Create Pokémon">
+  <section class="slide cindy-create-code-slide" data-section="Cindy — Create Pokémon">
     <div class="speaker-tag"><span class="avatar a3">CL</span> Cindy Liu</div>
     <p class="eyebrow">Use case 6 of 7 — Build a Pokémon</p>
     <h2>Invent a Pokémon that never existed</h2>
@@ -995,40 +1012,32 @@
       <div>
         <div class="code-label">backend/src/main/java/use_case/create_pokemon/CreatePokemonInteractor.java</div>
         <pre><code><span class="kw">public class</span> <span class="typ">CreatePokemonInteractor</span> <span class="kw">implements</span> <span class="typ">CreatePokemonInputBoundary</span> {
-    <span class="kw">private final</span> <span class="typ">CreatePokemonOutputBoundary</span> presenter;
-    <span class="kw">private final</span> <span class="typ">CustomPokemonRepository</span> custompokemonRepository;
-    <span class="kw">private final</span> <span class="typ">ImageRepository</span> imageRepository;
+    <span class="cm">// Five boundaries and repositories are constructor-injected.</span>
 <span class="hl">    <span class="kw">private final</span> <span class="typ">AddToLibraryInputBoundary</span> addToLibraryInteractor;</span>
+    <span class="kw">private final</span> <span class="typ">LibraryUserDataAccessInterface</span> userDataAccess;
 
-    <span class="cm">// ... constructor injects all four ...</span>
-
-    <span class="kw">@Override</span>
     <span class="kw">public void</span> <span class="fn">execute</span>(<span class="typ">CreatePokemonInputData</span> inputData) {
-        <span class="kw">if</span> (inputData.<span class="fn">getName</span>().<span class="fn">isBlank</span>()) {
-            presenter.<span class="fn">prepareFailView</span>(<span class="str">"Pokemon name cannot be empty."</span>);
-            <span class="kw">return</span>;
+        <span class="kw">final</span> <span class="typ">String</span> rejection = <span class="fn">rejectionFor</span>(inputData);
+        <span class="kw">if</span> (rejection != <span class="kw">null</span>) {
+            presenter.<span class="fn">prepareFailView</span>(rejection, <span class="typ">CreatePokemonFailure</span>.INVALID_INPUT);
+        } <span class="kw">else</span> {
+            <span class="fn">create</span>(inputData);
         }
-        <span class="kw">if</span> (inputData.<span class="fn">getHp</span>() &lt;= <span class="typ">0</span> || inputData.<span class="fn">getWeight</span>() &lt;= <span class="typ">0</span>
-                || inputData.<span class="fn">getAttack</span>() &lt;= <span class="typ">0</span> || inputData.<span class="fn">getDefense</span>() &lt;= <span class="typ">0</span>) {
-            presenter.<span class="fn">prepareFailView</span>(<span class="str">"Pokemon stats cannot be negative"</span>);
-            <span class="kw">return</span>;
-        }
+    }
 
-        <span class="typ">String</span> spritePath = imageRepository.<span class="fn">saveImage</span>(inputData.<span class="fn">getSprites</span>());
-        <span class="typ">List</span>&lt;<span class="typ">String</span>&gt; sprites = spritePath == <span class="kw">null</span> || spritePath.<span class="fn">isBlank</span>()
-                ? <span class="typ">List</span>.<span class="fn">of</span>() : <span class="typ">List</span>.<span class="fn">of</span>(spritePath);
-
-        <span class="typ">Pokemon</span> pokemon = <span class="kw">new</span> <span class="typ">Pokemon</span>(inputData.<span class="fn">getName</span>(), inputData.<span class="fn">getHp</span>(),
-                inputData.<span class="fn">getWeight</span>(), inputData.<span class="fn">getAttack</span>(), inputData.<span class="fn">getDefense</span>(),
-                inputData.<span class="fn">getMoves</span>(), inputData.<span class="fn">getSpeed</span>(), sprites, <span class="typ">List</span>.<span class="fn">of</span>());
-
-        custompokemonRepository.<span class="fn">savePokemon</span>(pokemon);
-
-       addToLibraryInteractor.<span class="fn">add</span>(<span class="kw">new</span> <span class="typ">AddToLibraryInputData</span>(
-                inputData.<span class="fn">getUsername</span>(), inputData.<span class="fn">getUsername</span>(), pokemon));</span>
-
-          presenter.<span class="fn">prepareSuccessView</span>(<span class="kw">new</span> <span class="typ">CreatePokemonOutputData</span>(
-                <span class="str">"Pokemon created successfully"</span>, pokemon, <span class="kw">true</span>));
+    <span class="kw">private void</span> <span class="fn">create</span>(<span class="typ">CreatePokemonInputData</span> inputData) {
+        <span class="fn">ensureOwnerExists</span>(inputData.<span class="fn">getUsername</span>()); <span class="cm">// account projection</span>
+        <span class="typ">Pokemon</span> pokemon = <span class="kw">new</span> <span class="typ">Pokemon</span>(inputData.<span class="fn">getName</span>().<span class="fn">trim</span>(),
+                inputData.<span class="fn">getStats</span>(), <span class="fn">orEmpty</span>(inputData.<span class="fn">getMoves</span>()),
+                <span class="fn">orEmpty</span>(inputData.<span class="fn">getTypes</span>()), <span class="fn">savedSprites</span>(inputData), <span class="typ">List</span>.<span class="fn">of</span>());
+        customPokemonRepository.<span class="fn">savePokemon</span>(inputData.<span class="fn">getUsername</span>(), pokemon);
+<span class="hl">        <span class="typ">AddToLibraryOutputData</span> libraryOutput = addToLibraryInteractor.<span class="fn">add</span>(
+                <span class="kw">new</span> <span class="typ">AddToLibraryInputData</span>(inputData.<span class="fn">getUsername</span>(),
+                        inputData.<span class="fn">getUsername</span>(), pokemon,
+                        <span class="typ">LibraryEntryKind</span>.CUSTOM_REFERENCE));</span>
+        <span class="kw">if</span> (!libraryOutput.<span class="fn">isSuccess</span>()) {
+            customPokemonRepository.<span class="fn">deletePokemon</span>(inputData.<span class="fn">getUsername</span>(), pokemon.<span class="fn">getName</span>());
+        } <span class="cm">// Failure rolls back the custom-Pokemon save.</span>
     }
 }</code></pre>
       </div>
@@ -1039,7 +1048,7 @@
           <div class="ca-flow" style="margin-top:0.55rem">
             <div class="ca-node l-view"><span class="n-layer">View</span><span class="n-name">CreatePokemonScreen<br>PokemonForm</span></div>
             <div class="ca-arrow">→</div>
-            <div class="ca-node l-adapter"><span class="n-layer">Adapter</span><span class="n-name">CreatePokemonRestController<br>CreatePokemonController</span></div>
+            <div class="ca-node l-adapter"><span class="n-layer">Adapter</span><span class="n-name">CustomPokemonController<br>CreatePokemonController</span></div>
             <div class="ca-arrow">→</div>
             <div class="ca-node l-usecase"><span class="n-layer">Boundary</span><span class="n-name">CreatePokemon<br>InputBoundary</span></div>
           </div>
@@ -1536,9 +1545,9 @@
   <h2>634 tests, and the coverage report that backs them</h2>
 
   <div class="metrics">
-    <div class="metric green"><div class="m-value">89.79%</div><div class="m-label">frontend line coverage<br><span style="color:var(--dim)">325 tests · 77.42% branch</span></div></div>
-    <div class="metric blue"><div class="m-value">90.05%</div><div class="m-label">backend line coverage<br><span style="color:var(--dim)">309 tests · 75.99% branch</span></div></div>
-    <div class="metric gold"><div class="m-value">94%+</div><div class="m-label">use-case line coverage<br><span style="color:var(--dim)">both stacks</span></div></div>
+    <div class="metric green"><div class="m-value">89.80%</div><div class="m-label">frontend line coverage<br><span style="color:var(--dim)">325 tests · 77.32% branch</span></div></div>
+    <div class="metric blue"><div class="m-value">90.96%</div><div class="m-label">backend line coverage<br><span style="color:var(--dim)">309 tests · 76.21% branch</span></div></div>
+    <div class="metric gold"><div class="m-value">95%+</div><div class="m-label">use-case line coverage<br><span style="color:var(--dim)">both stacks</span></div></div>
     <div class="metric red"><div class="m-value">0</div><div class="m-label">tests needing a server<br><span style="color:var(--dim)">or a network call</span></div></div>
   </div>
 
@@ -1597,9 +1606,9 @@
       <li>The rubric wants <em>evidence of coverage</em>, not test counts — so lead with the
         percentages, not the 634. JaCoCo and Vitest coverage both run in CI and upload as artifacts;
         <strong>have one report open in a tab</strong> in case a grader asks to see it.</li>
-      <li>We clear the Exceptional thresholds: use cases are 94.29% backend and 95.67% frontend;
-        overall line coverage is 90.05% backend and 89.79% frontend.</li>
-      <li>All figures were regenerated from merged PR #47 on 2026-08-09 by
+      <li>We clear the Exceptional thresholds: use cases are 95.14% backend and 95.67% frontend;
+        overall line coverage is 90.96% backend and 89.80% frontend.</li>
+      <li>All figures were regenerated from current <code>main</code> on 2026-08-10 by
         <code>scripts/verify.ps1</code>: 309 Java tests plus 325 TypeScript tests equals 634.</li>
       <li>"What is not tested, and why" is explicitly required at the Excellent band. Keep it.</li>
     </ul>
@@ -1911,7 +1920,7 @@ npm run dev</code></pre>
       <div class="card">
         <h3 style="color:var(--gold)">Verified final artifacts</h3>
         <p style="margin-bottom:0; color:var(--muted)">
-          <code>verify.ps1</code> passed on final <code>main</code> on 2026-08-09. It produced the
+          <code>verify.ps1</code> checks passed on current <code>main</code> on 2026-08-10. They produced the
           executable Spring Boot JAR under <code>backend/target/</code> and the production frontend
           under <code>frontend/dist/</code>, after Checkstyle, tests, coverage, lint, build, and audit.
         </p>
@@ -2090,9 +2099,9 @@ npm run dev</code></pre>
       deterministic, that is the main reason the injection exists.</p></div></details>
 
     <details class="qa"><summary>What is your coverage?</summary>
-      <div class="answer"><p><strong>89.79% line on the frontend</strong> (325 tests, 77.42% branch) and
-      <strong>90.05% on the backend</strong> (309 tests, 75.99% branch), measured by Vitest and JaCoCo.
-      Use cases are 95.67% and 94.29% respectively. Both gates fail the build
+      <div class="answer"><p><strong>89.80% line on the frontend</strong> (325 tests, 77.32% branch) and
+      <strong>90.96% on the backend</strong> (309 tests, 76.21% branch), measured by Vitest and JaCoCo.
+      Use cases are 95.67% and 95.14% respectively. Both gates fail the build
       if coverage drops, and CI uploads the reports as artifacts on every run.</p></div></details>
 
     <details class="qa"><summary>What is not tested?</summary>

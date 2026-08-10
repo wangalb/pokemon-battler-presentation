@@ -943,6 +943,24 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
   .albert-interactor-uml-slide .cols.side { grid-template-columns: 1fr; }
 }
 
+.albert-interactor-uml-slide pre {
+  font-size: 0.58rem;
+}
+
+.cindy-create-code-slide pre {
+  font-size: 0.6rem;
+  line-height: 1.2;
+}
+
+.albert-interactor-uml-slide pre code {
+  font-size: 0.58rem;
+}
+
+.cindy-create-code-slide pre code {
+  font-size: 0.6rem;
+  line-height: 1.2;
+}
+
 .dorothy-proof-stack {
   display: grid;
   gap: 0.58rem;

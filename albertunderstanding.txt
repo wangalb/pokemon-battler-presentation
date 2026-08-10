@@ -1,26 +1,338 @@
-ALBERT'S SEGMENTS - COMPLETE UNDERSTANDING GUIDE
+ALBERT'S UNDERSTANDING GUIDE
 
-Covers the three segments Albert presents under the revised running order: Code quality process,
-Testing, and the Accessibility report. Every number in this guide was measured on 2026-08-09
-against main after PR #47, by a clean backend `mvnw clean verify` and a full frontend vitest run.
-Where a claim could not be verified, this guide says so instead of asserting it.
+Part One is the Single Battle use case - Albert's own code. Parts Two and Three are the two
+process segments he presents: Code quality process, and Testing.
 
-Deck slides: Code quality is slide 26, Testing is slide 25, Accessibility is slide 28. The repo
-README claims 27, 28 and 29; it disagrees with index.html. Trust the deck, or press O for the
-slide grid and count.
+Every number here was measured on 2026-08-09 against main after PR #47: a clean backend
+`mvnw clean verify`, a full frontend vitest run, and a real battle played through the running app
+against the live backend. Where something could not be verified, this guide says so rather than
+asserting it.
+
+Deck slides: Albert - Battle is slide 12, Albert - UML is slide 13, Testing is 25, Code quality
+is 26. The repo README numbers disagree with index.html; trust the deck, or press O for the grid.
+
+Accessibility is no longer Albert's segment. The material that was here is in git history at
+commit a6f8d76 if whoever takes it over wants a starting point.
 
 
 COURSE MATERIAL USED
 
-Left deliberately blank. Dorothy's guide cites specific lecture PDFs and page numbers; those PDFs
-are not in either repository, so any page numbers here would be invented. Fill this in from the
-course slides before submission if you want the same citation strength she has. The three topics
-below map to the process and quality material rather than to SOLID or Clean Architecture, which
-Cindy and dotoro carry.
+Left deliberately blank. Dorothy's guide cites lecture PDFs by page; those PDFs are not in either
+repository, so any page numbers here would be invented. Fill this in from the course slides if you
+want the same citation strength.
 
 
 ===============================================================================
-PART ONE - CODE QUALITY PROCESS
+PART ONE - THE SINGLE BATTLE USE CASE
+===============================================================================
+
+1. THE USE CASE IN ONE SENTENCE
+
+A player picks their Pokemon and an opponent, then takes turns choosing a move, switching, or
+using an item, and each turn is resolved by the Java backend until one side faints.
+
+The three visible stages:
+
+  Before   Two selection slots, each holding a chosen Pokemon or a question mark for random.
+  During   The arena: both HP bars, a message box, and four actions - Fight, Bag, Pokemon, Run.
+  After    A result panel naming the winner, with Battle again and Main menu.
+
+
+2. THE ENDPOINT IS STATELESS, AND THAT IS THE DESIGN DECISION
+
+There is one endpoint for the whole battle:
+
+  POST /api/battles/turn
+
+The server keeps no battle. The client sends the entire battle state with every request, and the
+server sends back the new state. The request body is an envelope of three things:
+
+  {
+    battle: { playerParty, playerCurrentHp, playerActiveIndex,
+              opponentParty, opponentCurrentHp, opponentActiveIndex },
+    bag:    [ { name, kind, amount, quantity }, ... ],
+    action: { type: "MOVE" | "SWITCH" | "ITEM", ... }
+  }
+
+BattleController.takeTurn rebuilds the domain object from that payload - `request.requireBattle()
+.toBattle()` - switches on the action type, and calls one of three input boundaries: resolveTurn,
+switchPokemon, useItem.
+
+Why stateless is worth defending: the API is restart-safe, two battles cannot interfere, and the
+tournament needs no server-side battle storage. The cost is that a browser refresh loses the
+battle. That is the honest trade, and it is the answer to "why not keep the battle on the server?"
+
+When an interactor rejects an action, the controller returns HTTP 400 with the message. That is
+not an error screen - see section 9.
+
+
+3. THE CLASSES, MATCHING THE UML
+
+Frameworks and drivers:
+  BattleArena.tsx                 the arena view; calls onMoveSelect, onItemUse, onSwitchPokemon
+  services/battleApi.ts           builds the JSON envelope and does the fetch
+  BattleController                the Spring controller; POST /api/battles/turn
+
+Use case (package use_case.resolve_turn):
+  ResolveTurnInputBoundary        the interface the controller depends on
+  ResolveTurnInteractor           implements it; the turn algorithm lives here
+  ResolveTurnInputData            battle + playerMoveName
+  ResolveTurnOutputData           success + TurnResult + message
+
+Entities (package entity):
+  Battle                          the two parties, who is active, and current HP
+  Pokemon, Move                   stats and move data
+  BattleSimulator                 one attack: accuracy, crit, type, damage
+  AttackResult                    hit, critical, damage, sameTypeAttackBonus, typeEffectiveness
+  TurnAction                      one attacker's action, or a skipped one
+  TurnResult                      the actions plus the resulting HP and outcome
+  BattleSides                     turn rules shared by the three battle use cases
+  MoveSelector / OpponentMoveSelector    the Strategy for choosing the opponent's move
+  RandomOpponentMoveSelector      the shipped implementation
+
+The dependency to point at: BattleController depends on ResolveTurnInputBoundary, not on
+ResolveTurnInteractor. The interactor realizes the boundary, so the source-code arrow runs
+opposite to the direction of the call. That is Dependency Inversion, and it is the one inverted
+dependency to name if asked for an example.
+
+
+4. ONE TURN, STEP BY STEP
+
+This is ResolveTurnInteractor.resolve, in order:
+
+  1. If the battle is already complete, reject with "Battle is already complete."
+  2. Find the player's move by name on the active Pokemon, case-insensitively. If it is not there,
+     reject with "Player does not know move: X."
+  3. Ask the OpponentMoveSelector to choose the opponent's move.
+  4. Decide who goes first (section 5).
+  5. Resolve the first attack: simulate it, apply the damage to the defender, record a TurnAction.
+  6. Before the second attack, check whether the battle ended or the second attacker just fainted.
+     If either is true, record a SKIPPED action instead of attacking - a Pokemon that has just
+     fainted does not get to answer.
+  7. Send out the opponent's next Pokemon if theirs fainted (BattleSides.sendOutNextOpponent). The
+     player chooses their own replacement, so only the opponent is automatic.
+  8. Return success with a TurnResult built from the two actions.
+
+Both attacks always produce a TurnAction - one of them may be a skipped one. That is why the
+frontend can narrate a turn from the actions alone without needing to know the rules.
+
+
+5. TURN ORDER, AND THE COIN FLIP
+
+  boolean opponentActsFirst =
+        opponent.getSpeed() > player.getSpeed()
+     || (opponent.getSpeed() == player.getSpeed() && !tieBreaker.nextBoolean());
+
+Higher Speed moves first. On an exact tie, a coin flip decides - and the coin is the injected
+`Random tieBreaker`, so a test can force either order. Note the sense of it: `nextBoolean()`
+returning true means the player goes first.
+
+This is the smallest example of why the randomness is injected, and it is a good one to mention:
+without the seam, the tie case would be untestable.
+
+
+6. THE DAMAGE FORMULA
+
+In BattleSimulator.simulateAttack:
+
+  rawDamage = power
+            * attacker.attack / defender.defense
+            * sameTypeBonus            (1.5 if the move's type matches the attacker's)
+            * typeMultiplier           (from the type chart; can be 0)
+            * criticalMultiplier       (1.5 on a crit)
+
+  damage = max(1, floor(rawDamage))
+
+Constants: SAME_TYPE_ATTACK_BONUS = 1.5, CRITICAL_HIT_MULTIPLIER = 1.5,
+CRITICAL_HIT_CHANCE = 1/24.
+
+Order of checks inside the method:
+
+  1. Validate: attack >= 0, defense > 0, power >= 0.
+  2. Compute the type multiplier and the same-type bonus. Struggle is Normal for compatibility but
+     always deals neutral damage.
+  3. Accuracy roll. A miss returns immediately: hit = false, damage 0 - but the multipliers are
+     still reported, so the UI can stay consistent.
+  4. If the type multiplier is 0, or the move has no power, return a hit for 0 damage.
+  5. Roll the crit, compute the damage, floor it, and never go below 1.
+
+Two things a grader may probe:
+
+  - There is no level in the formula, and no divisor. Real games divide by roughly 50 and scale by
+    level; this does not. That is why hits look enormous. It is a deliberate simplification and it
+    belongs on the Limitations slide, not defended as realism.
+  - `max(1, ...)` means an attack that connects always does something. A resisted hit cannot do
+    literally nothing.
+
+
+7. WHAT THE NUMBERS ACTUALLY LOOK LIKE
+
+The frontend scales base stats before the battle starts (usecases/singleBattleSetup.ts):
+
+  maxHp   = baseStats.hp      * 2 + 204
+  attack  = baseStats.attack  * 2 + 36
+  defense = baseStats.defense * 2 + 36
+  speed   = baseStats.speed   * 2 + 36
+
+So Squirtle, base hp 44 / attack 48 / defense 65 / speed 43, enters battle as
+292 HP / 132 attack / 166 defense / 122 speed, displayed as Lv100.
+
+Worked example, verified in the running app: Squirtle uses Hydro Pump (Water, power 110) on
+Charmander (base hp 39, defense 43, so 282 HP and 122 defense).
+
+  110 * 132/122 * 1.5 (same type) * 2.0 (water into fire) = about 357
+
+357 against 282 HP is a one-shot, and that is exactly what happened on screen: "Charmander used
+Slash! Squirtle used Hydro Pump! It's super effective! Charmander fainted! You win!" with
+Charmander at 0/282.
+
+If you ever need a battle that lasts more than one hit, pick a bulkier defender. Charizard has
+360 HP and 192 battle defense, which puts Hydro Pump at about 226 - it survives one and falls to
+the second.
+
+
+8. THE MOVE LIST IS NOT WHAT /api/pokemon RETURNS
+
+Worth knowing because it is a trap. The battle setup does not use the backend's
+`/api/pokemon/{name}` move list. The frontend fetches species data straight from PokeAPI in
+services/pokedexApi.ts, and derives four "signature moves": it takes the moves the species learns
+at the highest levels, looks up six of them, keeps the four strongest damaging ones, and drops
+status moves because the simulator does not implement their effects.
+
+That is why Squirtle fights with Skull Bash, Wave Crash, Hydro Pump and Headbutt, while
+`/api/pokemon/squirtle` reports mega-punch, ice-punch, mega-kick and headbutt. Two different
+sources. If someone asks which is authoritative for a battle: the signature-move list.
+
+Consequence to be aware of: the setup screen needs the internet. Species data comes from
+pokeapi.co, and sprites from raw.githubusercontent.com and play.pokemonshowdown.com, fetched by
+the browser directly. Warming the backend's cache directory does not cover any of that.
+
+
+9. HOW A TURN BECOMES TEXT - AND PULL REQUEST #37
+
+The interactor's own message on success is the string "Turn resolved." That is a status, not
+battle copy, and it used to leak onto the screen: the arena showed "Turn resolved. Arceus used
+Judgment!".
+
+The fix, in usecases/battle.ts:
+
+  const announcement = action.type === "move" ? "" : outcome.message;
+
+A move is narrated from its events alone, so the resolver's status string is dropped. A switch or
+an item keeps its message, because "Go! Garchomp!" and "Pikachu recovered 20 HP!" are the copy.
+
+`narrate` then builds one line from the events, in this order per event:
+
+  "<attacker> used <move>!"
+  "But it missed!"                    if it did not hit - and nothing further
+  "It doesn't affect <defender>..."   if the type multiplier is 0 - and nothing further
+  "A critical hit!"                   if critical
+  "It's super effective!"             if multiplier > 1
+  "It's not very effective..."        if multiplier < 1
+
+and then, if the battle ended, "<opponent> fainted! You win!" or "<player> is out of usable
+Pokemon!"; or if the player's active Pokemon fainted but the battle continues, "<player> fainted!
+Choose another Pokemon."
+
+Skipped actions produce no text at all, which is why a one-shot reads as a single clean sentence.
+
+A rejection is not an error screen. The controller answers HTTP 400 with the message; battleApi
+throws a BattleError; takeTurn catches it and returns the previous battle with that message in the
+message box. So an illegal action costs nothing and explains itself.
+
+
+10. ITEMS AND SWITCHING SHARE THE TURN RULE
+
+Switching and using an item both cost the player their action, so the opponent still gets to
+attack. That shared step is BattleSides.opponentAttacks, which exists so the rule is written once
+rather than copied into three interactors.
+
+The item refusal is worth understanding precisely, because it is the most misunderstood part of
+this use case:
+
+  - UseItemInteractor computes the effect first. If the effect is null, it returns failure with
+    "It won't have any effect." - and returns the ORIGINAL bag, so nothing is consumed, and never
+    calls opponentAttacks, so the turn is not spent.
+  - POKEBALL and STAT_BOOST always return null: catching is not allowed in a trainer battle, and
+    the simplified system has no stat stages for a booster to raise.
+
+But you cannot show this on screen. The frontend mirrors the same rule in domain/battle.ts -
+`canUseItemOn` returns false for stat-boost and pokeball - and BattleArena feeds that into the
+target picker's `canSelect`, so the only valid target is disabled and the action can never be
+submitted. The refusal is reachable over raw HTTP and is covered by tests; it is not reachable by
+clicking. If asked to demo it, show the disabled control.
+
+
+11. TWO CLIENT-SIDE DETAILS THAT SURPRISE PEOPLE
+
+  - PP is tracked on the client. `spendPp` in usecases/battle.ts decrements it after a successful
+    move; the resolver never sees PP. So a refreshed page restores full PP.
+  - Every shipped route into the arena builds a party of ONE - `party: [player]` in
+    createSingleBattleState. The party model and SwitchPokemon are real and tested, and the
+    forced-switch path exists, but the setup screen never builds a party bigger than one. Do not
+    claim switching works from the UI.
+
+
+12. WHERE THE CODE LIVES
+
+  backend/src/main/java/use_case/resolve_turn/     the four use-case classes
+  backend/src/main/java/use_case/use_item/         UseItemInteractor and friends
+  backend/src/main/java/use_case/switch_pokemon/   SwitchPokemonInteractor
+  backend/src/main/java/entity/                    Battle, BattleSimulator, BattleSides,
+                                                   TurnAction, TurnResult, AttackResult,
+                                                   TypeEffectiveness, MoveSelector
+  backend/src/main/java/app/web/BattleController.java
+  frontend/src/usecases/battle.ts                  takeTurn, rejectionFor, narrate, spendPp
+  frontend/src/usecases/singleBattleSetup.ts       stat scaling, party of one
+  frontend/src/domain/battle.ts                    canUseItemOn, canSwitchTo, isFainted, isOver
+  frontend/src/services/battleApi.ts               the wire format
+  frontend/src/components/battle/BattleArena.tsx   the arena and its overlays
+
+Note the package layout changed in PR #47: what used to be `use_case/battle` is now split by
+action into `resolve_turn`, `use_item` and `switch_pokemon`. If someone quotes the old path, that
+is why.
+
+
+13. TESTS FOR THIS USE CASE
+
+  ResolveTurnInteractorTest        the turn algorithm, with SequenceRandom and BooleanRandom
+  UseItemInteractorTest            12 tests, including the refusal path
+  SwitchPokemonInteractorTest      switching, including the forced switch after a faint
+  BattleSimulatorTest              accuracy, crit, type chart, the damage floor
+  RandomOpponentMoveSelectorTest   the Strategy, with an IndexRandom
+
+The determinism trick is in Part Three, section 4. It is the thing most likely to draw a
+follow-up question, so read that section even though it sits under Testing.
+
+
+14. QUESTIONS YOU SHOULD EXPECT
+
+Q: Why is the endpoint stateless?
+A: Section 2. Name the cost as well as the benefit.
+
+Q: Who goes first?
+A: Higher Speed; a coin flip on an exact tie, and the coin is injected so it is testable.
+
+Q: Why is the damage so large?
+A: No level scaling and no divisor. A deliberate simplification, on the Limitations slide.
+
+Q: What happens if I use a move the Pokemon does not know?
+A: The interactor rejects it, the controller answers 400, and the arena shows "Player does not
+   know move: X." with the battle unchanged.
+
+Q: Can a fainted Pokemon still attack?
+A: No. The interactor checks before the second attack and records a skipped action instead.
+
+Q: Where does the type chart live?
+A: entity/TypeEffectiveness.java. Multipliers multiply across a dual type, so a doubly-resisted
+   move can land at 0.25 and an immunity makes the whole thing 0.
+
+Q: Can you show an item being refused?
+A: No. Section 10.
+
+
+===============================================================================
+PART TWO - CODE QUALITY PROCESS
 ===============================================================================
 
 1. THE SEGMENT IN ONE SENTENCE
@@ -33,14 +345,14 @@ re-ran every check on a clean machine before any merge was allowed.
 
 Continuous Integration. A server that runs your checks automatically so nobody has to remember to.
 
-Concretely: the file .github/workflows/ci.yml tells GitHub Actions - GitHub's own build machines -
-what to run. Open a pull request and GitHub starts a fresh Linux machine, clones the repository,
-installs dependencies, and runs lint, tests, coverage and the build. The pull request page then
-shows a green check or a red X. Nothing runs on your laptop, and nobody can forget to run the
-tests before merging.
+Concretely: .github/workflows/ci.yml tells GitHub Actions - GitHub's own build machines - what to
+run. Open a pull request and GitHub starts a fresh Linux machine, clones the repository, installs
+dependencies, and runs lint, tests, coverage and the build. The pull request page then shows a
+green check or a red X. Nothing runs on your laptop, and nobody can forget to run the tests before
+merging.
 
-That is why it matters for this segment: the tests are not something the team claims to run. They
-ran, on a clean machine, on every pull request, and the reports are attached to the run.
+That is why it matters here: the tests are not something the team claims to run. They ran, on a
+clean machine, on every pull request, and the reports are attached to the run.
 
 
 3. THE TRIGGER, EXACTLY
@@ -50,127 +362,112 @@ ran, on a clean machine, on every pull request, and the reports are attached to 
       branches: [main]
     pull_request:
 
-Read that carefully, because it is easy to overstate. CI runs:
+CI runs on every pull request, and on pushes to main - which in practice means after a merge. It
+does NOT run when you push a feature branch.
 
-  - on every pull request, and
-  - on pushes to main - which in practice means after a merge.
-
-It does NOT run when you push a feature branch. Do not say "on every push"; a grader who opens
-ci.yml sees `branches: [main]` immediately. The honest sentence is "every pull request, and again
-on main after a merge", and it is a better sentence anyway, because thinking about the
-post-merge run is more sophisticated than not.
+Do not say "on every push"; a grader who opens ci.yml sees `branches: [main]` immediately. Say
+"every pull request, and again on main after a merge" - which is also the better sentence, because
+having thought about the post-merge run is more sophisticated than not.
 
 
 4. THE TWO JOBS
 
-Two jobs, named frontend and backend, both on ubuntu-latest. Neither declares `needs:`, so they
-run in parallel - a failing frontend does not stop the backend from reporting. Frontend gets
-Node 22; backend gets Java 17 Temurin.
+Two jobs, frontend and backend, both on ubuntu-latest. Neither declares `needs:`, so they run in
+parallel - a failing frontend does not stop the backend from reporting. Frontend gets Node 22;
+backend gets Java 17 Temurin.
 
-The asymmetry is worth knowing. The frontend job is five explicit steps. The backend job is one
-command that does four things.
-
-  frontend:  npm ci  ->  npm run lint  ->  npm run test:coverage  ->  npm run build
-             ->  npm audit --audit-level=high
+  frontend:  npm ci -> npm run lint -> npm run test:coverage -> npm run build
+             -> npm audit --audit-level=high
   backend:   ./mvnw -B clean verify
 
 What each covers:
 
-  style                       frontend: oxlint          backend: Checkstyle, in Maven's
-                                                                 validate phase
-  tests with coverage         frontend: vitest, gated   backend: Surefire + JaCoCo, gated
-  a production build          frontend: tsc -b &&       backend: compiles and packages the JAR
-                                        vite build
-  a dependency audit          frontend: npm audit       backend: nothing
-  architectural rules         frontend: an import test  backend: ArchUnit, 5 tests
+  style                    frontend: oxlint            backend: Checkstyle, in Maven's validate
+  tests with coverage      frontend: vitest, gated     backend: Surefire + JaCoCo, gated
+  a production build       frontend: tsc -b &&         backend: compiles and packages the JAR
+                                     vite build
+  a dependency audit       frontend: npm audit         backend: nothing
+  architectural rules      frontend: an import test    backend: ArchUnit, 5 tests
 
-Two things to notice in that table:
+Two things to notice:
 
   - "a production build" is not only bundling. `build` is `tsc -b && vite build`, so a TypeScript
     type error fails CI even though no test asserts types.
-  - The dependency audit has no backend counterpart. This is why the slide says "between them they
-    cover" - saying "both jobs run all of these" would be false.
+  - The dependency audit has no backend counterpart. That is why the slide says "between them they
+    cover" - "both jobs run all of these" would be false.
 
-Both jobs upload their reports as artifacts with `if: always()`, so the coverage reports exist
-especially when the build fails.
+Both jobs upload their reports as artifacts with `if: always()`, so coverage exists especially
+when the build fails.
 
 
 5. THE TOOLS, IN PLAIN WORDS
 
-You will be asked what these are. One sentence each.
+  Checkstyle    A Java style checker. Reads the source and fails on violations of a written rule
+                set (config/checkstyle/checkstyle.xml). Runs in Maven's `validate` phase, before
+                compilation, so a style violation stops the build early. failOnViolation is true
+                and includeTestSourceDirectory is true - it lints the tests too, which most
+                student projects do not do.
 
-  Checkstyle    A Java style checker. It reads the source and fails on violations of a written
-                rule set (config/checkstyle/checkstyle.xml). It runs in Maven's `validate` phase,
-                which is before compilation, so a style violation stops the build early.
-                failOnViolation is true, and includeTestSourceDirectory is true - it lints the
-                tests as well as the production code, which most student projects do not do.
-
-  oxlint        The linter for the TypeScript side. Same role as Checkstyle: catches problems by
-                reading the code rather than running it.
+  oxlint        The linter for the TypeScript side. Same role: catches problems by reading the
+                code rather than running it.
 
   JaCoCo        Measures how much of the Java code the tests actually reach, and produces the
-                coverage report. It is also a gate: the build fails below the configured minimum.
+                coverage report. Also a gate - the build fails below the configured minimum.
 
-  ArchUnit      A library that lets you write unit tests about architecture instead of behaviour.
-                Our five tests assert which package is allowed to import which - for example that
-                an entity never imports a framework. If someone adds a bad import, a test fails.
+  ArchUnit      A library for writing unit tests about architecture instead of behaviour. Our five
+                tests assert which package may import which - for example that an entity never
+                imports a framework.
 
-  MockMvc       Spring's way of calling a controller without starting a real server. Lets a test
-                assert the HTTP status and JSON shape in milliseconds.
+  MockMvc       Spring's way of calling a controller without starting a real server, so a test can
+                assert HTTP status and JSON shape in milliseconds.
 
-  npm audit     Checks the installed dependencies against a database of known vulnerabilities.
-                Ours runs at --audit-level=high, so only high and critical findings fail.
+  npm audit     Checks installed dependencies against a database of known vulnerabilities. Runs at
+                --audit-level=high, so only high and critical findings fail.
 
-The single most important sentence about all of them: none of them is advisory. Every one fails
-the build rather than printing a warning.
+The sentence that matters about all of them: none is advisory. Every one fails the build rather
+than printing a warning.
 
 
 6. THE PULL REQUEST TO SHOW - #37
 
-Title: fix(battle): keep the resolver's status message out of the arena
+  fix(battle): keep the resolver's status message out of the arena
 
   Was:  "Turn resolved. Arceus used Judgment!"
   Now:  "Arceus used Judgment!"
 
-"Turn resolved." was an internal status string from the resolver, and it was being shown to the
-player. The fix narrates a resolved move from its events alone, while a switch or an item keeps
-its own message - because "Go! Garchomp!" and "Pikachu recovered 20 HP!" are the copy, not status
-text. A regression test pins the behaviour so it cannot come back.
-
-Why this one is worth showing: it is a real bug, with a real fix, and a test that prevents its
-return. The rubric's top band asks for a pull request example. Have it open in a browser tab.
+The mechanism is Part One, section 9 - you own that code, so you can explain the fix rather than
+just describe it. A real bug, a real fix, and a regression test that prevents its return. The
+rubric's top band asks for a pull request example; have it open in a tab.
 
 
 7. THE PROCESS FACTS
 
-  - 43 distinct pull requests merged. The highest number is #47.
-  - Branches are named owner/feature: dorothy/backend-tournament, yiming/library-api,
+  - 43 distinct pull requests merged; the highest number is #47.
+  - Branches are owner/feature: dorothy/backend-tournament, yiming/library-api,
     albert/battle-message-and-plan.
   - Nobody pushed to main directly.
-  - Team rule: review the diff, and merge only once both CI jobs are green.
+  - Team rule: review the diff, merge only once both CI jobs are green.
 
-Do not quote a specific PR number as the headline. "The history reaches #47" was cut from the
-slide because the number carried no weight - the fact that every change went through review does.
+Do not lead with a PR number. "The history reaches #47" was cut from the slide because the number
+carried no weight; the review discipline does.
 
 
 8. QUESTIONS YOU SHOULD EXPECT
 
 Q: Why did the quality tooling land late?
-A: Own the sequence. Checkstyle, JaCoCo and the CI gates came in with PR #40; PR #47 completed
-   the use-case reorganisation and documentation. Saying so reads better than implying it was
-   always there.
+A: Own the sequence. The gates came in with PR #40; PR #47 completed the use-case reorganisation
+   and documentation. Saying so reads better than implying it was always there.
 
 Q: What happens if CI fails?
-A: The pull request shows a red X and the change is not merge-ready. The reports still upload, so
-   you can read the coverage HTML from the failed run to see why.
+A: Red X, not merge-ready. Reports still upload, so you can read the coverage from the failed run.
 
 Q: Does CI run on your machine?
-A: No. GitHub Actions runs it on a fresh Linux machine, which is the point - it cannot depend on
-   anything only installed locally.
+A: No - a fresh Linux machine, which is the point. It cannot depend on anything only installed
+   locally.
 
 
 ===============================================================================
-PART TWO - TESTING
+PART THREE - TESTING
 ===============================================================================
 
 1. THE SEGMENT IN ONE SENTENCE
@@ -185,7 +482,7 @@ build if those numbers drop.
   TypeScript frontend 325 tests    89.79% line                77.42% branch
   Total               634 tests
 
-  Frontend also: 87.95% statements, 85.87% functions, 49 test files.
+  Frontend also: 87.95% statements, 85.87% functions, across 49 test files.
 
 By layer, backend:
 
@@ -196,102 +493,101 @@ By layer, backend:
   data_access                88.47%        70.90%
   app (the CLI Main)          1.30%         0.00%
 
-The gates, and the margin over them:
+The gates and the margin:
 
-  backend   JaCoCo requires line >= 70% and branch >= 60%     (backend/pom.xml)
+  backend   JaCoCo requires line >= 70%, branch >= 60%      (backend/pom.xml)
   frontend  vitest requires statements 80, branches 70,
-            functions 75, lines 80                            (frontend/vite.config.ts)
+            functions 75, lines 80                          (frontend/vite.config.ts)
 
-So the backend clears its line gate by 20 points and its branch gate by 16.
+The backend clears its line gate by 20 points and its branch gate by 16.
 
-Lead with the percentages, not the test count. The rubric asks for evidence of coverage, and a
-test count is not evidence - 634 tests could all be trivial.
+Lead with the percentages, not the count. The rubric asks for evidence of coverage, and a test
+count is not evidence - 634 tests could all be trivial.
 
 
 3. WHAT IS COVERED
 
   - Entities: damage, healing caps, the type chart, party membership, the win condition, bracket
     progression.
-  - Interactors: every use case, driven by stand-in data sources instead of real ones.
-  - Adapters: JSON mappers in both directions, and controllers through MockMvc.
-  - React: components, hooks, forms, and modal keyboard behaviour.
+  - Interactors: every use case, driven by stand-in data sources.
+  - Adapters: JSON mappers both directions, controllers through MockMvc.
+  - React: components, hooks, forms, modal keyboard behaviour.
   - The dependency rule itself: ArchUnit in Java, an import test in TypeScript.
 
 
 4. TESTING SOMETHING RANDOM - THE PART YOU WILL BE ASKED ABOUT
 
-This is the most interesting thing in the segment, and it is not a random seed.
+Not a random seed.
 
-The problem: a battle turn rolls dice. It rolls for accuracy (did the move hit), for a critical
-hit (1 in 24), and the opponent picks a move. If the code created its own randomness, a test
-could not predict the outcome, and a test that cannot predict the outcome cannot assert anything.
+The problem: a battle turn rolls dice - accuracy, a 1-in-24 critical hit, the opponent's move
+choice, and the speed-tie coin flip. If the code created its own randomness, a test could not
+predict the outcome, and a test that cannot predict the outcome cannot assert anything.
 
-The solution: the randomness is a constructor parameter.
+The solution: randomness is a constructor parameter.
 
   public BattleSimulator() { this(new Random()); }      // production
   public BattleSimulator(Random random) { ... }          // tests
 
-Production calls the first constructor and gets real randomness. A test calls the second and
-passes something that is not random at all:
+Production gets real randomness. A test passes something that is not random at all:
 
   new BattleSimulator(new SequenceRandom(0.5, 0.5))
 
-SequenceRandom is a small class in the test file that extends java.util.Random and overrides
+SequenceRandom is a small class in the test file extending java.util.Random, overriding
 nextDouble() to return the given values in order - 0.5, then 0.5.
 
-Why 0.5 matters: the critical-hit check is `random.nextDouble() < 1.0/24`, and 1/24 is about
-0.0417. A returned 0.5 is not less than 0.0417, so there is definitely no critical hit. Pass 0.0
-instead and you force one. The test chooses.
+Why 0.5 matters: the crit check is `random.nextDouble() < 1.0/24`, and 1/24 is about 0.0417. A
+returned 0.5 is not less than that, so there is definitely no crit. Pass 0.0 and you force one.
+The test chooses.
 
-The extra detail worth saying out loud: if the engine asks for more values than the test supplied,
+The detail worth saying out loud: if the engine asks for more values than the test supplied,
 SequenceRandom throws
 
   AssertionError("Simulator requested more random values than expected.")
 
-So the test pins not only what each roll returns but how many rolls a turn is allowed to make. A
-seed cannot do that. A seed gives you a repeatable sequence, but you still have to discover what
-that sequence produces, and you cannot detect the engine quietly rolling an extra die.
+So the test pins not only what each roll returns but how many rolls a turn may make. A seed cannot
+do that - a seed gives a repeatable sequence, but you still have to discover what it produces, and
+you cannot detect the engine quietly rolling an extra die.
 
-The same pattern appears twice more: BooleanRandom for coin tosses, and IndexRandom for the
-opponent's move choice. In the wider design, OpponentMoveSelector is an interface - a Strategy -
-so a test can hand in a selector that always picks a chosen move.
+The same pattern appears twice more: BooleanRandom for the speed-tie coin flip, and IndexRandom
+for the opponent's move choice. And OpponentMoveSelector is an interface - a Strategy - so a test
+can hand in a selector that always picks a chosen move.
 
-If someone asks "is this dependency injection?" - yes. The collaborator is supplied from outside
+If asked whether this is dependency injection: yes. The collaborator is supplied from outside
 rather than constructed inside, which is what makes the seam possible.
 
 
 5. WHAT IS NOT TESTED, AND WHY
 
-The rubric's top band explicitly asks for this, so do not skip it.
+The top band explicitly asks for this, so do not skip it.
 
   - Live PokeAPI calls. Tests use recorded JSON so the suite does not fail when the network does.
     Adapter error paths are covered; a real outage is not.
   - The dev bearer token - the string the frontend sends to say who it is. It identifies a caller
     but is not cryptographically verified, so the suite makes no security claim about it.
 
-If pressed on the weakest number: `app`, the command-line Main, is 1.3% covered. It is a
-developer entry point that prints to stdout, not a shipped path; the web layer that users actually
-reach is 94%. Say it before someone finds it.
+If pressed on the weakest number: `app`, the command-line Main, is 1.3% covered. It is a developer
+entry point that prints to stdout, not a shipped path; the web layer users actually reach is 94%.
+Say it before someone finds it.
 
 
 6. ONE COMMAND REPRODUCES ALL OF IT
 
   .\scripts\verify.ps1
 
-It runs the backend `clean verify` and then the frontend lint, coverage, build and audit. It fails
-below the configured gates, so the numbers stay honest.
+Runs the backend `clean verify`, then the frontend lint, coverage, build and audit. It fails below
+the configured gates, so the numbers stay honest.
 
-One practical warning if you run it on a fresh machine: it stops at the first failure under
-`$ErrorActionPreference = "Stop"`, and the backend runs first, so with no Java installed it never
-reaches the frontend at all. Java 17 Temurin has to be present.
+Practical warning on a fresh machine: it stops at the first failure under
+`$ErrorActionPreference = "Stop"`, and the backend runs first, so with no Java it never reaches
+the frontend at all. Java 17 Temurin has to be present.
 
 
 7. QUESTIONS YOU SHOULD EXPECT
 
 Q: Is 90% line coverage meaningful?
-A: Point at branch coverage instead - 76% backend, 77% frontend - and at the gate being enforced
-   in CI rather than measured afterwards. Line coverage says a line ran; branch coverage says both
-   sides of a decision ran.
+A: Point at branch coverage - 76% backend, 77% frontend - and at the gate being enforced in CI
+   rather than measured afterwards. Line coverage says a line ran; branch coverage says both sides
+   of a decision ran.
 
 Q: How do you test a random battle?
 A: Section 4.
@@ -300,159 +596,22 @@ Q: Why is Main at 1%?
 A: Section 5.
 
 Q: Do the tests need a server or a network?
-A: No. That is the "0" on the slide. Controllers are tested through MockMvc, and external data is
-   recorded JSON.
-
-
-===============================================================================
-PART THREE - ACCESSIBILITY REPORT
-===============================================================================
-
-1. THE SEGMENT IN ONE SENTENCE
-
-We reviewed the app against the seven principles of Universal Design - not only disability
-accommodations, but who can pick this up and use it at all - then named our target users and the
-groups our own choices exclude.
-
-
-2. WHAT THE RUBRIC ACTUALLY ASKS FOR
-
-Out of 5. The Excellent band wants four things, and it is easy to misread the first:
-
-  - All seven Universal Design principles in the MARKDOWN FILE. Not on the slide.
-  - At least ONE principle discussed during the presentation.
-  - Target users identified AND discussed in the presentation.
-  - A group who may struggle identified, discussed using E3I terminology, in the presentation.
-
-The slide carries six principles, which is five more than required. So do not add the seventh
-for compliance. But the sentence "all seven are written up in docs/accessibility-report.md" is
-what satisfies the first requirement, so SAY IT OUT LOUD - a grader cannot see a file you never
-mention.
-
-5/5 is "goes above and beyond in conveying the information outlined at the Excellent level."
-
-
-3. WHERE THE REPORT LIVES AND WHAT IT CONTAINS
-
-docs/accessibility-report.md, in the project repo. It was rewritten late - if you read an older
-copy, the technical audit you remember is gone. Its current shape:
-
-  - An opening framing it as a general review of how easily different people can understand,
-    access and use the program, not only accommodations related to disability.
-  - The seven principles, one short section each.
-  - Marketing Audience - who we would market to if the intellectual-property rights were
-    licensed.
-  - Demographic Considerations - the barriers, with the E3I framing that these are mismatches
-    created by design, technology and marketing choices rather than deficiencies in those groups.
-
-Read it before presenting. The slide is built from it.
-
-
-4. THE SIX PRINCIPLES ON THE SLIDE
-
-  Equitable use            Guests and registered players reach the same core game; official,
-                           custom and random Pokemon follow the same battle rules.
-  Flexibility in use       Search or type-filter the catalog; hand-pick entrants or let random
-                           selection fill them.
-  Simple and intuitive     Menu, setup, simulation and result screens each explain one next
-                           action at a time.
-  Perceptible information  HP is a number and a bar and a colour; effectiveness is stated in
-                           words, never colour alone.
-  Tolerance for error      An item that would do nothing cannot be submitted at all - the invalid
-                           target is disabled, and the server rejects it too.
-  Low physical effort      Random filling, sticky selection controls, short menu paths, and no
-                           dragging or timed input.
-
-The seventh, Size and Space for Approach and Use, is in the report: responsive layouts, control
-sizing, and the bracket being the highest-risk view on small screens.
-
-
-5. WHAT IS ACTUALLY IMPLEMENTED
-
-Each of these was checked in the source, not taken from the report:
-
-  Skip link and a focusable main landmark          4 references
-  Global :focus-visible ring                       8
-  aria-pressed on toggle controls                 14
-  prefers-reduced-motion                           4
-  aria-live regions                                8 components - setup, forms, Pokedex,
-                                                   tournament
-  A real focus trap                                frontend/src/components/common/
-                                                   useModalDialog.ts
-
-useModalDialog.ts is the strongest single artifact in this segment, and it is 60 lines. It moves
-focus into the dialog when it opens, closes on Escape but only when dismissal is allowed, wraps
-Tab and Shift-Tab so focus cannot leave, and restores focus to whatever opened the dialog when it
-unmounts. If anyone wants to see accessibility work rather than hear about it, open that file.
-
-
-6. THE TWO REAL GAPS
-
-Be the one who names them.
-
-  - The battle message box is not an aria-live region. components/battle/ contains no live region
-    at all, so a screen reader announces that a turn happened but not what it did. The fix is one
-    attribute.
-  - There is no aria-invalid or aria-errormessage anywhere. Form errors are visible text only, so
-    they are not programmatically tied to their field.
-
-Also true, and in the report: the tournament bracket has no linear text equivalent, and no
-screen-reader session has been run.
-
-Note on the slide: the card that admitted the aria-live gap was removed at Albert's request to
-save space. The gap is still real. If a grader asks what a blind user cannot do, answer with the
-message box - do not claim the app is complete.
-
-
-7. TARGET USERS, AND WHO IS EXCLUDED
-
-Target users: casual and experienced Pokemon fans, students, families, friend groups, and coding
-clubs who enjoy matchups, collecting, customization, or learning from an interactive game system.
-
-Excluded by our choices: English-only text discourages multilingual users; Pokemon terminology
-excludes people unfamiliar with the franchise; and uncached data needs a modern browser and
-reliable internet, which is a barrier on older devices and in lower-connectivity communities.
-
-The E3I sentence, which must be said and not merely displayed: these are mismatches created by
-design, technology and marketing choices, not deficiencies in those groups. Localization, offline
-catalog support, broader onboarding and clearer privacy information would widen participation.
-
-Do not cut that paragraph for time. It is the part that shows you understood the assignment. Cut
-the implementation detail in section 5 instead.
-
-
-8. QUESTIONS YOU SHOULD EXPECT
-
-Q: What is E3I?
-A: The course's embedded ethics, equity and inclusion material. The framing that matters here is
-   that exclusion is a mismatch produced by design choices, not a deficiency in the excluded
-   group.
-
-Q: Can a blind person use this?
-A: Partly, and be honest about the boundary. Keyboard operation, focus order and dialog semantics
-   are real, and setup, forms and the catalog announce their state. But the battle message box is
-   not announced, and the bracket has no text equivalent.
-
-Q: Did you run a screen reader?
-A: No. No automated screen-reader session exists and no manual session has been run. Roles and
-   keyboard interaction are asserted by component tests; that is not the same thing.
-
-Q: Is accessibility just about disability?
-A: No, and the report is deliberately built the other way round. It starts from who can
-   understand and use the program at all, which is why language, prior knowledge and connectivity
-   sit alongside keyboard and screen-reader concerns.
+A: No. That is the 0 on the slide. Controllers go through MockMvc; external data is recorded JSON.
 
 
 ===============================================================================
 THINGS NOT TO CLAIM
 ===============================================================================
 
-  - Do not say CI runs "on every push". It runs on every pull request and on main after a merge.
+  - Do not say CI runs "on every push". Every pull request, and main after a merge.
   - Do not say party switching works from the user interface. The engine supports it and it is
-    tested, but every shipped route into the arena builds a party of one.
+    tested, but every shipped route builds a party of one.
   - Do not offer to demonstrate an item being refused. The bag disables the only valid target for
-    a stat booster, so the action can never be submitted; the refusal exists in the interactor and
-    over HTTP, but not on screen. Answer with the disabled control instead.
-  - Do not describe the injected Random as a seed. Section 4 of Part Two.
-  - Do not quote the older coverage baseline from docs/testing.md. It still publishes 255 tests,
-    83.15% line and 68.09% branch, which predates PR #45. The current numbers are in Part Two.
+    a stat booster, so the action can never be submitted.
+  - Do not describe the injected Random as a seed. Part Three, section 4.
+  - Do not defend the damage numbers as realistic. No level scaling, no divisor - a deliberate
+    simplification.
+  - Do not say the backend cache makes the demo work offline. Species data and sprites are fetched
+    by the browser from pokeapi.co, raw.githubusercontent.com and play.pokemonshowdown.com.
+  - Do not quote docs/testing.md for coverage. It still publishes 255 tests, 83.15% line and
+    68.09% branch, which predates PR #45.

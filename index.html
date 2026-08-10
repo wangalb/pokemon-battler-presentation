@@ -629,10 +629,10 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 </section>
 
 <!-- ============================================ 12. ALBERT — INTERACTOR -->
-<section class="slide" data-section="Albert — Interactor">
+<section class="slide albert-interactor-uml-slide" data-section="Albert — Interactor">
   <div class="speaker-tag"><span class="avatar a6">AW</span> Albert Wang</div>
-  <p class="eyebrow">Use Case Interactor</p>
-  <h2>One Interactor orders the turn. The entities do the arithmetic.</h2>
+  <p class="eyebrow">Use Case Interactor and full use-case class diagram</p>
+  <h2>The Interactor orders the turn. Source-code dependencies point in.</h2>
 
   <div class="cols side">
     <div>
@@ -673,30 +673,19 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 }</code></pre>
     </div>
 
-    <div class="stack dorothy-proof-stack">
+    <div class="stack">
+      <figure class="uml-figure">
+        <img
+          src="assets/albert-battle-uml.svg"
+          alt="UML class diagram for the single battle use case: the React arena and web gateway call the HTTP controller, which depends on the resolve-turn input boundary; the interactor realizes that boundary and uses the battle entities plus an injected move-selector strategy and java.util.Random"
+        >
+      </figure>
       <div class="card accent-purple">
-        <h3>The SOLID principle to name: Dependency Inversion</h3>
+        <h3>Dependency Inversion, in one arrow</h3>
         <p><code>BattleController</code> depends on <code>ResolveTurnInputBoundary</code>, never on
-          this class. The Interactor <em>realizes</em> the interface, so the source-code arrow runs
-          opposite to the direction of the call.</p>
-      </div>
-      <div class="card accent-green">
-        <h3>Application rule vs. enterprise rule</h3>
-        <p>The Interactor decides <em>order</em>: validate, choose the opponent's move, who strikes
-          first, whether the second attacker still can. <code>BattleSimulator</code> owns accuracy,
-          crit, type effectiveness and damage — the rules that would be true without this app.</p>
-      </div>
-      <div class="card accent-blue">
-        <h3>Every source of randomness is injected</h3>
-        <p>The tie-break coin, the crit and accuracy rolls in the simulator, and the opponent's choice
-          all arrive through the constructor. <code>RandomOpponentMoveSelector</code> is a Strategy
-          behind <code>OpponentMoveSelector</code>.</p>
-      </div>
-      <div class="card accent-gold">
-        <h3>Which makes the turn deterministic to test</h3>
-        <p><code>ResolveTurnInteractorTest</code> passes a <code>SequenceRandom</code> and a
-          <code>BooleanRandom</code> — small test-file subclasses of <code>Random</code>. No server,
-          no PokéAPI call, no UI. Not a seed: the exact values, in order.</p>
+          the Interactor. The Interactor <em>realizes</em> that boundary, so the source-code
+          dependency points opposite to the direction of the call — outward control, inward
+          dependencies.</p>
       </div>
     </div>
   </div>
@@ -717,32 +706,10 @@ components/  <span class="cm">humble views            (outermost)</span></code><
       <li>The code on the slide is condensed for reading — helper calls stand in for the full method
         bodies. Say so if a grader asks; the real file is
         <code>use_case/resolve_turn/</code> (renamed from <code>use_case/battle</code> in PR #47).</li>
-    </ul>
-  </div>
-</section>
-
-<!-- =================================================== 13. ALBERT — UML -->
-<section class="slide albert-uml-slide" data-section="Albert — UML">
-  <div class="speaker-tag"><span class="avatar a6">AW</span> Albert Wang</div>
-  <p class="eyebrow">Full use-case class diagram and Dependency Rule</p>
-  <h2>Runtime control travels out. Source-code dependencies point in.</h2>
-
-  <figure class="uml-figure">
-    <img
-      src="assets/albert-battle-uml.svg"
-      alt="UML class diagram for the single battle use case: the React arena and web gateway call the HTTP controller, which depends on the resolve-turn input boundary; the interactor realizes that boundary and uses the battle entities plus an injected move-selector strategy and java.util.Random"
-    >
-  </figure>
-
-  <div class="notes-source">
-    <ul>
-      <li>Define dependency the way the course does: one source file imports, names, or uses another
-        type. That is not the same as the runtime flow of control.</li>
+      <li>On the diagram, define dependency the way the course does: one source file imports, names
+        or uses another type. That is not the same as the runtime flow of control.</li>
       <li>Trace only the main path, left to right then down: arena, web gateway, HTTP controller,
-        input boundary, interactor, entities.</li>
-      <li>Then name the inverted one: <code>BattleController</code> depends on
-        <code>ResolveTurnInputBoundary</code>, <strong>not</strong> on the interactor. The interactor
-        realizes the boundary, so the arrow between them points the other way from the call.</li>
+        input boundary, interactor, entities. Then name the inverted arrow on the card.</li>
       <li>The two bottom-band boxes are the point of the diagram. <code>OpponentMoveSelector</code>
         is a Strategy and <code>java.util.Random</code> is handed in, so a test can decide the crit
         roll, the accuracy roll and the opponent's choice.</li>

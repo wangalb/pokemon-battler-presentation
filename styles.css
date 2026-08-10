@@ -912,6 +912,17 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
   line-height: 1.36;
 }
 
+/* Albert's slide carries the Interactor and its class diagram side by side, so
+   the figure gives up the full-height allowance it gets on a diagram-only
+   slide and shares the column with the Dependency Inversion card. */
+.albert-interactor-uml-slide .uml-figure img {
+  max-height: 44vh;
+}
+
+.albert-interactor-uml-slide .dorothy-code {
+  max-height: 62vh;
+}
+
 .dorothy-proof-stack {
   display: grid;
   gap: 0.58rem;

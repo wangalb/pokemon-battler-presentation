@@ -297,6 +297,43 @@ th,
 .cols.fill > .stack { display: flex; flex-direction: column; }
 .cols.fill > .stack > .card { flex: 1; }
 
+/* The introduction carries four claims and nothing else — no lede above them —
+   so they take the whole panel instead of sitting in a band under a paragraph.
+   Two by two, each cell stretched to its share of the height the heading leaves
+   behind, with the type stepped up to match the extra room. */
+.intro-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1.1rem;
+}
+
+.intro-grid > .card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.5rem 1.75rem;
+}
+
+.intro-grid > .card h3 {
+  font-size: var(--text-2xl);
+  line-height: 1.1;
+  margin: 0 0 0.7rem;
+}
+
+.intro-grid > .card p {
+  font-size: var(--text-lg);
+  line-height: 1.35;
+  color: var(--muted);
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .intro-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+}
+
 /* --------------------------------------------------------------------- cards */
 
 /* The app's window-in-a-window: lit cream on cream, squared, with the chunky

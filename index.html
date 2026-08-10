@@ -264,36 +264,52 @@
 
     <span class="kw">@Override</span>
     <span class="kw">public</span> <span class="typ">AddToLibraryOutputData</span> <span class="fn">add</span>(<span class="typ">AddToLibraryInputData</span> inputData) {
-        <span class="typ">Pokemon</span> pokemon = inputData.<span class="fn">getPokemon</span>();
+        <span class="typ">AddToLibraryOutputData</span> outcome;
+        <span class="kw">final</span> <span class="typ">Pokemon</span> pokemon = inputData.<span class="fn">getPokemon</span>();
         <span class="kw">if</span> (pokemon == <span class="kw">null</span> || pokemon.<span class="fn">getName</span>() == <span class="kw">null</span>
                 || pokemon.<span class="fn">getName</span>().<span class="fn">isBlank</span>()) {
-            <span class="kw">return new</span> <span class="typ">AddToLibraryOutputData</span>(<span class="kw">false</span>, <span class="str">"Pokemon name cannot be empty."</span>,
-                    <span class="typ">LibraryFailure</span>.INVALID_INPUT);
+            outcome = <span class="kw">new</span> <span class="typ">AddToLibraryOutputData</span>(<span class="kw">false</span>,
+                    <span class="str">"Pokemon name cannot be empty."</span>, <span class="typ">LibraryFailure</span>.INVALID_INPUT);
         }
-        <span class="kw">try</span> {
-<span class="hl">            <span class="typ">User</span> requester = userDataAccess.<span class="fn">getByUsername</span>(inputData.<span class="fn">getRequesterUsername</span>());
-            <span class="typ">LibraryFailure</span> refusal = accessPolicy.<span class="fn">decide</span>(requester, inputData.<span class="fn">getOwnerUsername</span>());
-            <span class="kw">if</span> (refusal != <span class="kw">null</span>) {
-                <span class="kw">return new</span> <span class="typ">AddToLibraryOutputData</span>(<span class="kw">false</span>,
-                        <span class="str">"You are not allowed to modify this library."</span>, refusal);
-            }</span>
-            <span class="kw">boolean</span> alreadyThere = libraryDataAccess.<span class="fn">getLibrary</span>(inputData.<span class="fn">getOwnerUsername</span>()).<span class="fn">stream</span>()
-                    .<span class="fn">anyMatch</span>(entry -&gt; entry.<span class="fn">getName</span>().<span class="fn">equalsIgnoreCase</span>(pokemon.<span class="fn">getName</span>()));
-            <span class="kw">if</span> (alreadyThere) {
-                <span class="kw">return new</span> <span class="typ">AddToLibraryOutputData</span>(<span class="kw">false</span>,
-                        pokemon.<span class="fn">getName</span>() + <span class="str">" is already in this library."</span>,
-                        <span class="typ">LibraryFailure</span>.ALREADY_PRESENT);
+        <span class="kw">else</span> {
+            <span class="kw">try</span> {
+                outcome = <span class="fn">save</span>(inputData, pokemon);
             }
+            <span class="kw">catch</span> (<span class="typ">UserDataAccessException</span> exception) {
+                outcome = <span class="kw">new</span> <span class="typ">AddToLibraryOutputData</span>(<span class="kw">false</span>,
+                        exception.<span class="fn">getMessage</span>(), <span class="typ">LibraryFailure</span>.STORAGE_ERROR);
+            }
+        }
+        <span class="kw">return</span> outcome;
+    }
+
+    <span class="kw">private</span> <span class="typ">AddToLibraryOutputData</span> <span class="fn">save</span>(<span class="typ">AddToLibraryInputData</span> inputData, <span class="typ">Pokemon</span> pokemon)
+            <span class="kw">throws</span> <span class="typ">UserDataAccessException</span> {
+        <span class="kw">final</span> <span class="typ">AddToLibraryOutputData</span> outcome;
+<span class="hl">        <span class="kw">final</span> <span class="typ">User</span> requester = userDataAccess.<span class="fn">getByUsername</span>(inputData.<span class="fn">getRequesterUsername</span>());
+        <span class="kw">final</span> <span class="typ">LibraryFailure</span> refusal = accessPolicy.<span class="fn">decide</span>(requester, inputData.<span class="fn">getOwnerUsername</span>());</span>
+        <span class="cm">// ... alreadyThere: the owner's library already holds this name ...</span>
+
+        <span class="kw">if</span> (refusal != <span class="kw">null</span>) {
+            outcome = <span class="kw">new</span> <span class="typ">AddToLibraryOutputData</span>(<span class="kw">false</span>,
+                    <span class="str">"You are not allowed to modify this library."</span>, refusal);
+        }
+        <span class="kw">else if</span> (alreadyThere) {
+            outcome = <span class="kw">new</span> <span class="typ">AddToLibraryOutputData</span>(<span class="kw">false</span>,
+                    pokemon.<span class="fn">getName</span>() + <span class="str">" is already in this library."</span>,
+                    <span class="typ">LibraryFailure</span>.ALREADY_PRESENT);
+        }
+        <span class="kw">else</span> {
             <span class="kw">if</span> (inputData.<span class="fn">getEntryKind</span>() == <span class="typ">LibraryEntryKind</span>.CUSTOM_REFERENCE) {
                 libraryDataAccess.<span class="fn">saveCustomReference</span>(inputData.<span class="fn">getOwnerUsername</span>(), pokemon.<span class="fn">getName</span>());
-            } <span class="kw">else</span> {
+            }
+            <span class="kw">else</span> {
                 libraryDataAccess.<span class="fn">saveEntry</span>(inputData.<span class="fn">getOwnerUsername</span>(), pokemon);
             }
-            <span class="kw">return new</span> <span class="typ">AddToLibraryOutputData</span>(<span class="kw">true</span>, pokemon.<span class="fn">getName</span>() + <span class="str">" added to library."</span>);
-        } <span class="kw">catch</span> (<span class="typ">UserDataAccessException</span> exception) {
-            <span class="kw">return new</span> <span class="typ">AddToLibraryOutputData</span>(<span class="kw">false</span>, exception.<span class="fn">getMessage</span>(),
-                    <span class="typ">LibraryFailure</span>.STORAGE_ERROR);
+            outcome = <span class="kw">new</span> <span class="typ">AddToLibraryOutputData</span>(<span class="kw">true</span>,
+                    pokemon.<span class="fn">getName</span>() + <span class="str">" added to library."</span>);
         }
+        <span class="kw">return</span> outcome;
     }
 }</code></pre>
 

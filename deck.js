@@ -231,36 +231,6 @@
         "Keep this high level so Dorothy's full section stays under two minutes."
       ]
     },
-    "Cindy — Create Pokémon": {
-      lead: "As a creative player, I want to build a valid custom Pokémon so that I can use my own competitor.",
-      bullets: [
-        "Choose a Pokémon name",
-        "Set battle statistics",
-        "Choose types and moves",
-        "Upload a custom sprite",
-        "Save to your collection"
-      ],
-      notes: [
-        "State Cindy's user story and identify the empty form and saved Pokémon as before and after views.",
-        "Use both creation slides in about one minute total."
-      ]
-    },
-    "Cindy — Code": {
-      bullets: [
-        "Factory assembles the use-case objects",
-        "Interactor validates custom Pokémon data",
-        "Repositories persist metadata and sprites",
-        "Presenter reports success or failure",
-        "Creation reuses move-loading boundaries"
-      ],
-      preserve: "pre",
-      preserveLimit: 1,
-      visual: "side",
-      notes: [
-        "Connect View, Controller, Input Boundary, Interactor, repository interfaces, Presenter, and View Model.",
-        "Explain the Clean Architecture path rather than the code syntax."
-      ]
-    },
     "Edison — Custom Pokémon": {
       lead: "As a custom-Pokémon creator, I want my creations in battles and tournaments so that creating one changes the playable experience.",
       bullets: [

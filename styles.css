@@ -302,7 +302,10 @@ th,
    Two by two, each cell stretched to its share of the height the heading leaves
    behind, with the type stepped up to match the extra room. */
 .intro-grid {
-  flex: 1;
+  /* Sized rather than flex:1 — filling the leftover height packed the cards
+     against the heading and the panel edge. Holding them to roughly seven
+     tenths leaves breathing room under the grid. */
+  flex: 0 0 74%;
   min-height: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;

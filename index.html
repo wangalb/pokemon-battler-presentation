@@ -187,10 +187,18 @@
           <li>Passwords hashed with PBKDF2, 100,000 iterations, per-user salt</li>
         </ul>
       </div>
-      <div class="card">
-        <h3>Terminology worth landing</h3>
+      <div class="card accent-green">
+        <h3>Two SOLID principles, in this code</h3>
+        <ul class="tight" style="margin-bottom:0.5rem">
+          <li><strong>Interface segregation.</strong> <code>FileUserDataAccess</code> implements four
+            interfaces, one per use case &mdash; signup, login, manage users, library &mdash; of one or
+            two methods each. Login can read a user and nothing else: no <code>save</code>, no
+            <code>update</code>.</li>
+          <li><strong>Dependency inversion.</strong> All four live in <code>use_case/</code> and
+            <code>data_access/</code> implements them. <code>CompositeLibraryUserDataAccess</code>
+            arrived later as a second implementation and no interactor changed.</li>
+        </ul>
         <p style="margin-bottom:0"><span class="pill">Access policy in the use case layer</span>
-        <span class="pill">Interface segregation</span>
         <span class="pill">Soft delete</span>
         <span class="pill">Composition root</span></p>
       </div>
@@ -230,6 +238,10 @@
       <li><strong>Do not read the slide.</strong> Reading from notes caps this at 3/5 on Verbal Presentation.</li>
       <li>Land the moment the menu changes shape: same screen, different role, different panels.</li>
       <li>Have the invite-code path ready; it is the detail that shows this is more than a form.</li>
+      <li>If asked who else depends on these interfaces: <code>LibraryUserDataAccessInterface</code> is
+        used by <code>ViewLibraryInteractor</code>, <code>RemoveFromLibraryInteractor</code> and by
+        Cindy's <code>CreatePokemonInteractor</code>, which needs an owner and nothing else. Another
+        member's use case consuming the abstraction without widening it is the segregation working.</li>
     </ul>
   </div>
 </section>

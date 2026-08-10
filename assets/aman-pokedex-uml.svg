@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 760" role="img" aria-labelledby="title description">
+  <title id="title">Pokédex use case UML class diagram</title>
+  <desc id="description">Detailed UML showing the Pokédex React views, adapter hooks, pure use-case module, domain interfaces, and outer PokeAPI service.</desc>
+  <defs>
+    <style>
+      .box { fill: #fffaf0; stroke: #51483e; stroke-width: 2.5; }
+      .framework { fill: #eee7f5; } .adapter { fill: #e6eefb; }
+      .usecase { fill: #e9f4e5; } .entity { fill: #fff3cf; }
+      .data { fill: #e4f5f7; } .iface { fill: #f1e8f7; }
+      .rule { stroke: #51483e; stroke-width: 1.5; }
+      .name { font: 700 18px Arial, sans-serif; fill: #27241f; text-anchor: middle; }
+      .name-small { font: 700 15px Arial, sans-serif; fill: #27241f; text-anchor: middle; }
+      .stereo { font: italic 700 12px Arial, sans-serif; fill: #665e54; text-anchor: middle; }
+      .member { font: 13px Consolas, monospace; fill: #302c27; }
+      .member-small { font: 11.5px Consolas, monospace; fill: #302c27; }
+      .section { font: 700 13px Arial, sans-serif; fill: #665e54; letter-spacing: 2px; }
+      .label { font: 12px Arial, sans-serif; fill: #51483e; }
+      .dependency { fill: none; stroke: #51483e; stroke-width: 2.25; stroke-dasharray: 8 6; marker-end: url(#open-arrow); }
+      .association { fill: none; stroke: #51483e; stroke-width: 2.25; marker-end: url(#open-arrow); }
+      .inheritance { fill: none; stroke: #2f6d43; stroke-width: 2.5; marker-end: url(#hollow-triangle); }
+    </style>
+    <marker id="open-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#51483e" stroke-width="1.5" />
+    </marker>
+    <marker id="hollow-triangle" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 1 1 L 11 6 L 1 11 Z" fill="#fffaf0" stroke="#2f6d43" stroke-width="1.5" />
+    </marker>
+  </defs>
+
+  <text class="section" x="25" y="20">FRAMEWORKS AND DRIVERS</text>
+  <g transform="translate(25 38)">
+    <rect class="box framework" width="300" height="145" />
+    <text class="stereo" x="150" y="20">&lt;&lt;React view&gt;&gt;</text>
+    <text class="name" x="150" y="45">PokedexView</text>
+    <line class="rule" x1="0" y1="58" x2="300" y2="58" />
+    <text class="member" x="12" y="84">- user: SessionInfo</text>
+    <text class="member" x="12" y="106">- onClose: () =&gt; void</text>
+    <line class="rule" x1="0" y1="118" x2="300" y2="118" />
+    <text class="member-small" x="12" y="137">+ render(): PokedexScreen</text>
+  </g>
+  <g transform="translate(365 38)">
+    <rect class="box framework" width="330" height="145" />
+    <text class="stereo" x="165" y="20">&lt;&lt;React view component&gt;&gt;</text>
+    <text class="name" x="165" y="45">PokedexScreen</text>
+    <line class="rule" x1="0" y1="58" x2="330" y2="58" />
+    <text class="member" x="12" y="84">- dex: PokedexState</text>
+    <text class="member" x="12" y="106">- actionLabel: string</text>
+    <line class="rule" x1="0" y1="118" x2="330" y2="118" />
+    <text class="member-small" x="12" y="137">+ render grid, search, and detail</text>
+  </g>
+  <g transform="translate(735 38)">
+    <rect class="box data" width="360" height="145" />
+    <text class="stereo" x="180" y="20">&lt;&lt;API gateway module&gt;&gt;</text>
+    <text class="name" x="180" y="45">services/pokedexApi.ts</text>
+    <line class="rule" x1="0" y1="58" x2="360" y2="58" />
+    <text class="member-small" x="12" y="83">- BASE_URL = https://pokeapi.co/api/v2</text>
+    <line class="rule" x1="0" y1="96" x2="360" y2="96" />
+    <text class="member-small" x="12" y="118">+ fetchPokedexIndex(username?): Promise</text>
+    <text class="member-small" x="12" y="137">+ fetchSpecies(dexNumber, username?): Promise</text>
+  </g>
+  <g transform="translate(1135 38)">
+    <rect class="box framework" width="220" height="100" />
+    <text class="stereo" x="110" y="22">&lt;&lt;external API&gt;&gt;</text>
+    <text class="name" x="110" y="48">PokeAPI</text>
+    <line class="rule" x1="0" y1="61" x2="220" y2="61" />
+    <text class="member-small" x="12" y="83">/pokemon · /type · /move</text>
+  </g>
+
+  <text class="section" x="25" y="235">INTERFACE ADAPTERS</text>
+  <g transform="translate(25 252)">
+    <rect class="box adapter" width="360" height="190" />
+    <text class="stereo" x="180" y="20">&lt;&lt;decorator hook&gt;&gt;</text>
+    <text class="name" x="180" y="45">useLibraryPokedex</text>
+    <line class="rule" x1="0" y1="58" x2="360" y2="58" />
+    <text class="member" x="12" y="82">- dex: PokedexState</text>
+    <text class="member" x="12" y="103">- libraryNames: Set&lt;string&gt;</text>
+    <text class="member" x="12" y="124">- message: string | null</text>
+    <line class="rule" x1="0" y1="138" x2="360" y2="138" />
+    <text class="member-small" x="12" y="160">+ addSelectedToLibrary(): Promise&lt;void&gt;</text>
+    <text class="member-small" x="12" y="180">+ selectedInLibrary: boolean</text>
+  </g>
+  <g transform="translate(430 252)">
+    <rect class="box adapter" width="360" height="190" />
+    <text class="stereo" x="180" y="20">&lt;&lt;interface-adapter hook&gt;&gt;</text>
+    <text class="name" x="180" y="45">usePokedex</text>
+    <line class="rule" x1="0" y1="58" x2="360" y2="58" />
+    <text class="member" x="12" y="82">- entries: SpeciesSummary[]</text>
+    <text class="member" x="12" y="103">- query: string</text>
+    <text class="member" x="12" y="124">- selectedTypes: PokemonType[]</text>
+    <line class="rule" x1="0" y1="138" x2="360" y2="138" />
+    <text class="member-small" x="12" y="160">+ select(dexNumber): void</text>
+    <text class="member-small" x="12" y="180">+ returns PokedexState</text>
+  </g>
+  <g transform="translate(835 252)">
+    <rect class="box iface" width="360" height="190" />
+    <text class="stereo" x="180" y="20">&lt;&lt;interface / View Model&gt;&gt;</text>
+    <text class="name" x="180" y="45">PokedexState</text>
+    <line class="rule" x1="0" y1="58" x2="360" y2="58" />
+    <text class="member" x="12" y="82">+ visible: SpeciesSummary[]</text>
+    <text class="member" x="12" y="103">+ summary: SpeciesSummary | null</text>
+    <text class="member" x="12" y="124">+ species: PokemonSpecies | null</text>
+    <line class="rule" x1="0" y1="138" x2="360" y2="138" />
+    <text class="member-small" x="12" y="160">+ setQuery(value): void</text>
+    <text class="member-small" x="12" y="180">+ toggleType(type) · showMore() · reload()</text>
+  </g>
+
+  <text class="section" x="25" y="492">APPLICATION AND ENTERPRISE BUSINESS RULES</text>
+  <g transform="translate(25 510)">
+    <rect class="box usecase" width="440" height="205" />
+    <text class="stereo" x="220" y="20">&lt;&lt;pure use-case module&gt;&gt;</text>
+    <text class="name" x="220" y="45">usecases/pokedex.ts</text>
+    <line class="rule" x1="0" y1="58" x2="440" y2="58" />
+    <text class="member-small" x="12" y="83">+ searchSpecies(entries, query): T[]</text>
+    <text class="member-small" x="12" y="105">+ filterByTypes(entries, types): T[]</text>
+    <text class="member-small" x="12" y="127">+ visibleSpecies(entries, criteria): T[]</text>
+    <text class="member-small" x="12" y="149">+ typesPresentIn(entries): PokemonType[]</text>
+    <text class="member-small" x="12" y="171">+ toLibraryPokemon(species): LibraryPokemon</text>
+    <text class="member-small" x="12" y="194">{no React, fetch, or storage imports}</text>
+  </g>
+  <g transform="translate(510 510)">
+    <rect class="box entity" width="330" height="180" />
+    <text class="stereo" x="165" y="20">&lt;&lt;domain interface&gt;&gt;</text>
+    <text class="name" x="165" y="45">SpeciesSummary</text>
+    <line class="rule" x1="0" y1="58" x2="330" y2="58" />
+    <text class="member" x="12" y="84">+ dexNumber: number</text>
+    <text class="member" x="12" y="106">+ spriteKey: string</text>
+    <text class="member" x="12" y="128">+ name: string</text>
+    <text class="member" x="12" y="150">+ types: PokemonType[]</text>
+  </g>
+  <g transform="translate(905 510)">
+    <rect class="box entity" width="330" height="205" />
+    <text class="stereo" x="165" y="20">&lt;&lt;domain interface&gt;&gt;</text>
+    <text class="name" x="165" y="45">PokemonSpecies</text>
+    <line class="rule" x1="0" y1="58" x2="330" y2="58" />
+    <text class="member" x="12" y="84">+ baseStats: BaseStats</text>
+    <text class="member" x="12" y="106">+ abilities: string[]</text>
+    <text class="member" x="12" y="128">+ heightM: number</text>
+    <text class="member" x="12" y="150">+ weightKg: number</text>
+    <text class="member" x="12" y="172">+ signatureMoves: SpeciesMove[]</text>
+  </g>
+  <g transform="translate(1280 510)">
+    <rect class="box entity" width="295" height="180" />
+    <text class="stereo" x="147.5" y="20">&lt;&lt;domain rule module&gt;&gt;</text>
+    <text class="name" x="147.5" y="45">domain/pokedex.ts</text>
+    <line class="rule" x1="0" y1="58" x2="295" y2="58" />
+    <text class="member-small" x="12" y="84">+ statTotal(stats): number</text>
+    <text class="member-small" x="12" y="106">+ weaknessesOf(types): Matchups</text>
+    <text class="member-small" x="12" y="128">+ MAX_BASE_STAT = 255</text>
+    <text class="member-small" x="12" y="150">+ STRUGGLE_MOVE: SpeciesMove</text>
+  </g>
+
+  <path class="association" d="M 325 110 L 365 110" />
+  <path class="dependency" d="M 175 183 L 175 252" />
+  <path class="dependency" d="M 530 183 L 530 225 L 1015 225 L 1015 252" />
+  <path class="association" d="M 385 347 L 430 347" />
+  <path class="dependency" d="M 610 442 L 610 475 L 245 475 L 245 510" />
+  <path class="dependency" d="M 610 252 L 610 218 L 915 218 L 915 183" />
+  <path class="dependency" d="M 1095 88 L 1135 88" />
+  <path class="dependency" d="M 915 183 L 915 475 L 675 475 L 675 510" />
+  <path class="dependency" d="M 465 612 L 510 612" />
+  <path class="inheritance" d="M 905 612 L 840 612" />
+  <path class="dependency" d="M 1235 612 L 1280 612" />
+  <text class="label" x="333" y="100">renders</text>
+  <text class="label" x="188" y="222">calls</text>
+  <text class="label" x="392" y="337">wraps</text>
+  <text class="label" x="1102" y="78">fetches</text>
+  <text class="label" x="848" y="600">extends</text>
+</svg>

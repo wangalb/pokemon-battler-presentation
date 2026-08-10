@@ -103,15 +103,15 @@
     },
     "Aman — Frontend architecture": {
       bullets: [
-        "Components render View Models",
-        "Hooks coordinate application state",
-        "Use cases enforce frontend rules",
-        "Services isolate external APIs",
-        "Domain types remain framework-independent"
+        "Views render the PokedexState View Model",
+        "Hooks adapt React events and state",
+        "Use cases remain pure TypeScript",
+        "Domain interfaces model Pokémon data",
+        "Gateway isolates PokeAPI requests"
       ],
-      preserve: "pre",
+      preserve: "figure",
       preserveLimit: 1,
-      visual: "side",
+      visual: "wide",
       notes: [
         "Trace the Clean Architecture layers from React Views to hooks, use cases, domain types, and services.",
         "Use the diagram as sufficient evidence; do not inspect individual functions."

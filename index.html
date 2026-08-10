@@ -471,77 +471,15 @@
 <!-- ====================================== 10. AMAN — FRONTEND ARCHITECTURE -->
 <section class="slide" data-section="Aman — Frontend architecture">
   <div class="speaker-tag"><span class="avatar a1">AS</span> Aman Shah</div>
-  <p class="eyebrow">Foundation work</p>
-  <h2>The frontend's architecture landed before its first feature</h2>
+  <p class="eyebrow">Full use-case class diagram</p>
+  <h2>Pokédex dependencies move from React toward pure rules.</h2>
 
-  <div class="cols two">
-    <div class="stack">
-      <div class="card accent-gold">
-        <h3>Four layers, committed first</h3>
-        <p style="margin-bottom:0.5rem; color:var(--muted)">
-          The first four frontend commits — scaffold, domain types, components, hook — bootstrapped
-          Vite + React 19 + TypeScript, oxlint and vitest, and the shape every later slice moved into:
-        </p>
-        <pre style="max-height:none"><code>domain/      <span class="cm">entities + pure rules   (innermost)</span>
-usecases/    <span class="cm">application logic, still pure</span>
-hooks/       <span class="cm">interface adapters — React starts here</span>
-components/  <span class="cm">humble views            (outermost)</span></code></pre>
-        <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
-          Proven against <strong>mock battle data before any backend endpoint existed</strong> — the
-          layering was the plan, not a retrofit.
-        </p>
-      </div>
-
-      <div class="card accent-cyan">
-        <h3>Dependency inversion — and the one place we stopped short</h3>
-        <p>
-          <code>services/pokedexApi.ts</code> speaks PokéAPI's dialect and hands back <strong>domain
-          types only</strong>, so swapping the data source touches one file. The tests prove the
-          seam: <code>vi.mock</code> replaces the service module and the hook cannot tell.
-        </p>
-        <p style="margin-bottom:0">
-          The battle side goes further — Albert's <code>usecases/ports.ts</code> declares a
-          <code>BattleGateway</code> the services implement, injected in <code>App.tsx</code>. The dex
-          hook calls its service <em>directly</em>, not through a port: the violation we name
-          ourselves on the Clean Architecture slide.
-        </p>
-      </div>
-    </div>
-
-    <div class="stack">
-      <div class="card accent-purple">
-        <h3>Open/closed, the frontend way</h3>
-        <p style="margin-bottom:0">
-          <code>useLibraryPokedex</code> <em>decorates</em> <code>usePokedex</code>: it layers the
-          add-to-library action, the "owned" markers and message clearing on top, with
-          <strong>zero edits to the hook it wraps</strong>. The pre-battle picker mounts the same
-          <code>usePokedex</code> and layers its own selection instead. Extending the dex means
-          writing a new wrapper, never modifying a working one — that is O, and it is also D:
-          both consumers depend on the <code>PokedexState</code> abstraction, not on how it loads.
-        </p>
-      </div>
-
-      <div class="card accent-red">
-        <h3>The same shape carried the battle UI</h3>
-        <ul class="tight" style="margin-bottom:0">
-          <li>Battle arena — <code>BattleArena</code>, <code>ActionPanel</code>, <code>HpBar</code>,
-            <code>StatusCard</code> — with Bag and Party as overlays</li>
-          <li>Choose-your-Pokémon setup, battle end, and the way out of a finished battle</li>
-          <li>The retro GBA look the whole app wears</li>
-        </ul>
-      </div>
-
-      <div class="card accent-green">
-        <h3>Why laying it early mattered</h3>
-        <p style="margin-bottom:0">
-          A dependency rule is cheap to follow when the folders already encode it and the first tests
-          already enforce it. The frontend's <strong>325 tests need no server</strong> in large part
-          because this shape kept <code>fetch</code> at the edge from day one — a component literally
-          has nowhere to put a network call.
-        </p>
-      </div>
-    </div>
-  </div>
+  <figure class="uml-figure">
+    <img
+      src="assets/aman-pokedex-uml.svg"
+      alt="UML class diagram for the Pokédex use case showing React views, adapter hooks, the PokedexState view model, pure use-case functions, domain interfaces, and the PokeAPI gateway"
+    >
+  </figure>
 
   <div class="notes-source">
     <ul>

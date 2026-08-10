@@ -946,6 +946,33 @@ pre .hl  { background: rgba(250, 192, 0, 0.13); display: inline-block; width: 10
   font-size: var(--text-sm);
 }
 
+/* The deck always rebuilds this slide in the concise layout, so the authored
+   grid above never reaches the projector. These rules are the ones that do:
+   inside the preserved visual column the code is the supporting quote and the
+   diagram is the evidence, so they stack and the diagram takes most of it. */
+.albert-interactor-uml-slide .concise-visual {
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.albert-interactor-uml-slide .concise-visual pre {
+  max-height: 21vh !important;
+  font-size: 0.56rem;
+  line-height: 1.3;
+}
+
+.albert-interactor-uml-slide .concise-visual figure img {
+  max-height: 50vh;
+}
+
+/* Six short bullets do not need body-copy weight next to a diagram. */
+.albert-interactor-uml-slide .visual-wide .concise-bullets li {
+  padding: 0.42rem 0.6rem;
+  font-size: var(--text-xs);
+}
+
 @media (max-width: 1100px) {
   .albert-interactor-uml-slide .cols.side { grid-template-columns: 1fr; }
 }

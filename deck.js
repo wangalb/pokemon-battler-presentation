@@ -392,42 +392,16 @@
       preserveLimit: 1,
       visual: "side"
     },
-    "Wrap": {
+    "The Future": {
       bullets: [
-        "Seven connected use cases work end to end",
-        "Battles and tournaments share tested rules",
-        "Custom Pokémon are fully playable",
-        "Future: persist active battles and tournaments",
-        "Future: route Pokédex through backend caching",
-        "Future: improve localization and screen-reader support"
+        "Persist active battles and tournaments (pause/unpause)",
+        "Route everything through a database so we can deploy it for many users",
+        "Multiplayer Options"
       ],
       notes: [
         "Spend one minute summarizing the shipped product and then naming future work.",
         "Prioritize persistent sessions, one cached Pokédex path, localization, and stronger screen-reader support.",
         "End by returning to the team user story and confirming that it works end to end."
-      ]
-    },
-    "Q & A — architecture & data": {
-      bullets: [
-        "Dependency direction",
-        "Interactor responsibilities",
-        "Persistence locations",
-        "PokéAPI caching",
-        "Custom Pokémon ownership",
-        "Tournament concurrency",
-        "Known architecture debt"
-      ]
-    },
-    "Q & A — testing, design & process": {
-      bullets: [
-        "Testing evidence",
-        "Coverage thresholds",
-        "SOLID examples",
-        "Strategy pattern",
-        "Randomness control",
-        "Code review process",
-        "Universal Design",
-        "Future improvements"
       ]
     }
   };

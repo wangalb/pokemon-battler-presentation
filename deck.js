@@ -261,7 +261,7 @@
       "Aman — Code",
       "Aman — Frontend architecture",
       "Albert — Battle",
-      "Albert — Code",
+      "Albert — UML",
       "Dorothy - Tournament demo",
       "Dorothy - Interactor",
       "Dorothy - UML",

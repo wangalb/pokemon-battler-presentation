@@ -51,8 +51,12 @@
         "Remove saved Pokémon",
         "Log out safely"
       ],
+      preserve: ".before-after",
+      preserveLimit: 1,
+      visual: "side",
       notes: [
         "State Will's user story and show the before and after user experience.",
+        "The individual rubric asks for before and after views, so point at the pair: the same menu, one role later, with the Admin Panel entry in it.",
         "Use this slide and the architecture slide in about one minute total."
       ]
     },
@@ -61,14 +65,15 @@
         "Controller creates use-case Input Data",
         "Interactor applies library policy",
         "Repository boundary protects dependency direction",
-        "Presenter creates the View Model",
+        "Failures are a LibraryFailure enum, not an HTTP code",
         "Authorization stays outside the View"
       ],
-      preserve: "pre",
-      preserveLimit: 1,
+      preserve: "pre, svg",
+      preserveLimit: 2,
       visual: "side",
       notes: [
-        "Connect the story to Clean Architecture: View to Controller, Input Boundary, Interactor, repository interface, Presenter, and View Model.",
+        "Connect the story to Clean Architecture: View to Controller, Input Boundary, Interactor, repository interface owned by the use case, and output data returned straight to the adapter.",
+        "This slice has no presenter. The interactor returns output data and the adapter maps a LibraryFailure to an HTTP status.",
         "Do not walk through the code line by line. Explain the boundary direction and the user-visible result."
       ]
     },

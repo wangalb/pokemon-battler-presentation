@@ -289,6 +289,14 @@ th,
 
 .stack > * + * { margin-top: 0.8rem; }
 
+/* Opt-in for slides where one column is much shorter than the other and would
+   otherwise leave a hole at the bottom. Stretches both columns to the same
+   height and lets the cards in each share the space instead of bunching at the
+   top. Deliberately not the default — most slides read better ragged. */
+.cols.fill { align-items: stretch; }
+.cols.fill > .stack { display: flex; flex-direction: column; }
+.cols.fill > .stack > .card { flex: 1; }
+
 /* --------------------------------------------------------------------- cards */
 
 /* The app's window-in-a-window: lit cream on cream, squared, with the chunky

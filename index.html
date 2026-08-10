@@ -1682,7 +1682,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
     <div class="metric red"><div class="m-value">0</div><div class="m-label">tests needing a server<br><span style="color:var(--dim)">or a network call</span></div></div>
   </div>
 
-  <div class="cols two" style="margin-top:1.1rem">
+  <div class="cols two fill" style="margin-top:1.1rem">
     <div class="stack">
       <div class="card accent-green">
         <h3>What is covered</h3>
@@ -1697,11 +1697,17 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
       <div class="card accent-gold">
         <h3>Testing something random</h3>
-        <p style="margin-bottom:0">
-          <code>Random</code>, <code>OpponentMoveSelector</code> and the tournament <code>Executor</code>
-          are all <strong>injected, never constructed inside an interactor</strong>. A test pins the crit
-          roll, the accuracy roll, the opponent's choice and the thread of execution. That is why turn
-          tests are deterministic — the injection exists mainly for this reason.
+        <p style="margin:0 0 0.6rem; color:var(--muted)">
+          <code>Random</code>, <code>OpponentMoveSelector</code> and the tournament
+          <code>Executor</code> are <strong>constructor parameters, not <code>new</code> calls
+          inside an interactor</strong>. Production passes the real thing; a test passes a fake:
+        </p>
+        <pre style="max-height:none; margin:0 0 0.6rem"><code>new BattleSimulator(<span class="cm">new SequenceRandom(0.5, 0.5)</span>)</code></pre>
+        <p style="margin:0; color:var(--muted)">
+          Not a seed — a <code>Random</code> subclass that hands back those values <em>in order</em>,
+          so the crit roll and the accuracy roll are chosen by the test. It also
+          <strong>throws if the engine asks for more rolls than expected</strong>, which pins how many
+          dice a turn is allowed to throw.
         </p>
       </div>
     </div>
@@ -1711,8 +1717,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         <h3>What is <em>not</em> tested, and why</h3>
         <ul class="tight" style="margin-bottom:0">
           <li><strong>Live PokéAPI calls.</strong> Tests use recorded JSON on purpose — a suite that fails when Wi-Fi drops is a suite people ignore. Adapter error paths are covered; a real outage is not.</li>
-          <li><strong>Screen readers.</strong> Roles and keyboard interaction are asserted; NVDA and VoiceOver stay manual.</li>
-          <li><strong>Visual regression</strong>, and the dev bearer token, which identifies a caller but is not cryptographically verified.</li>
+          <li><strong>The dev bearer token.</strong> It identifies a caller, but it is not cryptographically verified, so the suite makes no security claim about it.</li>
         </ul>
       </div>
 
@@ -1745,18 +1750,19 @@ components/  <span class="cm">humble views            (outermost)</span></code><
   <p class="eyebrow">Process</p>
   <h2>How code got into <code>main</code></h2>
 
-  <div class="cols two">
+  <div class="cols two fill">
     <div class="stack">
       <div class="card accent-blue">
-        <h3>Feature work landed through numbered pull requests</h3>
-        <p style="margin-bottom:0.6rem; color:var(--muted)">
-          The merge history reaches PR <code>#47</code>, the final use-case reorganization and
-          documentation pass. Branches are named by owner and feature —
-          <code>dorothy/backend-tournament</code>, <code>yiming/library-api</code>, and
-          <code>albert/battle-message-and-plan</code> — so history reads as a list of slices.
+        <h3>Feature work on named branches, merged through pull requests</h3>
+        <p style="margin:0 0 0.5rem; color:var(--muted)">
+          Every branch is <strong>owner / feature</strong>, so the history reads as a list of slices:
         </p>
-        <p style="margin-bottom:0; color:var(--muted)">
-          Team rule: review the diff and merge only after both CI jobs are green.
+        <pre style="max-height:none; margin:0 0 0.7rem; font-size:var(--text-md)"><code>dorothy/backend-tournament
+yiming/library-api
+albert/battle-message-and-plan</code></pre>
+        <p style="margin:0; font-size:var(--text-md)">
+          <strong style="color:var(--red)">Nobody pushed to <code>main</code>.</strong>
+          Review the diff, and merge only once both CI jobs are green.
         </p>
       </div>
 
@@ -1776,28 +1782,28 @@ backend:   ./mvnw -B clean verify</code></pre>
     <div class="stack">
       <div class="card accent-gold">
         <h3>A pull request worth showing</h3>
-        <p style="margin-bottom:0.5rem"><code>#37 — fix(battle): keep the resolver's status message out of the arena</code></p>
-        <p style="color:var(--muted); margin-bottom:0">
-          The arena was printing <em>"Turn resolved. Arceus used Judgment!"</em>, an internal status
-          string leaking into player-facing copy. The fix narrates a resolved <strong>move</strong> from
-          its events alone, while a <strong>switch</strong> or an <strong>item</strong> keeps its message,
-          because "Go! Garchomp!" and "Pikachu recovered 20 HP!" genuinely <em>are</em> the copy. Pinned
-          by a test so it cannot come back.
-        </p>
-      </div>
-
-      <div class="card accent-green">
-        <h3>Both languages, the same standard</h3>
-        <table class="dense" style="margin-top:0.4rem">
+        <p style="margin:0 0 0.7rem"><code>#37 — fix(battle): keep the resolver's status message out of the arena</code></p>
+        <table class="dense" style="margin:0 0 0.7rem">
           <tbody>
-            <tr><td>Style</td><td>Checkstyle (Maven <code>validate</code>)</td><td>oxlint</td></tr>
-            <tr><td>Coverage</td><td>JaCoCo, gated</td><td>Vitest, gated</td></tr>
-            <tr><td>Dependency rule</td><td>ArchUnit</td><td>import test</td></tr>
-            <tr><td>Dependencies</td><td>—</td><td><code>npm audit</code></td></tr>
+            <tr>
+              <td style="color:var(--red); white-space:nowrap">Was</td>
+              <td><em>"Turn resolved. Arceus used Judgment!"</em></td>
+            </tr>
+            <tr>
+              <td style="color:var(--green); white-space:nowrap">Now</td>
+              <td><em>"Arceus used Judgment!"</em></td>
+            </tr>
           </tbody>
         </table>
-        <p style="margin-top:0.6rem; margin-bottom:0; color:var(--muted)">
-          None advisory. Each one fails the build.
+        <p style="color:var(--muted); margin:0 0 0.6rem">
+          An internal status string was leaking into player-facing copy. The fix narrates a resolved
+          <strong>move</strong> from its events alone, while a <strong>switch</strong> or an
+          <strong>item</strong> keeps its message — because "Go! Garchomp!" and "Pikachu recovered
+          20 HP!" genuinely <em>are</em> the copy.
+        </p>
+        <p style="margin:0; font-size:var(--text-md)">
+          <strong style="color:var(--green)">Pinned by a regression test</strong>, so it cannot come
+          back.
         </p>
       </div>
     </div>
@@ -1898,7 +1904,7 @@ App.tsx       <span class="cm">composition root</span></code></pre>
   <p class="eyebrow">Accessibility</p>
   <h2>Universal Design, target users, and barriers</h2>
 
-  <div class="cols two">
+  <div class="cols two fill">
     <div class="stack">
       <div class="card accent-blue">
         <h3>Universal Design principles we acted on</h3>
@@ -1943,18 +1949,6 @@ App.tsx       <span class="cm">composition root</span></code></pre>
           In E3I terms, these are <strong>mismatches created by design, technology, and marketing
           choices</strong>, not deficiencies in those groups. Localization, offline catalog support,
           broader onboarding, and clearer privacy information would widen participation.
-        </p>
-      </div>
-
-      <div class="card accent-green">
-        <h3>A remaining perceptibility gap</h3>
-        <p style="margin-bottom:0; color:var(--muted)">
-          Named dialogs, focus restoration, <code>aria-pressed</code> toggles, and reduced-motion
-          support landed. Two gaps remain: the <strong>battle message box is not an
-          <code>aria-live</code> region</strong>, so a screen reader knows a turn happened but not what
-          it did — that one is a single attribute — and the tournament bracket still has no linear text
-          equivalent, which is real work. No screen-reader session has been run; the report says this
-          rather than claiming completeness.
         </p>
       </div>
     </div>

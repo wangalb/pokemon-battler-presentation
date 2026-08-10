@@ -1057,6 +1057,13 @@
 
     applyConciseSlides();
     applySpeakerScripts();
+    document.querySelectorAll("pre").forEach(function (snippet, index) {
+      var label = snippet.closest("div")?.querySelector(".code-label")?.textContent?.trim();
+      snippet.tabIndex = 0;
+      if (!snippet.hasAttribute("aria-label")) {
+        snippet.setAttribute("aria-label", label || "Scrollable code snippet " + (index + 1));
+      }
+    });
     slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
     if (!slides.length) return;
 

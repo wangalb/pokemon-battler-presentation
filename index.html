@@ -1009,17 +1009,6 @@
           </div>
         </div>
       </div>
-
-      <div class="card accent-gold">
-        <h3>SOLID: D and S</h3>
-        <ul class="tight" style="margin-bottom:0">
-          <li><strong>D — Dependency Inversion:</strong> the interactor depends on
-            <code>CustomPokemonRepository</code> and <code>ImageRepository</code> interfaces, not file
-            storage, Spring, or HTTP.</li>
-          <li><strong>S — Single Responsibility:</strong> this class only checks that the requested
-            sprite belongs to the owner's custom Pokémon, then loads the sprite bytes.</li>
-        </ul>
-      </div>
     </div>
 
     <div style="justify-self:stretch; text-align:left">
@@ -1038,9 +1027,6 @@
         and the fact that the final object is still a normal <code>Pokemon</code> entity.</li>
       <li>Use the backend path to name the Clean Architecture flow quickly: View, Controller,
         Interactor, Entity, and Data Access Interface.</li>
-      <li>The SOLID proof is Dependency Inversion plus Single Responsibility: the interactor asks
-        interfaces for owner-scoped Pokémon data and sprite bytes; it does not know about Spring,
-        HTTP status codes, or disk paths.</li>
       <li>The catalog and cache work is <em>also</em> yours, but do not let it take over this section.
         Your individual story is custom Pokémon becoming battle-ready.</li>
     </ul>
@@ -1060,6 +1046,19 @@
     >
   </figure>
 
+  <div class="dorothy-proof-stack" style="grid-template-columns:1fr 1fr; margin-top:0.75rem">
+    <div class="card accent-gold">
+      <h3>SRP</h3>
+      <p>Sprite loading, Pokémon storage, battle rules, and HTTP response formatting live in
+        separate classes.</p>
+    </div>
+    <div class="card accent-purple">
+      <h3>DIP</h3>
+      <p>Custom Pokémon interactors depend on <code>CustomPokemonRepository</code> and
+        <code>ImageRepository</code> interfaces, not file storage, Spring, or HTTP.</p>
+    </div>
+  </div>
+
   <div class="notes-source">
     <ul>
       <li>Use the same read order as Dorothy's detailed UML slide: first the entity rules, then the
@@ -1071,6 +1070,9 @@
       <li>Trace the lower row: <code>CustomPokemonController</code> calls input-boundary interfaces;
         interactors depend on <code>CustomPokemonRepository</code> and <code>ImageRepository</code>;
         file-backed repositories implement those interfaces outside the use case layer.</li>
+      <li>The SOLID proof is SRP plus DIP: sprite loading, Pokémon storage, battle rules, and response
+        formatting have separate reasons to change; the interactors ask interfaces for owner-scoped
+        Pokémon data and sprite bytes.</li>
       <li>The key ownership rule is in <code>LoadCustomPokemonSpriteInteractor</code>: it checks that
         the requested sprite key belongs to the owner's Pokémon before returning bytes for the
         arena.</li>

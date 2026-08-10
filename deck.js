@@ -270,12 +270,15 @@
         "Owner scope protects saved data",
         "Interfaces isolate storage details",
         "Battles accept official or custom entrants",
-        "Sprites load through dedicated boundaries"
+        "Sprites load through dedicated boundaries",
+        "SRP: sprite loading stays separate",
+        "DIP: interactors depend on repository interfaces"
       ],
       preserve: "figure",
       visual: "wide",
       notes: [
         "Use the UML to show that custom Pokémon reuse the same entities and use-case boundaries.",
+        "Use SRP and DIP only: separate sprite loading from storage and battle rules, then show interactors depending on repository interfaces.",
         "Focus on ownership and dependency direction, not class-by-class implementation."
       ]
     },

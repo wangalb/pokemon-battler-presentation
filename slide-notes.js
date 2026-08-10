@@ -1,4 +1,5 @@
-/* Spoken script shown in the Notes panel for slides 1-30. */
+/* Spoken script shown in the Notes panel, one entry per slide in
+   presentation order. applySpeakerScripts maps strictly by index. */
 window.SLIDE_SCRIPTS = [
   `We built Pokemon Battler. We are Will, Aman, Albert, Dorothy, Cindy, and Edison. Each person owns a different user story, and those stories connect into one application. We will start with what a player can do, then show how the architecture keeps those features connected without mixing their responsibilities.`,
 
@@ -16,23 +17,21 @@ The walkthrough shows those use cases as a player sees them. Watch for the main 
 
 These features are separate enough for six people to own, but they work together. Accounts identify the trainer. The Pokedex and creation flow supply competitors. The Trainer Panel keeps a personal collection. Single Battle resolves the game rules, and Tournament reuses those rules across several matches. Custom Pokemon cross those boundaries without creating a second version of combat. The next sections explain each story and show where it belongs in the architecture.`,
 
-  `We use PokeAPI for official Pokemon data. I will focus on two endpoints because they directly support the features in the demonstration.
+  `My user story is: As a returning trainer, I want an account so that my identity and my collection persist.
 
-GET slash pokemon slash name-or-id gives us a Pokemon's HP, attack, defense, speed, weight, types, move pool, and sprite references. Those fields support the Pokedex detail view, battle and tournament selection, entity construction, and random tournament slots. We map the API response into our own Pokemon shapes before the rest of the program uses it, so screens and use cases do not depend on PokeAPI's JSON structure.
+Before, nothing has an owner. The menu is the same for everyone and a saved Pokemon has nowhere to live. The before still is that menu as a plain player: six entries. The after still is the same screen one role later, with the Admin Panel entry in it. Same code path, one entry appears, nothing else moves.
 
-GET slash move slash name-or-id gives us a move's power, type, and accuracy. Those are the values the battle rules need when a turn is resolved. Status moves with no implemented damage effect are excluded, and Struggle is supplied when no usable damaging move remains.
+There are three roles, player, administrator and developer, and the two elevated ones are only reachable through an invite code entered at sign-up. An administrator can soft-delete an account and restore it within sixty days. Passwords are hashed with PBKDF2 at a hundred thousand iterations with a per-user salt.
 
-PokeAPI is public and requires no API key. Calls are kept at the outer data-access edge, and cached data helps avoid repeating the same network work. These two endpoint families provide the official data needed by the user-visible features we just demonstrated.`,
+The point is not the login message. It is that everything after it, the library, custom Pokemon and battle selection, now has an owner it can ask about.`,
 
-  `The repository documents one path from a clean clone to a running app. Java 17 or newer runs the executable Spring Boot JAR, Node 22 runs the frontend, and the Maven Wrapper is committed so a separate Maven installation is optional. The backend health endpoint confirms the API is ready before the frontend is opened. The README also lists the commands, ports, and common setup errors, so another person can reproduce the demonstration without using our IntelliJ configuration.`,
+  `Access is decided by a policy, not by a screen. This is AddToLibraryInteractor. It never asks whether a user is an administrator. It asks a LibraryAccessPolicy to decide, and what comes back is a LibraryFailure, an enum rather than an HTTP code, so the use case does not know the web exists.
 
-  `My user story is: As a returning trainer, I want an account and profile so that my identity and collection persist. Before login there is no personal collection and protected actions have no owner. After login, the menu reflects the user's role and the Trainer Panel shows Pokemon saved by that trainer.
+The class diagram shows the interactor implementing an input boundary and holding three abstractions: the policy and two data access interfaces. Both interfaces live in the use case layer, and the classes that implement them live in data access. Those are the dashed arrows running upward. That is Dependency Inversion, and it is the clearest evidence we have for the Dependency Rule.
 
-The flow also distinguishes player, developer, and administrator permissions. That matters because viewing a collection and managing another account are different actions. The result is not just a successful login message; it is an identity that the library, custom Pokemon, and selection use cases can consistently reference.`,
+Two SOLID principles are visible here. Interface segregation: FileUserDataAccess implements four interfaces, one per use case, of one or two methods each, so the login use case can read a user and nothing else. Dependency inversion: CompositeLibraryUserDataAccess arrived later as a second implementation, decorating the file store, and no interactor changed.
 
-  `This follows Clean Architecture. The View sends input to a Controller, which constructs Input Data and calls an Input Boundary. The Interactor applies the account or library policy and depends on repository interfaces owned by the use-case layer. A Presenter turns Output Data into a View Model that the screen can render.
-
-The use case does not depend on React, local storage, JSON files, or a concrete repository. File-based adapters implement the required interfaces from the outside. Access rules also live in policy objects rather than being repeated as button checks in each screen. That means a different interface could call the same use case and receive the same decision. The diagram and boundary direction are the key evidence; the important part is who depends on whom, not a line-by-line code walkthrough.`,
+There is no presenter in this slice. The interactor returns output data directly, and the adapter maps a LibraryFailure to an HTTP status.`,
 
   `My user story is: As a trainer, I want to browse available Pokemon and save favourites so that I can make informed battle selections. The before view is the complete catalog. The after view is a searched or type-filtered result with a loaded detail card, and the selected Pokemon can be saved to the trainer's library.
 
@@ -90,6 +89,14 @@ The important user-facing result is consistency. A player does not enter a speci
 
 Interactors depend on CustomPokemonRepository and ImageRepository interfaces owned by the inner layer, while file-backed adapters implement those interfaces outside it. The sprite-loading Interactor verifies that the requested artwork belongs to the named Pokemon and owner before returning bytes. Battle and tournament loaders can therefore support another data source without changing combat rules. This keeps the custom-Pokemon story inside the same Clean Architecture boundaries and avoids an inheritance hierarchy that would make official and custom Pokemon behave differently.`,
 
+  `We use PokeAPI for official Pokemon data. I will focus on two endpoints because they directly support the features in the demonstration.
+
+GET slash pokemon slash name-or-id gives us a Pokemon's HP, attack, defense, speed, weight, types, move pool, and sprite references. Those fields support the Pokedex detail view, battle and tournament selection, entity construction, and random tournament slots. We map the API response into our own Pokemon shapes before the rest of the program uses it, so screens and use cases do not depend on PokeAPI's JSON structure.
+
+GET slash move slash name-or-id gives us a move's power, type, and accuracy. Those are the values the battle rules need when a turn is resolved. Status moves with no implemented damage effect are excluded, and Struggle is supplied when no usable damaging move remains.
+
+PokeAPI is public and requires no API key. Calls are kept at the outer data-access edge, and cached data helps avoid repeating the same network work. These two endpoint families provide the official data needed by the user-visible features we just demonstrated.`,
+
   `We can use the team user story to trace the architecture of the whole program. A player acts in a View. A Controller translates that action into Input Data and calls an Input Boundary. An Interactor coordinates the application rule. Entities protect rules shared across screens, such as battle state, tournament progression, Pokemon data, and account policy. Data-access interfaces state what the use case needs, and Gateways implement those interfaces using files, PokeAPI, or memory. Results return through an Output Boundary and Presenter to a View Model.
 
 The SVG shows representative classes from all major features in those four layers, with at most a few examples per row so the direction stays readable. Frameworks and Drivers contain React, Spring, HTTP, storage, and external services. Interface Adapters translate formats. Application Business Rules hold boundaries and Interactors. Enterprise Business Rules hold the entities.
@@ -110,11 +117,11 @@ A second pattern appears in custom-Pokemon creation: Simple Factory. CreatePokem
 
 We also use cache-aside for official data. CachedPokeApiDataAccess checks local cached data, falls through to PokeAPI on a miss, then stores the result. The use cases still depend on narrow data-access interfaces, so caching does not leak into their rules. Across these examples, the patterns solve concrete problems: selectable behaviour, object assembly, and avoiding repeated remote calls.`,
 
-  `Our packaging is hybrid. At the top, backend packages represent Clean Architecture layers: entity, use_case, interface_adapter, data_access, and app. This makes the Dependency Rule visible in the directory structure. Inside use_case, every application action has its own package, such as resolve_turn, tournament, create_pokemon, signup, or library operations. Each action keeps its Input Boundary, Input Data, Output Boundary, Output Data, and Interactor together.
+  `This slide is our proof of testing coverage. The final verification passed 309 Java tests and 325 TypeScript tests, for 634 total. JaCoCo reports just over 90 percent backend line coverage, and Vitest reports 89.79 percent frontend line coverage. The use-case layers are above 94 percent in both stacks, which matters because that is where application coordination lives.
 
-The frontend uses domain, usecases, services, hooks, and components. Domain holds entities and pure shared rules. Usecases holds framework-independent application functions. Hooks adapt those rules to React state, services talk to APIs, and components render the interface. Feature folders then group related screens within the outer component layer.
+The suite is layered like the code. Entity tests cover damage, healing limits, type effectiveness, battle completion, and bracket progression. Interactor tests drive boundaries with stand-in repositories, presenters, runners, and random values. Frontend tests cover pure use-case functions, hooks, and user-visible component behaviour. Architecture tests separately inspect dependency direction.
 
-This combines package-by-layer with package-by-feature where each helps most. Layer roots make forbidden imports easier to detect, while named action packages make ownership and navigation clearer. Shared contracts remain in one place so battle, tournament, the Pokedex, and custom Pokemon do not duplicate type or combat policies.`,
+Reports are generated in CI and uploaded as artifacts, so the numbers can be checked against the presented commit. External data, storage, and randomness are replaced at defined seams, so no test needs a running server or live network. Remaining gaps are documented: visual CSS placement, real PokeAPI outages, full screen-reader sessions, and timing-sensitive concurrency under production load.`,
 
   `We maintained code quality through feature branches, pull requests, automated checks, and review context. The screenshots show a stacked pull request documenting which change must merge first, why it temporarily targets another branch, and how it will retarget afterward. The timeline shows dependent work merging only after the required checks passed.
 
@@ -122,17 +129,19 @@ CI runs Checkstyle for Java conventions and Oxlint for TypeScript and React. It 
 
 Pull requests give reviewers more than a diff. They preserve the reason for a change, affected use cases, test evidence, and known dependencies. Small commits make it easier to identify where a regression began, while reviews help catch duplicated responsibility or a dependency pointing into the wrong layer before it reaches main.`,
 
-  `This slide is our proof of testing coverage. The final verification passed 309 Java tests and 325 TypeScript tests, for 634 total. JaCoCo reports just over 90 percent backend line coverage, and Vitest reports 89.79 percent frontend line coverage. The use-case layers are above 94 percent in both stacks, which matters because that is where application coordination lives.
+  `Our packaging is hybrid. At the top, backend packages represent Clean Architecture layers: entity, use_case, interface_adapter, data_access, and app. This makes the Dependency Rule visible in the directory structure. Inside use_case, every application action has its own package, such as resolve_turn, tournament, create_pokemon, signup, or library operations. Each action keeps its Input Boundary, Input Data, Output Boundary, Output Data, and Interactor together.
 
-The suite is layered like the code. Entity tests cover damage, healing limits, type effectiveness, battle completion, and bracket progression. Interactor tests drive boundaries with stand-in repositories, presenters, runners, and random values. Frontend tests cover pure use-case functions, hooks, and user-visible component behaviour. Architecture tests separately inspect dependency direction.
+The frontend uses domain, usecases, services, hooks, and components. Domain holds entities and pure shared rules. Usecases holds framework-independent application functions. Hooks adapt those rules to React state, services talk to APIs, and components render the interface. Feature folders then group related screens within the outer component layer.
 
-Reports are generated in CI and uploaded as artifacts, so the numbers can be checked against the presented commit. External data, storage, and randomness are replaced at defined seams, so no test needs a running server or live network. Remaining gaps are documented: visual CSS placement, real PokeAPI outages, full screen-reader sessions, and timing-sensitive concurrency under production load.`,
+This combines package-by-layer with package-by-feature where each helps most. Layer roots make forbidden imports easier to detect, while named action packages make ownership and navigation clearer. Shared contracts remain in one place so battle, tournament, the Pokedex, and custom Pokemon do not duplicate type or combat policies.`,
 
   `Two Universal Design principles are especially visible. Flexibility in Use appears when players choose official, custom, or random Pokemon; search by name or number; filter by type; and revise selections before committing to a battle or tournament. The same goal can be reached through different paths, so someone who wants a quick random matchup and someone who wants a carefully planned bracket can both use the program.
 
 Tolerance for Error appears in preserved form values, editable selections, disabled impossible actions, explicit validation messages, server-side checks, and Struggle as a fallback when no damaging move is available. Account and ownership checks are enforced inside use cases rather than relying only on hidden buttons. These choices reduce the cost of a mistaken click or incomplete Pokemon definition.
 
 Our target audience is Pokemon fans, students, families, friend groups, and coding clubs who enjoy comparing game data or running short competitions. Some people may not be able to use the program as easily because it is English-only, assumes familiarity with Pokemon terms, needs a modern device, and sometimes needs reliable internet. Dense retro text and colour-coded information can also create barriers. Those are limitations of our design and access choices, not deficiencies in those groups.`,
+
+  `The repository documents one path from a clean clone to a running app. Java 17 or newer runs the executable Spring Boot JAR, Node 22 runs the frontend, and the Maven Wrapper is committed so a separate Maven installation is optional. The backend health endpoint confirms the API is ready before the frontend is opened. The README also lists the commands, ports, and common setup errors, so another person can reproduce the demonstration without using our IntelliJ configuration.`,
 
   `Pokemon Battler now has seven connected use cases. Players can manage an account and collection, browse official Pokemon, create custom Pokemon, play battles, and run parallel knockout tournaments. Official and custom competitors use the same Pokemon and Battle entities, so they follow the same tested rules. A tournament then composes those single battles into a complete eight-to-one bracket.
 
@@ -142,5 +151,5 @@ Our next priorities are to persist active battles and tournaments across restart
 
   `For architecture or data questions, the owner of the relevant user story can trace the request from its View through the Input Boundary and Interactor to the entity or gateway. We can then point to the exact class, interface, UML relationship, or architecture test that supports the answer instead of relying on a general claim.`,
 
-  `For testing, design, or process questions, we will give the result first, then show the repository evidence if requested. That evidence includes the CI checks, coverage reports, pull-request history, runnable-artifact instructions, and the Strategy, Factory, repository, and boundary seams used by the relevant feature.`
+  `For testing, design, or process questions, we will give the result first, then show the repository evidence if requested. That evidence includes the CI checks, coverage reports, pull-request history, runnable-artifact instructions, and the Strategy, Factory, repository, and boundary seams used by the relevant feature.`,
 ];

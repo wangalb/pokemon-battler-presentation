@@ -1,0 +1,260 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 760" role="img" aria-labelledby="title description">
+  <title id="title">Detailed custom Pokemon battle UML class diagram</title>
+  <desc id="description">A conventional UML class diagram showing Pokemon, Move, Battle, custom Pokemon repository interfaces, sprite loading use cases, web controller, and concrete storage implementations for battling with custom Pokemon.</desc>
+  <defs>
+    <style>
+      .box { fill: #fffaf0; stroke: #51483e; stroke-width: 2.5; }
+      .entity { fill: #fff3cf; }
+      .usecase { fill: #e9f4e5; }
+      .adapter { fill: #e6eefb; }
+      .data { fill: #e4f5f7; }
+      .iface { fill: #f1e8f7; }
+      .rule { stroke: #51483e; stroke-width: 1.5; }
+      .name { font: 700 18px Arial, sans-serif; fill: #27241f; text-anchor: middle; }
+      .name-small { font: 700 15px Arial, sans-serif; fill: #27241f; text-anchor: middle; }
+      .stereo { font: italic 700 12px Arial, sans-serif; fill: #665e54; text-anchor: middle; }
+      .member { font: 13px Consolas, monospace; fill: #302c27; }
+      .member-small { font: 11.5px Consolas, monospace; fill: #302c27; }
+      .section { font: 700 13px Arial, sans-serif; fill: #665e54; letter-spacing: 2px; }
+      .label { font: 12px Arial, sans-serif; fill: #51483e; }
+      .note { font: 12px Arial, sans-serif; fill: #665e54; }
+      .composition { fill: none; stroke: #51483e; stroke-width: 2.5; marker-start: url(#filled-diamond); }
+      .association { fill: none; stroke: #51483e; stroke-width: 2.25; marker-end: url(#open-arrow); }
+      .dependency { fill: none; stroke: #51483e; stroke-width: 2.25; stroke-dasharray: 8 6; marker-end: url(#open-arrow); }
+      .realization { fill: none; stroke: #2f6d43; stroke-width: 2.5; stroke-dasharray: 8 6; marker-end: url(#hollow-triangle); }
+    </style>
+    <marker id="open-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#51483e" stroke-width="1.5" />
+    </marker>
+    <marker id="hollow-triangle" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 1 1 L 11 6 L 1 11 Z" fill="#fffaf0" stroke="#2f6d43" stroke-width="1.5" />
+    </marker>
+    <marker id="filled-diamond" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="11" markerHeight="9" orient="auto">
+      <path d="M 1 5 L 7 1 L 13 5 L 7 9 Z" fill="#51483e" />
+    </marker>
+  </defs>
+
+  <text class="section" x="25" y="20">ENTERPRISE BUSINESS RULES - CUSTOM POKEMON ARE NORMAL BATTLE ENTITIES</text>
+
+  <!-- Battle owns the current HP map for combatants; Pokemon owns its move, sprite, and sound lists. -->
+  <path class="composition" d="M 395 153 L 490 153" />
+  <text class="label" x="406" y="139">1</text>
+  <text class="label" x="448" y="139">2..*</text>
+  <path class="composition" d="M 835 153 L 910 153" />
+  <text class="label" x="848" y="139">1</text>
+  <text class="label" x="876" y="139">0..*</text>
+  <path class="association" d="M 662 285 L 662 306 L 1425 306 L 1425 220" />
+  <text class="label" x="1030" y="300">sprite key</text>
+
+  <g transform="translate(25 35)">
+    <rect class="box entity" width="370" height="250" />
+    <text class="stereo" x="185" y="19">&lt;&lt;entity&gt;&gt;</text>
+    <text class="name" x="185" y="43">Battle</text>
+    <line class="rule" x1="0" y1="55" x2="370" y2="55" />
+    <text class="member" x="12" y="76">- playerParty: List&lt;Pokemon&gt;</text>
+    <text class="member" x="12" y="96">- opponentParty: List&lt;Pokemon&gt;</text>
+    <text class="member" x="12" y="116">- currentHp: Map&lt;Pokemon, Double&gt;</text>
+    <text class="member" x="12" y="136">- playerActiveIndex: int</text>
+    <text class="member" x="12" y="156">- opponentActiveIndex: int</text>
+    <text class="member" x="12" y="176">- complete: boolean</text>
+    <line class="rule" x1="0" y1="188" x2="370" y2="188" />
+    <text class="member-small" x="12" y="209">+ applyDamageTo(target, damage): void</text>
+    <text class="member-small" x="12" y="228">+ switchPlayerTo(pokemon): void</text>
+    <text class="member-small" x="12" y="246">{same rules for official or custom Pokemon}</text>
+  </g>
+
+  <g transform="translate(490 35)">
+    <rect class="box entity" width="345" height="250" />
+    <text class="stereo" x="172.5" y="19">&lt;&lt;entity&gt;&gt;</text>
+    <text class="name" x="172.5" y="43">Pokemon</text>
+    <line class="rule" x1="0" y1="55" x2="345" y2="55" />
+    <text class="member" x="12" y="76">- name: String</text>
+    <text class="member" x="12" y="96">- hp: double</text>
+    <text class="member" x="12" y="116">- weight: double</text>
+    <text class="member" x="12" y="136">- attack: double</text>
+    <text class="member" x="12" y="156">- defense: double</text>
+    <text class="member" x="12" y="176">- speed: double</text>
+    <text class="member" x="12" y="196">- moves: List&lt;Move&gt;</text>
+    <text class="member" x="12" y="216">- sprites: List&lt;String&gt;</text>
+    <text class="member-small" x="12" y="238">+ getSprites(): List&lt;String&gt;</text>
+  </g>
+
+  <g transform="translate(910 35)">
+    <rect class="box entity" width="280" height="185" />
+    <text class="stereo" x="140" y="19">&lt;&lt;value object&gt;&gt;</text>
+    <text class="name" x="140" y="43">Move</text>
+    <line class="rule" x1="0" y1="55" x2="280" y2="55" />
+    <text class="member" x="12" y="80">- name: String</text>
+    <text class="member" x="12" y="102">- power: double</text>
+    <text class="member" x="12" y="124">- type: String</text>
+    <text class="member" x="12" y="146">- accuracy: double</text>
+    <line class="rule" x1="0" y1="158" x2="280" y2="158" />
+    <text class="member-small" x="12" y="178">{battle damage reads this object}</text>
+  </g>
+
+  <g transform="translate(1275 35)">
+    <rect class="box entity" width="300" height="185" />
+    <text class="stereo" x="150" y="19">&lt;&lt;record&gt;&gt;</text>
+    <text class="name" x="150" y="43">StoredImage</text>
+    <line class="rule" x1="0" y1="55" x2="300" y2="55" />
+    <text class="member" x="12" y="80">+ bytes(): byte[]</text>
+    <text class="member" x="12" y="102">+ mediaType(): String</text>
+    <line class="rule" x1="0" y1="118" x2="300" y2="118" />
+    <text class="member-small" x="12" y="142">{sprite bytes stay outside Pokemon}</text>
+    <text class="member-small" x="12" y="162">{Pokemon stores only sprite keys}</text>
+  </g>
+
+  <text class="section" x="25" y="328">APPLICATION POLYMORPHISM - USER-SCOPED APIs DEPEND ON USE-CASE INTERFACES</text>
+
+  <!-- Realization arrows connect concrete classes to the boundaries they implement. -->
+  <path class="realization" d="M 438 500 L 438 476 L 150 476 L 150 462" />
+  <path class="realization" d="M 695 500 L 695 476 L 445 476 L 445 462" />
+  <path class="realization" d="M 1050 500 L 1050 476 L 760 476 L 760 462" />
+  <path class="realization" d="M 1342 500 L 1342 476 L 1125 476 L 1125 455" />
+  <path class="realization" d="M 1528 500 L 1528 480 L 1460 480 L 1460 470" />
+
+  <!-- The controller depends on the use-case boundaries; the sprite interactor checks ownership before loading bytes. -->
+  <path class="dependency" d="M 88 500 L 88 476 L 150 476 L 150 462" />
+  <path class="dependency" d="M 148 500 L 148 468 L 445 468 L 445 462" />
+  <path class="dependency" d="M 210 500 L 210 462 L 615 462 L 615 470 L 760 470 L 760 462" />
+  <path class="dependency" d="M 1050 500 L 1050 315 L 650 315 L 650 285" />
+  <text class="label" x="706" y="306">checks sprite key against Pokemon</text>
+
+  <g transform="translate(25 350)">
+    <rect class="box iface" width="250" height="112" />
+    <text class="stereo" x="125" y="22">&lt;&lt;interface&gt;&gt;</text>
+    <text class="name-small" x="125" y="42">ListCustomPokemon</text>
+    <text class="name-small" x="125" y="59">InputBoundary</text>
+    <line class="rule" x1="0" y1="68" x2="250" y2="68" />
+    <text class="member-small" x="10" y="89">+ list(ownerUsername):</text>
+    <text class="member-small" x="24" y="106">ListCustomPokemonOutputData</text>
+  </g>
+
+  <g transform="translate(315 350)">
+    <rect class="box iface" width="260" height="112" />
+    <text class="stereo" x="130" y="22">&lt;&lt;interface&gt;&gt;</text>
+    <text class="name-small" x="130" y="42">LoadCustomPokemon</text>
+    <text class="name-small" x="130" y="59">InputBoundary</text>
+    <line class="rule" x1="0" y1="68" x2="260" y2="68" />
+    <text class="member-small" x="10" y="89">+ load(owner, name):</text>
+    <text class="member-small" x="24" y="106">LoadCustomPokemonOutputData</text>
+  </g>
+
+  <g transform="translate(615 350)">
+    <rect class="box iface" width="290" height="112" />
+    <text class="stereo" x="145" y="22">&lt;&lt;interface&gt;&gt;</text>
+    <text class="name-small" x="145" y="42">LoadCustomPokemonSprite</text>
+    <text class="name-small" x="145" y="59">InputBoundary</text>
+    <line class="rule" x1="0" y1="68" x2="290" y2="68" />
+    <text class="member-small" x="10" y="89">+ load(owner, name, spriteKey):</text>
+    <text class="member-small" x="24" y="106">SpriteOutputData</text>
+  </g>
+
+  <g transform="translate(945 350)">
+    <rect class="box iface" width="360" height="105" />
+    <text class="stereo" x="180" y="22">&lt;&lt;interface&gt;&gt;</text>
+    <text class="name-small" x="180" y="45">CustomPokemonRepository</text>
+    <line class="rule" x1="0" y1="56" x2="360" y2="56" />
+    <text class="member-small" x="10" y="78">+ listPokemon(owner): List&lt;Pokemon&gt;</text>
+    <text class="member-small" x="10" y="95">+ getPokemon(owner, name): Optional&lt;Pokemon&gt;</text>
+  </g>
+
+  <g transform="translate(1345 350)">
+    <rect class="box iface" width="230" height="120" />
+    <text class="stereo" x="115" y="22">&lt;&lt;interface&gt;&gt;</text>
+    <text class="name-small" x="115" y="45">ImageRepository</text>
+    <line class="rule" x1="0" y1="56" x2="230" y2="56" />
+    <text class="member-small" x="10" y="77">+ saveImage(file): String</text>
+    <text class="member-small" x="10" y="94">+ getImage(key):</text>
+    <text class="member-small" x="24" y="110">Optional&lt;StoredImage&gt;</text>
+  </g>
+
+  <g transform="translate(25 500)">
+    <rect class="box adapter" width="245" height="205" />
+    <text class="stereo" x="122.5" y="20">&lt;&lt;REST controller&gt;&gt;</text>
+    <text class="name-small" x="122.5" y="44">CustomPokemonController</text>
+    <line class="rule" x1="0" y1="56" x2="245" y2="56" />
+    <text class="member-small" x="12" y="80">- listCustomPokemon</text>
+    <text class="member-small" x="12" y="100">- loadCustomPokemon</text>
+    <text class="member-small" x="12" y="120">- loadCustomPokemonSprite</text>
+    <line class="rule" x1="0" y1="136" x2="245" y2="136" />
+    <text class="member-small" x="12" y="160">+ list(owner)</text>
+    <text class="member-small" x="12" y="180">+ detail(owner, name)</text>
+    <text class="member-small" x="12" y="200">+ sprite(owner, name, key)</text>
+  </g>
+
+  <g transform="translate(300 500)">
+    <rect class="box usecase" width="255" height="185" />
+    <text class="stereo" x="127.5" y="20">&lt;&lt;use case interactor&gt;&gt;</text>
+    <text class="name-small" x="127.5" y="44">ListCustomPokemonInteractor</text>
+    <line class="rule" x1="0" y1="56" x2="255" y2="56" />
+    <text class="member-small" x="12" y="82">- repository: CustomPokemonRepo</text>
+    <line class="rule" x1="0" y1="96" x2="255" y2="96" />
+    <text class="member-small" x="12" y="122">+ list(ownerUsername):</text>
+    <text class="member-small" x="24" y="142">ListCustomPokemonOutputData</text>
+    <text class="member-small" x="12" y="166">{returns owner-scoped list}</text>
+  </g>
+
+  <g transform="translate(585 500)">
+    <rect class="box usecase" width="255" height="185" />
+    <text class="stereo" x="127.5" y="20">&lt;&lt;use case interactor&gt;&gt;</text>
+    <text class="name-small" x="127.5" y="44">LoadCustomPokemonInteractor</text>
+    <line class="rule" x1="0" y1="56" x2="255" y2="56" />
+    <text class="member-small" x="12" y="82">- repository: CustomPokemonRepo</text>
+    <line class="rule" x1="0" y1="96" x2="255" y2="96" />
+    <text class="member-small" x="12" y="122">+ load(owner, pokemonName):</text>
+    <text class="member-small" x="24" y="142">LoadCustomPokemonOutputData</text>
+    <text class="member-small" x="12" y="166">{NOT_FOUND vs STORAGE_ERROR}</text>
+  </g>
+
+  <g transform="translate(870 500)">
+    <rect class="box usecase" width="335" height="205" />
+    <text class="stereo" x="167.5" y="20">&lt;&lt;use case interactor&gt;&gt;</text>
+    <text class="name-small" x="167.5" y="44">LoadCustomPokemonSpriteInteractor</text>
+    <line class="rule" x1="0" y1="56" x2="335" y2="56" />
+    <text class="member-small" x="12" y="82">- pokemonRepository: CustomPokemonRepository</text>
+    <text class="member-small" x="12" y="102">- imageRepository: ImageRepository</text>
+    <line class="rule" x1="0" y1="118" x2="335" y2="118" />
+    <text class="member-small" x="12" y="143">+ load(owner, name, spriteKey): OutputData</text>
+    <text class="member-small" x="12" y="166">{checks pokemon.getSprites().contains(key)}</text>
+    <text class="member-small" x="12" y="187">{returns sprite bytes, not a file path}</text>
+  </g>
+
+  <g transform="translate(1230 500)">
+    <rect class="box data" width="225" height="205" />
+    <text class="stereo" x="112.5" y="20">&lt;&lt;data access&gt;&gt;</text>
+    <text class="name-small" x="112.5" y="44">FileCustomPokemonRepository</text>
+    <line class="rule" x1="0" y1="56" x2="225" y2="56" />
+    <text class="member-small" x="12" y="82">- directory: Path</text>
+    <text class="member-small" x="12" y="102">- objectMapper: ObjectMapper</text>
+    <line class="rule" x1="0" y1="118" x2="225" y2="118" />
+    <text class="member-small" x="12" y="143">+ savePokemon(owner, pokemon)</text>
+    <text class="member-small" x="12" y="166">+ listPokemon(owner)</text>
+    <text class="member-small" x="12" y="187">{owner is encoded file key}</text>
+  </g>
+
+  <g transform="translate(1480 500)">
+    <rect class="box data" width="95" height="205" />
+    <text class="stereo" x="47.5" y="20">&lt;&lt;data&gt;&gt;</text>
+    <text class="name-small" x="47.5" y="42">LocalImage</text>
+    <text class="name-small" x="47.5" y="59">Repo</text>
+    <line class="rule" x1="0" y1="70" x2="95" y2="70" />
+    <text class="member-small" x="8" y="96">- dir</text>
+    <line class="rule" x1="0" y1="112" x2="95" y2="112" />
+    <text class="member-small" x="8" y="137">+ save</text>
+    <text class="member-small" x="8" y="159">+ get</text>
+    <text class="member-small" x="8" y="183">sprites</text>
+  </g>
+
+  <g transform="translate(25 742)">
+    <path class="composition" d="M 0 0 L 36 0" />
+    <text class="note" x="46" y="4">composition / lifetime ownership</text>
+    <path class="realization" d="M 270 0 L 306 0" />
+    <text class="note" x="316" y="4">implements interface</text>
+    <path class="dependency" d="M 485 0 L 521 0" />
+    <text class="note" x="531" y="4">depends on / calls</text>
+    <text class="note" x="705" y="4">- private field</text>
+    <text class="note" x="805" y="4">+ public operation</text>
+    <text class="note" x="950" y="4">No inheritance arrow: battle compatibility comes from sharing the Pokemon entity.</text>
+  </g>
+</svg>

@@ -1150,9 +1150,11 @@ components/  <span class="cm">humble views            (outermost)</span></code><
   <p class="eyebrow">Use case 7 of 7 — Battling with Custom Pokémon</p>
   <h2>The Pokémon you invented, in a real fight</h2>
 
-  <blockquote class="quote">"As a user, I want the Pokémon I invented to be usable in a real battle."</blockquote>
+  <blockquote class="quote" style="max-width:none; font-size:var(--text-lg); margin-bottom:0.85rem">
+    "As a user, I want the Pokémon I invented to be usable in a real battle."
+  </blockquote>
 
-  <div class="cols side">
+  <div style="display:grid; grid-template-columns:1.05fr 1fr; gap:0.75rem; align-items:start">
     <div class="stack">
       <div class="card accent-cyan">
         <h3>What the use case does</h3>
@@ -1164,99 +1166,18 @@ components/  <span class="cm">humble views            (outermost)</span></code><
             entrant fights exactly like an official one</li>
         </ul>
       </div>
-      <div class="card">
-        <h3>Terminology worth landing</h3>
-        <p style="margin-bottom:0"><span class="pill">Repository</span>
-        <span class="pill">User-scoped API</span>
-        <span class="pill">Use Case Interactor</span>
-        <span class="pill">Pokemon entity</span></p>
-      </div>
-    </div>
 
-    <div>
-      <div class="demo">
-        <div class="ba-label">Recorded demo · ~45s</div>
-        <div class="media-slot" data-src="assets/edison-demo.mp4">
-          <div class="placeholder"><span class="ph-icon">▶</span>A custom Pokémon taken into battle<span class="ph-file">assets/edison-demo.mp4</span></div>
-        </div>
-        <ol class="demo-beats">
-          <li>The Pokémon Cindy just created, in the library</li>
-          <li>Pick it as a battle entrant</li>
-          <li>Its uploaded sprite loads in the arena</li>
-          <li>It takes and deals damage like any other</li>
-        </ol>
-      </div>
-    </div>
-  </div>
-
-  <div class="notes-source">
-    <ul>
-      <li>This section <strong>picks up exactly where Cindy's leaves off</strong> — she creates it, you
-        fight with it. Say that hand-off out loud; it makes two slices read as one product.</li>
-      <li>Keep this backend-focused: owner-specific files, repository interfaces, the API endpoint,
-        and the fact that the final object is still a normal <code>Pokemon</code> entity.</li>
-      <li>The catalog and cache work is <em>also</em> yours, but do not let it take over this section.
-        Your individual story is custom Pokémon becoming battle-ready.</li>
-    </ul>
-  </div>
-</section>
-
-<!-- ================================================== 20. EDISON — CODE -->
-<section class="slide" data-section="Edison — Code">
-  <div class="speaker-tag"><span class="avatar a5">EC</span> Edison Cai</div>
-  <p class="eyebrow">Interactor &amp; class diagram — Battling with Custom Pokémon</p>
-  <h2>The backend loads custom data without leaking HTTP into the use case.</h2>
-
-  <div class="cols side">
-    <div>
-      <div class="code-label">backend/src/main/java/use_case/custom_pokemon/LoadCustomPokemonSpriteInteractor.java</div>
-      <pre><code><span class="kw">public class</span> <span class="typ">LoadCustomPokemonSpriteInteractor</span>
-        <span class="kw">implements</span> <span class="typ">LoadCustomPokemonSpriteInputBoundary</span> {
-    <span class="kw">private final</span> <span class="typ">CustomPokemonRepository</span> pokemonRepository;
-    <span class="kw">private final</span> <span class="typ">ImageRepository</span> imageRepository;
-
-    <span class="kw">public</span> <span class="fn">LoadCustomPokemonSpriteInteractor</span>(
-            <span class="typ">CustomPokemonRepository</span> pokemonRepository,
-            <span class="typ">ImageRepository</span> imageRepository
-    ) {
-        <span class="kw">this</span>.pokemonRepository = pokemonRepository;
-        <span class="kw">this</span>.imageRepository = imageRepository;
-    }
-
-    <span class="kw">@Override</span>
-    <span class="kw">public</span> <span class="typ">LoadCustomPokemonSpriteOutputData</span> <span class="fn">load</span>(
-            <span class="typ">String</span> ownerUsername, <span class="typ">String</span> pokemonName, <span class="typ">String</span> spriteKey
-    ) {
-        <span class="kw">try</span> {
-<span class="hl">            <span class="kw">boolean</span> belongsToPokemon = pokemonRepository.<span class="fn">getPokemon</span>(ownerUsername, pokemonName)
-                    .<span class="fn">map</span>(pokemon -&gt; pokemon.<span class="fn">getSprites</span>().<span class="fn">contains</span>(spriteKey))
-                    .<span class="fn">orElse</span>(<span class="kw">false</span>);</span>
-            <span class="kw">if</span> (!belongsToPokemon) <span class="kw">return</span> <span class="fn">notFound</span>();
-
-            <span class="kw">return</span> imageRepository.<span class="fn">getImage</span>(spriteKey)
-                    .<span class="fn">map</span>(image -&gt; <span class="kw">new</span> <span class="typ">LoadCustomPokemonSpriteOutputData</span>(
-                            <span class="kw">true</span>, image.<span class="fn">mediaType</span>(), image.<span class="fn">bytes</span>(), <span class="str">""</span>, <span class="kw">null</span>))
-                    .<span class="fn">orElseGet</span>(<span class="kw">this</span>::notFound);
-        } <span class="kw">catch</span> (<span class="typ">CustomPokemonStorageException</span> | <span class="typ">UncheckedIOException</span> exception) {
-<span class="hl">            <span class="kw">return new</span> <span class="typ">LoadCustomPokemonSpriteOutputData</span>(<span class="kw">false</span>, <span class="kw">null</span>, <span class="kw">null</span>,
-                    <span class="str">"Could not load custom Pokemon sprite."</span>, <span class="typ">CustomPokemonFailure</span>.STORAGE_ERROR);</span>
-        }
-    }
-}</code></pre>
-    </div>
-
-    <div class="stack">
       <div class="card">
         <h3>Backend path, simplified</h3>
-        <div style="display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:0.45rem; align-items:center; margin-top:0.55rem">
-          <div class="stack" style="gap:0.45rem">
+        <div style="display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:0.35rem; align-items:center; margin-top:0.45rem">
+          <div class="stack" style="gap:0.35rem">
             <div class="ca-node l-view"><span class="n-layer">View</span><span class="n-name">TrainerPanel<br>SingleBattleSetup</span></div>
             <div class="ca-node l-adapter"><span class="n-layer">Controller</span><span class="n-name">CustomPokemonController</span></div>
           </div>
           <div class="ca-arrow">→</div>
           <div class="ca-node l-usecase"><span class="n-layer">Interactor</span><span class="n-name">LoadCustomPokemon<br>SpriteInteractor</span></div>
           <div class="ca-arrow">→</div>
-          <div class="stack" style="gap:0.45rem">
+          <div class="stack" style="gap:0.35rem">
             <div class="ca-node l-entity"><span class="n-layer">Pokemon entity</span><span class="n-name">Pokemon</span></div>
             <div class="ca-node l-usecase"><span class="n-layer">Data Access Interface</span><span class="n-name">CustomPokemonRepository<br>ImageRepository</span></div>
           </div>
@@ -1274,17 +1195,60 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         </ul>
       </div>
     </div>
+
+    <div style="justify-self:stretch; text-align:left">
+      <div class="demo">
+        <div class="media-slot" data-src="assets/edison-demo.mp4">
+          <div class="placeholder"><span class="ph-icon">▶</span>A custom Pokémon taken into battle<span class="ph-file">assets/edison-demo.mp4</span></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="notes-source">
     <ul>
-      <li>Open by tying this directly to the demo: the custom Pokémon appears in battle because the
-        backend returns the same <code>Pokemon</code> entity shape the battle engine already accepts.</li>
-      <li>Highlighted lines: the interactor asks repository interfaces for the owner's Pokémon data
-        and sprite bytes. It does not know about Spring controllers, HTTP status codes, or disk paths.</li>
-      <li>Course terms to say out loud: <strong>View</strong>, <strong>Controller</strong>,
-        <strong>Interactor</strong>, <strong>Data Access Interface</strong>, and
-        <strong>Entity</strong>.</li>
+      <li>This section <strong>picks up exactly where Cindy's leaves off</strong> — she creates it, you
+        fight with it. Say that hand-off out loud; it makes two slices read as one product.</li>
+      <li>Keep this backend-focused: owner-specific files, repository interfaces, the API endpoint,
+        and the fact that the final object is still a normal <code>Pokemon</code> entity.</li>
+      <li>Use the backend path to name the Clean Architecture flow quickly: View, Controller,
+        Interactor, Entity, and Data Access Interface.</li>
+      <li>The SOLID proof is Dependency Inversion plus Single Responsibility: the interactor asks
+        interfaces for owner-scoped Pokémon data and sprite bytes; it does not know about Spring,
+        HTTP status codes, or disk paths.</li>
+      <li>The catalog and cache work is <em>also</em> yours, but do not let it take over this section.
+        Your individual story is custom Pokémon becoming battle-ready.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================================= 20. EDISON — DETAILED CLASS UML -->
+<section class="slide dorothy-uml-slide dorothy-class-uml-slide" data-section="Edison — Class UML">
+  <div class="speaker-tag"><span class="avatar a5">EC</span> Edison Cai</div>
+  <p class="eyebrow">Detailed UML class diagram</p>
+  <h2>The classes expose the rules. The interfaces expose the seams.</h2>
+
+  <figure class="dorothy-uml-figure">
+    <img
+      src="assets/edison-custom-battle-class-uml.svg"
+      alt="Detailed conventional UML class diagram showing Pokemon, Move, Battle, StoredImage, custom Pokemon use-case interactors, input boundaries, repository interfaces, web controller, and file-backed storage implementations for battling with custom Pokemon"
+    >
+  </figure>
+
+  <div class="notes-source">
+    <ul>
+      <li>Use the same read order as Dorothy's detailed UML slide: first the entity rules, then the
+        interface seams. The important claim is that custom Pokémon do not need a second battle
+        model; they are ordinary <code>Pokemon</code> entities.</li>
+      <li>Trace the top row: <code>Battle</code> owns the current HP state for its combatants, while
+        <code>Pokemon</code> owns moves and sprite keys. The sprite bytes live separately in
+        <code>StoredImage</code>, which keeps battle rules free of file storage details.</li>
+      <li>Trace the lower row: <code>CustomPokemonController</code> calls input-boundary interfaces;
+        interactors depend on <code>CustomPokemonRepository</code> and <code>ImageRepository</code>;
+        file-backed repositories implement those interfaces outside the use case layer.</li>
+      <li>The key ownership rule is in <code>LoadCustomPokemonSpriteInteractor</code>: it checks that
+        the requested sprite key belongs to the owner's Pokémon before returning bytes for the
+        arena.</li>
     </ul>
   </div>
 </section>

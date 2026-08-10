@@ -570,8 +570,25 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
   <blockquote class="quote">"As a user, I want to battle a single Pokémon because I want to see which one is stronger."</blockquote>
 
-  <div class="cols side">
-    <div class="stack">
+  <div class="tournament-demo-stills battle-demo-stills" aria-label="Single battle before, during, and after views">
+    <figure>
+      <img src="assets/battler-before.png"
+           alt="Battle setup screen with Rayquaza selected in one slot and Groudon Primal in the other, above a Start Battle button">
+      <figcaption>Before: pick both sides</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/battler-during.png"
+           alt="The battle arena with both Pokemon at Lv100, HP bars, a message reading Rayquaza used Outrage and Groudon Primal used Solar Beam, and the Fight, Bag, Pokemon and Run actions">
+      <figcaption>During: resolve a turn</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/battler-after.png"
+           alt="Result panel reading You win, Rayquaza at 263 of 414 HP and Groudon Primal at 0 of 404, with Battle again and Main menu buttons">
+      <figcaption>After: a faint ends it</figcaption>
+    </figure>
+  </div>
+
+  <div class="cols side battle-rules-cols">
       <div class="card accent-red">
         <h3>What the use case does</h3>
         <ul class="tight" style="margin-bottom:0">
@@ -596,20 +613,6 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         <span class="pill">Open/closed</span>
         <span class="pill">Immutable value object</span></p>
       </div>
-    </div>
-
-    <div>
-      <div class="demo">
-        <div class="ba-label">Demonstration path</div>
-        <ol class="demo-beats">
-          <li>Setup — Weedle vs Caterpie, both at full HP</li>
-          <li>Speed decides who moves first</li>
-          <li>Damage: power, attack over defense, STAB and type</li>
-          <li>Accuracy can miss, and a critical hit multiplies</li>
-          <li>An item is used, then a faint ends the battle</li>
-        </ol>
-      </div>
-    </div>
   </div>
 
   <div class="notes-source">

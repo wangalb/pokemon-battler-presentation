@@ -120,14 +120,17 @@
     "Albert — Battle": {
       lead: "As a player, I want to choose two Pokémon and run one battle so that I can compare them.",
       bullets: [
-        "Choose two Pokémon",
-        "Select moves each turn",
-        "Track HP and battle logs",
-        "Apply speed and type rules",
-        "Finish with one winner"
+        "Before: choose two Pokémon",
+        "During: select moves each turn",
+        "Speed and type rules decide the damage",
+        "After: a faint names the winner",
+        "Every turn is a real backend call"
       ],
+      preserve: ".battle-demo-stills",
+      preserveLimit: 1,
+      visual: "wide",
       notes: [
-        "State Albert's user story and identify the battle's before and after states.",
+        "State Albert's user story and point to the before, during, and after screenshots.",
         "Use both battle slides in about one minute total."
       ]
     },

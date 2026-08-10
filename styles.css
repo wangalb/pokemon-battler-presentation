@@ -1599,6 +1599,17 @@ a:focus-visible {
   text-transform: uppercase;
 }
 
+/* Albert's stills share the slide with the rules cards, so they run shorter
+   than Dorothy's, which are the only visual on their slide. */
+.battle-demo-stills {
+  margin-bottom: 0.9rem;
+}
+
+.battle-demo-stills img {
+  aspect-ratio: 2 / 1;
+  object-fit: contain;
+}
+
 .notes-detail-archive p {
   margin: 0 0 0.7rem;
   white-space: pre-line;

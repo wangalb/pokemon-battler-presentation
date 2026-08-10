@@ -301,6 +301,14 @@ th,
    so they take the whole panel instead of sitting in a band under a paragraph.
    Two by two, each cell stretched to its share of the height the heading leaves
    behind, with the type stepped up to match the extra room. */
+/* The introduction's heading is the one the room reads first, and at the shared
+   h2 ceiling it matched the card headings underneath it, which flattened the
+   hierarchy. Scoped to this slide so the other 32 keep the shared ceiling. */
+.slide[data-section="Introduction"] h2 {
+  font-size: clamp(var(--text-2xl), 3.6vw, var(--text-3xl));
+  margin-bottom: 1.1rem;
+}
+
 .intro-grid {
   /* Sized rather than flex:1 — filling the leftover height packed the cards
      against the heading and the panel edge. Holding them to roughly seven

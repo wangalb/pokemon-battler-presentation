@@ -143,9 +143,12 @@
         "Entities own accuracy, crits and damage",
         "Dependencies point in, control travels out"
       ],
+      // The rubric wants the Interactor and the class diagram both on screen,
+      // so the visual column carries two nodes and takes the wide layout to
+      // pay for it: smaller bullets, three quarters of the slide for evidence.
       preserve: "pre, figure",
       preserveLimit: 2,
-      visual: "side",
+      visual: "wide",
       notes: [
         "Describe the Interactor's responsibility in one sentence: order the turn and let the entities do the arithmetic.",
         "Use the diagram to trace View, Controller, Input Boundary, Interactor, and Entities.",

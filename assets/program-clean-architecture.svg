@@ -1,0 +1,255 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1012 750" role="img" aria-labelledby="title description">
+  <title id="title">Pokemon Battler program-wide Clean Architecture</title>
+  <desc id="description">Four architecture layers with five representative groups per layer.</desc>
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="4" dy="4" stdDeviation="0" flood-color="#1f251f" flood-opacity="0.32"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#315a9b"/>
+    </marker>
+    <marker id="dependency-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#a33f35"/>
+    </marker>
+    <style>
+      .panel-title { font: 700 21px "Trebuchet MS", sans-serif; letter-spacing: 1px; fill: #28312b; }
+      .layer-title { font: 700 18px "Trebuchet MS", sans-serif; fill: #28312b; }
+      .layer-subtitle { font: 13px "Trebuchet MS", sans-serif; fill: #556158; }
+      .box-title { font: 700 16px "Trebuchet MS", sans-serif; fill: #26302a; text-anchor: middle; }
+      .box-detail { font: 12px "Cascadia Mono", Consolas, monospace; fill: #4b5750; text-anchor: middle; }
+      .flow-title { font: 700 17px "Trebuchet MS", sans-serif; fill: #26302a; text-anchor: middle; }
+      .flow-detail { font: 12px "Cascadia Mono", Consolas, monospace; fill: #4b5750; text-anchor: middle; }
+      .small-label { font: 700 12px "Trebuchet MS", sans-serif; letter-spacing: 0.7px; fill: #315a9b; }
+      .legend { font: 13px "Trebuchet MS", sans-serif; fill: #4b5750; }
+      .layer-box { fill: #fffdf5; stroke: #4b4136; stroke-width: 2.5; filter: url(#shadow); }
+      .flow-line { fill: none; stroke: #315a9b; stroke-width: 4; marker-end: url(#arrow); }
+      .dependency-line { fill: none; stroke: #a33f35; stroke-width: 3; stroke-dasharray: 8 6; marker-end: url(#dependency-arrow); }
+    </style>
+  </defs>
+
+  <rect x="4" y="4" width="1004" height="742" rx="18" fill="#f7f1df" stroke="#4b4136" stroke-width="4"/>
+
+  <text class="panel-title" x="32" y="38">PROGRAM-WIDE LAYER MAP</text>
+
+  <!-- Frameworks and drivers -->
+  <rect x="28" y="58" width="956" height="145" rx="12" fill="#d9eafb" stroke="#54708a" stroke-width="2"/>
+  <text class="layer-title" x="46" y="91">FRAMEWORKS</text>
+  <text class="layer-title" x="46" y="113">&amp; DRIVERS</text>
+  <text class="layer-subtitle" x="46" y="139">UI, web, storage,</text>
+  <text class="layer-subtitle" x="46" y="157">external systems</text>
+  <line x1="204" y1="70" x2="204" y2="191" stroke="#54708a" stroke-width="2"/>
+
+  <g transform="translate(220 86)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">React Views</text>
+    <text class="box-detail" x="70" y="51">BattleArena</text>
+    <text class="box-detail" x="70" y="69">PokedexView</text>
+  </g>
+  <g transform="translate(372 86)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Spring Web</text>
+    <text class="box-detail" x="70" y="51">BattleController</text>
+    <text class="box-detail" x="70" y="69">TournamentCtrl</text>
+  </g>
+  <g transform="translate(524 86)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">PokeAPI</text>
+    <text class="box-detail" x="70" y="51">pokemon</text>
+    <text class="box-detail" x="70" y="69">moves</text>
+  </g>
+  <g transform="translate(676 86)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Storage</text>
+    <text class="box-detail" x="70" y="51">files</text>
+    <text class="box-detail" x="70" y="69">browser store</text>
+  </g>
+  <g transform="translate(828 86)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Composition</text>
+    <text class="box-detail" x="70" y="51">App.tsx</text>
+    <text class="box-detail" x="70" y="69">app/config/*</text>
+  </g>
+
+  <!-- Interface adapters -->
+  <rect x="28" y="218" width="956" height="145" rx="12" fill="#dcf2df" stroke="#557a5b" stroke-width="2"/>
+  <text class="layer-title" x="46" y="263">INTERFACE</text>
+  <text class="layer-title" x="46" y="285">ADAPTERS</text>
+  <text class="layer-subtitle" x="46" y="311">translate data across</text>
+  <text class="layer-subtitle" x="46" y="329">boundaries</text>
+  <line x1="204" y1="230" x2="204" y2="351" stroke="#557a5b" stroke-width="2"/>
+
+  <g transform="translate(220 246)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">React Hooks</text>
+    <text class="box-detail" x="70" y="51">useBattle</text>
+    <text class="box-detail" x="70" y="69">useTournament</text>
+  </g>
+  <g transform="translate(372 246)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">HTTP Adapters</text>
+    <text class="box-detail" x="70" y="51">battleApiGateway</text>
+    <text class="box-detail" x="70" y="69">runRound</text>
+  </g>
+  <g transform="translate(524 246)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Controllers</text>
+    <text class="box-detail" x="70" y="51">TournamentRound</text>
+    <text class="box-detail" x="70" y="69">CreatePokemon</text>
+  </g>
+  <g transform="translate(676 246)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Presenters</text>
+    <text class="box-detail" x="70" y="51">TournamentRound</text>
+    <text class="box-detail" x="70" y="69">CreatePokemon</text>
+  </g>
+  <g transform="translate(828 246)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Data Adapters</text>
+    <text class="box-detail" x="70" y="51">CachedPokeApi</text>
+    <text class="box-detail" x="70" y="69">File repos</text>
+  </g>
+
+  <!-- Application business rules -->
+  <rect x="28" y="378" width="956" height="145" rx="12" fill="#f7d8d2" stroke="#9a5b52" stroke-width="2"/>
+  <text class="layer-title" x="46" y="423">APPLICATION</text>
+  <text class="layer-title" x="46" y="445">RULES</text>
+  <text class="layer-subtitle" x="46" y="471">interactors, ports,</text>
+  <text class="layer-subtitle" x="46" y="489">input/output data</text>
+  <line x1="204" y1="390" x2="204" y2="511" stroke="#9a5b52" stroke-width="2"/>
+
+  <g transform="translate(220 406)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Battle</text>
+    <text class="box-detail" x="70" y="51">ResolveTurn</text>
+    <text class="box-detail" x="70" y="69">Switch / Item</text>
+  </g>
+  <g transform="translate(372 406)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Tournament</text>
+    <text class="box-detail" x="70" y="51">RunTournament</text>
+    <text class="box-detail" x="70" y="69">Round</text>
+  </g>
+  <g transform="translate(524 406)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Pokemon Data</text>
+    <text class="box-detail" x="70" y="51">List / Load</text>
+    <text class="box-detail" x="70" y="69">Move</text>
+  </g>
+  <g transform="translate(676 406)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Library / Custom</text>
+    <text class="box-detail" x="70" y="51">Create / View</text>
+    <text class="box-detail" x="70" y="69">Add / Remove</text>
+  </g>
+  <g transform="translate(828 406)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Accounts</text>
+    <text class="box-detail" x="70" y="51">Login / Signup</text>
+    <text class="box-detail" x="70" y="69">Sync / Admin</text>
+  </g>
+
+  <!-- Enterprise business rules -->
+  <rect x="28" y="538" width="956" height="145" rx="12" fill="#fff5bd" stroke="#9a8241" stroke-width="2"/>
+  <text class="layer-title" x="46" y="583">ENTERPRISE</text>
+  <text class="layer-title" x="46" y="605">RULES</text>
+  <text class="layer-subtitle" x="46" y="631">domain state and</text>
+  <text class="layer-subtitle" x="46" y="649">invariants</text>
+  <line x1="204" y1="550" x2="204" y2="671" stroke="#9a8241" stroke-width="2"/>
+
+  <g transform="translate(220 566)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Pokemon</text>
+    <text class="box-detail" x="70" y="51">Move</text>
+    <text class="box-detail" x="70" y="69">TypeEffectiveness</text>
+  </g>
+  <g transform="translate(372 566)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Battle</text>
+    <text class="box-detail" x="70" y="51">TurnAction</text>
+    <text class="box-detail" x="70" y="69">TurnResult</text>
+  </g>
+  <g transform="translate(524 566)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Tournament</text>
+    <text class="box-detail" x="70" y="51">Round</text>
+    <text class="box-detail" x="70" y="69">Match</text>
+  </g>
+  <g transform="translate(676 566)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">User</text>
+    <text class="box-detail" x="70" y="51">Role</text>
+  </g>
+  <g transform="translate(828 566)">
+    <rect class="layer-box" width="140" height="88" rx="8"/>
+    <text class="box-title" x="70" y="25">Bag</text>
+    <text class="box-detail" x="70" y="51">Item</text>
+    <text class="box-detail" x="70" y="69">ItemKind</text>
+  </g>
+
+  <path class="flow-line" d="M 594 203 L 594 218"/>
+  <path class="flow-line" d="M 594 363 L 594 378"/>
+  <path class="flow-line" d="M 594 523 L 594 538"/>
+  <text class="small-label" x="43" y="718">SOURCE DEPENDENCIES POINT INWARD</text>
+  <path class="dependency-line" d="M 316 712 L 628 712"/>
+  <text class="legend" x="649" y="718">outer layers implement interfaces owned by inner layers</text>
+
+  <!-- One request through the layers -->
+  <g display="none">
+    <rect x="1060" y="70" width="490" height="72" rx="9" fill="#d9eafb" stroke="#4b4136" stroke-width="2.5" filter="url(#shadow)"/>
+    <text class="flow-title" x="1305" y="99">React screen / HTTP request</text>
+    <text class="flow-detail" x="1305" y="121">BattleArena · TournamentFlowScreen</text>
+
+    <path class="flow-line" d="M 1305 142 L 1305 174"/>
+    <rect x="1060" y="174" width="490" height="86" rx="9" fill="#dcf2df" stroke="#4b4136" stroke-width="2.5" filter="url(#shadow)"/>
+    <text class="flow-title" x="1305" y="207">Hook or interface-adapter controller</text>
+    <text class="flow-detail" x="1305" y="232">useBattle · TournamentRoundController</text>
+
+    <path class="flow-line" d="M 1305 260 L 1305 292"/>
+    <rect x="1040" y="292" width="530" height="154" rx="10" fill="#f7d8d2" stroke="#4b4136" stroke-width="2.5" filter="url(#shadow)"/>
+    <text class="flow-title" x="1305" y="321">Application business rules</text>
+    <rect x="1060" y="340" width="145" height="52" rx="6" fill="#fffdf5" stroke="#7d514b" stroke-width="2"/>
+    <text class="flow-detail" x="1132" y="371">InputBoundary</text>
+    <path class="flow-line" d="M 1205 366 L 1250 366"/>
+    <rect x="1250" y="340" width="145" height="52" rx="6" fill="#fffdf5" stroke="#7d514b" stroke-width="2"/>
+    <text class="flow-detail" x="1322" y="361">Interactor</text>
+    <text class="flow-detail" x="1322" y="379">RunTournamentRound</text>
+    <path class="flow-line" d="M 1395 366 L 1440 366"/>
+    <rect x="1440" y="340" width="110" height="52" rx="6" fill="#fffdf5" stroke="#7d514b" stroke-width="2"/>
+    <text class="flow-detail" x="1495" y="371">OutputBoundary</text>
+    <rect x="1162" y="405" width="286" height="28" rx="5" fill="#fffdf5" stroke="#7d514b" stroke-width="2"/>
+    <text class="flow-detail" x="1305" y="424">DataAccessInterface (port)</text>
+
+    <path class="flow-line" d="M 1305 446 L 1305 478"/>
+    <rect x="1105" y="478" width="400" height="70" rx="9" fill="#fff5bd" stroke="#4b4136" stroke-width="2.5" filter="url(#shadow)"/>
+    <text class="flow-title" x="1305" y="508">Entities enforce the rules</text>
+    <text class="flow-detail" x="1305" y="529">Battle · Tournament · Pokemon · User</text>
+
+    <path class="flow-line" d="M 1220 446 L 1168 592"/>
+    <rect x="1038" y="592" width="252" height="82" rx="9" fill="#dcf2df" stroke="#4b4136" stroke-width="2.5" filter="url(#shadow)"/>
+    <text class="flow-title" x="1164" y="624">Presenter + ViewModel</text>
+    <text class="flow-detail" x="1164" y="649">implements OutputBoundary</text>
+
+    <path class="flow-line" d="M 1390 446 L 1440 592"/>
+    <rect x="1320" y="592" width="252" height="82" rx="9" fill="#dcf2df" stroke="#4b4136" stroke-width="2.5" filter="url(#shadow)"/>
+    <text class="flow-title" x="1446" y="624">Data adapter</text>
+    <text class="flow-detail" x="1446" y="649">implements use-case port</text>
+
+    <path class="dependency-line" d="M 1164 592 L 1455 392"/>
+    <path class="dependency-line" d="M 1446 592 L 1375 433"/>
+
+    <path class="flow-line" d="M 1164 674 L 1164 716"/>
+    <rect x="1038" y="716" width="252" height="70" rx="9" fill="#d9eafb" stroke="#4b4136" stroke-width="2.5" filter="url(#shadow)"/>
+    <text class="flow-title" x="1164" y="746">Rendered view</text>
+    <text class="flow-detail" x="1164" y="768">React consumes the view data</text>
+
+    <path class="flow-line" d="M 1446 674 L 1446 716"/>
+    <rect x="1320" y="716" width="252" height="70" rx="9" fill="#d9eafb" stroke="#4b4136" stroke-width="2.5" filter="url(#shadow)"/>
+    <text class="flow-title" x="1446" y="746">PokeAPI / files</text>
+    <text class="flow-detail" x="1446" y="768">concrete external systems</text>
+
+    <line x1="1046" y1="824" x2="1094" y2="824" stroke="#315a9b" stroke-width="4" marker-end="url(#arrow)"/>
+    <text class="legend" x="1105" y="829">control and data flow</text>
+    <line x1="1326" y1="824" x2="1374" y2="824" stroke="#a33f35" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#dependency-arrow)"/>
+    <text class="legend" x="1385" y="829">source dependency</text>
+  </g>
+</svg>

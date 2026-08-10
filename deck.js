@@ -34,24 +34,17 @@
       ]
     },
     "Introduction": {
-      lead: "A web app where you pick Pokémon, battle them, and run knockout tournaments.",
+      lead: "Team user story: As a Pokémon fan, I want to explore official and custom Pokémon through battles and tournaments, so I can compare them in one app.",
       bullets: [
         "Real Data from PokeAPI",
         "Play Real Battles",
         "Create Tournaments",
         "Create your own Pokemon",
         "Battle with your own pokemon!"
-      ]
-    },
-    "Specification": {
-      bullets: [
-        "Browse every available Pokémon",
-        "Create custom Pokémon",
-        "Save favourites to trainer profiles",
-        "Run interactive single battles",
-        "Run eight-entrant knockout tournaments",
-        "Use custom Pokémon in battles",
-        "Manage accounts and permissions"
+      ],
+      notes: [
+        "Spend two minutes here. State the team user story, target user, and user-visible outcome.",
+        "Focus only on what the product lets people do. Save APIs, classes, and frameworks for later slides."
       ]
     },
     "Scope": {
@@ -62,21 +55,18 @@
         "Dorothy: Tournaments",
         "Cindy: Build a Pokémon",
         "Edison: Custom Pokémon Battles"
+      ],
+      preserve: ".media-slot",
+      preserveLimit: 1,
+      visual: "side",
+      notes: [
+        "Spend five minutes here, including the complete project walkthrough.",
+        "Introduce the six owners and seven user stories, then play the video without explaining implementation details.",
+        "Introduction and Scope together are seven minutes and stay focused on what the product does."
       ]
     },
-    "Architecture primer": {
-      bullets: [
-        "Entities contain enterprise rules",
-        "Use cases contain application rules",
-        "Adapters translate between formats",
-        "Frameworks remain outer details",
-        "Dependencies point toward business rules",
-        "Both languages follow matching layers"
-      ],
-      preserve: ".layers",
-      visual: "side"
-    },
     "Will — Accounts & Panel": {
+      lead: "As a returning trainer, I want an account and profile so that my identity and collection persist.",
       bullets: [
         "Register or log in",
         "Access role-specific controls",
@@ -85,8 +75,10 @@
         "Remove saved Pokémon",
         "Log out safely"
       ],
-      preserve: ".media-slot",
-      visual: "side"
+      notes: [
+        "State Will's user story and show the before and after user experience.",
+        "Use this slide and the architecture slide in about one minute total."
+      ]
     },
     "Will — Code": {
       bullets: [
@@ -98,9 +90,14 @@
       ],
       preserve: "pre",
       preserveLimit: 1,
-      visual: "side"
+      visual: "side",
+      notes: [
+        "Connect the story to Clean Architecture: View to Controller, Input Boundary, Interactor, repository interface, Presenter, and View Model.",
+        "Do not walk through the code line by line. Explain the boundary direction and the user-visible result."
+      ]
     },
     "Aman — Pokédex": {
+      lead: "As a trainer, I want to browse available Pokémon and save favourites so that I can make informed battle selections.",
       bullets: [
         "Browse every available Pokémon",
         "Search by name",
@@ -108,8 +105,10 @@
         "Inspect stats, moves, and sprites",
         "Open detailed Pokémon cards"
       ],
-      preserve: ".media-slot",
-      visual: "side"
+      notes: [
+        "State Aman's user story and name the before and after views.",
+        "Use Aman's three slides in no more than ninety seconds total."
+      ]
     },
     "Aman — Code": {
       bullets: [
@@ -120,7 +119,11 @@
       ],
       preserve: "pre",
       preserveLimit: 1,
-      visual: "side"
+      visual: "side",
+      notes: [
+        "Explain that the search and filter use cases are framework-independent functions.",
+        "Focus on the dependency boundary, not the implementation details."
+      ]
     },
     "Aman — Frontend architecture": {
       bullets: [
@@ -132,9 +135,14 @@
       ],
       preserve: "pre",
       preserveLimit: 1,
-      visual: "side"
+      visual: "side",
+      notes: [
+        "Trace the Clean Architecture layers from React Views to hooks, use cases, domain types, and services.",
+        "Use the diagram as sufficient evidence; do not inspect individual functions."
+      ]
     },
     "Albert — Battle": {
+      lead: "As a player, I want to choose two Pokémon and run one battle so that I can compare them.",
       bullets: [
         "Choose two Pokémon",
         "Select moves each turn",
@@ -142,8 +150,10 @@
         "Apply speed and type rules",
         "Finish with one winner"
       ],
-      preserve: ".media-slot",
-      visual: "side"
+      notes: [
+        "State Albert's user story and identify the battle's before and after states.",
+        "Use both battle slides in about one minute total."
+      ]
     },
     "Albert — UML": {
       bullets: [
@@ -154,19 +164,28 @@
         "Interfaces enable deterministic tests"
       ],
       preserve: "figure",
-      visual: "wide"
+      visual: "wide",
+      notes: [
+        "Use the UML to trace View, Controller, Input Boundary, Interactor, Entities, Output Boundary, and Presenter.",
+        "Explain dependency direction without walking through source code."
+      ]
     },
     "Dorothy - Tournament demo": {
+      lead: "As a player, I want to run an eight-entrant knockout tournament so that I can see one champion.",
       bullets: [
-        "Choose eight tournament entrants",
-        "Fill open slots randomly",
-        "Run four quarterfinals concurrently",
-        "Advance two semifinal winners",
-        "Crown one final champion",
-        "Reset HP between matches"
+        "Before: choose eight tournament entrants",
+        "Random slots fill when tournaments start",
+        "During: run each round concurrently",
+        "After: advance winners to one champion",
+        "Fresh battles reset HP between matches"
       ],
-      preserve: ".media-slot",
-      visual: "side"
+      preserve: ".tournament-demo-stills",
+      preserveLimit: 1,
+      visual: "wide",
+      notes: [
+        "State Dorothy's user story and point to the before, during, and after views.",
+        "Use all four tournament slides in under two minutes total."
+      ]
     },
     "Dorothy - Interactor": {
       bullets: [
@@ -179,27 +198,47 @@
       ],
       preserve: "pre",
       preserveLimit: 1,
-      visual: "side"
+      visual: "side",
+      notes: [
+        "Describe the Interactor's responsibility in one sentence: coordinate one round through boundaries.",
+        "Do not walk through CompletableFuture code line by line."
+      ]
     },
-    "Dorothy - UML": {
+    "Dorothy - Tournament architecture": {
       bullets: [
-        "Runtime control crosses outer layers",
-        "Source dependencies point inward",
-        "Use-case boundaries invert dependencies"
+        "Frameworks: React, HTTP, Spring, Executor",
+        "Interface adapters: controllers, presenter, view models",
+        "Business rules: Interactor coordinates each round",
+        "Entities: Tournament validates bracket progression",
+        "Dependency Rule: source dependencies point inward",
+        "SRP: classes keep separate responsibilities",
+        "DIP: Interactor depends on use-case interfaces"
       ],
       preserve: "figure",
-      visual: "wide"
+      visual: "wide",
+      notes: [
+        "Use the UML to map Frameworks, Interface Adapters, Application Business Rules, and Entities.",
+        "Emphasize that source-code dependencies point inward."
+      ]
     },
-    "Dorothy - Class UML": {
+    "Dorothy - Tournament design": {
       bullets: [
-        "Composition enforces bracket ownership",
-        "Interfaces provide replaceable Strategies",
-        "No tournament inheritance exists"
+        "Strategy: TournamentMatchRunner swaps battle implementations",
+        "RandomBattleRunner reuses ResolveTurnInputBoundary",
+        "Dependency Injection supplies runner and Executor",
+        "Configuration wires outer-layer implementations",
+        "Fresh Battle resets HP every match",
+        "CompletableFuture runs matches concurrently"
       ],
-      preserve: "figure",
-      visual: "wide"
+      preserve: ".tournament-file-tree",
+      visual: "side",
+      notes: [
+        "Name Strategy and Dependency Injection, then explain that tournament reuses the single-battle boundary.",
+        "Keep this high level so Dorothy's full section stays under two minutes."
+      ]
     },
     "Cindy — Create Pokémon": {
+      lead: "As a creative player, I want to build a valid custom Pokémon so that I can use my own competitor.",
       bullets: [
         "Choose a Pokémon name",
         "Set battle statistics",
@@ -207,8 +246,10 @@
         "Upload a custom sprite",
         "Save to your collection"
       ],
-      preserve: ".media-slot",
-      visual: "side"
+      notes: [
+        "State Cindy's user story and identify the empty form and saved Pokémon as before and after views.",
+        "Use both creation slides in about one minute total."
+      ]
     },
     "Cindy — Code": {
       bullets: [
@@ -220,9 +261,14 @@
       ],
       preserve: "pre",
       preserveLimit: 1,
-      visual: "side"
+      visual: "side",
+      notes: [
+        "Connect View, Controller, Input Boundary, Interactor, repository interfaces, Presenter, and View Model.",
+        "Explain the Clean Architecture path rather than the code syntax."
+      ]
     },
     "Edison — Custom Pokémon": {
+      lead: "As a custom-Pokémon creator, I want my creations in battles and tournaments so that creating one changes the playable experience.",
       bullets: [
         "Select your saved custom Pokémon",
         "Load owner-scoped battle data",
@@ -230,8 +276,10 @@
         "Use normal battle rules",
         "Enter single battles and tournaments"
       ],
-      preserve: ".media-slot",
-      visual: "side"
+      notes: [
+        "State Edison's user story and show the change from saved creation to playable entrant.",
+        "Use both custom-Pokémon slides in about one minute total."
+      ]
     },
     "Edison — Class UML": {
       bullets: [
@@ -242,74 +290,103 @@
         "Sprites load through dedicated boundaries"
       ],
       preserve: "figure",
-      visual: "wide"
+      visual: "wide",
+      notes: [
+        "Use the UML to show that custom Pokémon reuse the same entities and use-case boundaries.",
+        "Focus on ownership and dependency direction, not class-by-class implementation."
+      ]
     },
     "API usage": {
       bullets: [
         "PokéAPI supplies official Pokémon data",
-        "Species endpoint supplies names and identifiers",
-        "Detail endpoint supplies stats and sprites",
-        "Move endpoint supplies battle moves",
-        "Backend caching supports battles and tournaments",
-        "Browser loading supports the Pokédex"
+        "/pokemon/{id} returns stats, types, and sprites",
+        "/move/{id} returns power, type, and accuracy",
+        "No API key is required"
+      ],
+      notes: [
+        "Spend one minute here and show no more than two endpoints.",
+        "Explain what the program receives from each endpoint and which user-visible features use that data.",
+        "Do not turn this into an implementation walkthrough."
       ]
     },
     "Clean Architecture": {
       bullets: [
-        "Entities import no outer packages",
-        "Use cases own their boundaries",
-        "Controllers cannot access repositories directly",
-        "Presenters implement output boundaries",
-        "Architecture tests enforce dependency direction",
-        "Known outer-layer debt remains documented"
+        "Team story crosses all four layers",
+        "Views collect player choices",
+        "Controllers call input boundaries",
+        "Interactors coordinate application rules",
+        "Entities protect game and account rules",
+        "Gateways implement use-case interfaces",
+        "Dependencies point inward"
       ],
-      preserve: "pre",
+      preserve: ".program-architecture-figure",
       preserveLimit: 1,
-      visual: "side"
+      visual: "wide",
+      notes: [
+        "Spend one minute tracing the team user story through the program-wide SVG.",
+        "Start with a player action in the View, move through Controllers and Interactors, reach Entities and gateways, then return through a Presenter and View Model.",
+        "State the Dependency Rule: source-code dependencies point inward, and architecture tests enforce it."
+      ]
     },
     "SOLID": {
       bullets: [
-        "SRP separates orchestration from domain rules",
-        "OCP supports new Strategy implementations",
-        "LSP enables deterministic test doubles",
-        "ISP keeps boundaries client-specific",
-        "DIP points dependencies toward interfaces"
+        "SRP: Tournament validates bracket progression",
+        "SRP: Interactor coordinates one round",
+        "DIP: Interactor depends on TournamentMatchRunner",
+        "DIP: Adapters implement use-case boundaries"
+      ],
+      notes: [
+        "Spend one minute on two principles in depth: Single Responsibility and Dependency Inversion.",
+        "Use tournament coordination versus validation for SRP, then the use-case-owned TournamentMatchRunner interface for DIP.",
+        "Explain the concrete benefit of each principle instead of defining all five letters."
       ]
     },
     "Design patterns": {
       bullets: [
-        "Strategy swaps battle policies",
-        "Factory hides use-case construction",
-        "Dependency Injection supplies collaborators",
-        "Adapter unifies Pokémon data sources",
-        "Cache-aside avoids repeated API calls",
-        "Immutable values prevent accidental mutation"
+        "Strategy: TournamentMatchRunner defines one matchup",
+        "RandomBattleRunner is the production Strategy",
+        "Fixed runners make tests deterministic",
+        "New match policies need no Interactor changes"
+      ],
+      notes: [
+        "Spend one minute on the Strategy pattern introduced for tournament matches.",
+        "Name the interface, production implementation, test substitute, and the extension benefit.",
+        "Do not list every pattern in the repository."
       ]
     },
     "Code organization": {
       bullets: [
-        "Top folders represent architecture layers",
-        "Each use case has one folder",
-        "Frontend folders separate responsibilities",
-        "Shared contracts prevent duplicated policies",
-        "Names reveal architectural intent"
+        "Hybrid packaging: layers first, use cases second",
+        "Backend roots mirror Clean Architecture layers",
+        "Each application action has one package",
+        "Frontend separates domain, use cases, and adapters",
+        "Shared contracts prevent duplicate rules"
       ],
       preserve: "pre",
       preserveLimit: 1,
-      visual: "side"
+      visual: "side",
+      notes: [
+        "Spend one minute on the file tree that is already visible.",
+        "Explain hybrid packaging: package by layer at the top, then package by application action inside use_case.",
+        "Compare the backend layer roots with the frontend domain, usecases, services, hooks, and components folders."
+      ]
     },
     "Code quality": {
       bullets: [
         "Feature branches isolate changes",
-        "Pull requests support review",
+        "Pull requests document dependencies",
+        "Stacked PRs preserve merge order",
+        "CI checks gate merges",
         "Checkstyle enforces Java conventions",
-        "ESLint enforces frontend conventions",
-        "CI blocks failing changes",
-        "Verification reproduces every quality gate"
+        "Oxlint enforces frontend conventions"
       ],
-      preserve: "pre",
+      preserve: ".pr-evidence",
       preserveLimit: 1,
-      visual: "side"
+      visual: "side",
+      notes: [
+        "Spend one minute explaining feature branches, pull requests, documented merge order, and green CI checks.",
+        "Name Checkstyle and Oxlint, then point to the pull-request screenshots as team process evidence."
+      ]
     },
     "Testing": {
       bullets: [
@@ -322,17 +399,23 @@
       ],
       preserve: "pre",
       preserveLimit: 1,
-      visual: "side"
+      visual: "side",
+      notes: [
+        "Spend one minute and lead with coverage percentages, not test counts.",
+        "Point to the JaCoCo and Vitest evidence, state the use-case coverage, and briefly identify remaining test gaps."
+      ]
     },
     "Accessibility": {
       bullets: [
-        "Consistent navigation reduces learning effort",
-        "Keyboard controls support every main action",
-        "Redundant labels avoid colour-only meaning",
-        "Random selection offers flexible use",
-        "Errors preserve items and turns",
-        "Language and connectivity remain barriers",
-        "Accessibility limitations remain documented"
+        "Flexibility: official, custom, or random Pokémon",
+        "Tolerance for Error: editable choices and fallbacks",
+        "Audience: fans, students, families, coding clubs",
+        "Barriers: English, modern hardware, internet access"
+      ],
+      notes: [
+        "Spend one minute on Flexibility in Use and Tolerance for Error.",
+        "Then name the target audience and the groups affected by language, hardware, and connectivity barriers.",
+        "Frame exclusion as a mismatch created by design choices."
       ]
     },
     "Run it": {
@@ -348,25 +431,19 @@
       preserveLimit: 1,
       visual: "side"
     },
-    "Limitations": {
-      bullets: [
-        "Tournament state resets with backend restarts",
-        "Battle state resets with browser refreshes",
-        "Some authentication remains locally trusted",
-        "Pokédex bypasses backend caching",
-        "Live API calls require connectivity",
-        "Screen-reader testing remains manual"
-      ]
-    },
     "Wrap": {
       bullets: [
-        "Seven complete use cases",
-        "Official and custom Pokémon",
-        "Interactive battles",
-        "Parallel knockout tournaments",
-        "Clean Architecture across two languages",
-        "634 automated tests",
-        "Runnable backend JAR"
+        "Seven connected use cases work end to end",
+        "Battles and tournaments share tested rules",
+        "Custom Pokémon are fully playable",
+        "Future: persist active battles and tournaments",
+        "Future: route Pokédex through backend caching",
+        "Future: improve localization and screen-reader support"
+      ],
+      notes: [
+        "Spend one minute summarizing the shipped product and then naming future work.",
+        "Prioritize persistent sessions, one cached Pokédex path, localization, and stronger screen-reader support.",
+        "End by returning to the team user story and confirming that it works end to end."
       ]
     },
     "Q & A — architecture & data": {
@@ -397,9 +474,7 @@
   var conciseTitles = {
     "Title": "Pokémon Battle Simulator",
     "Introduction": "What We Built",
-    "Specification": "Features",
     "Scope": "Our Use Cases",
-    "Architecture primer": "Architecture Overview",
     "Will — Accounts & Panel": "Accounts and Trainer Panel",
     "Will — Code": "Account Architecture",
     "Aman — Pokédex": "Pokédex",
@@ -409,8 +484,8 @@
     "Albert — UML": "Battle UML",
     "Dorothy - Tournament demo": "Tournament",
     "Dorothy - Interactor": "Tournament Interactor",
-    "Dorothy - UML": "Tournament Architecture",
-    "Dorothy - Class UML": "Tournament Class UML",
+    "Dorothy - Tournament architecture": "Tournament Architecture",
+    "Dorothy - Tournament design": "Tournament Design",
     "Cindy — Create Pokémon": "Build a Pokémon",
     "Cindy — Code": "Pokémon Creation Logic",
     "Edison — Custom Pokémon": "Custom Pokémon Battles",
@@ -424,7 +499,6 @@
     "Testing": "Testing",
     "Accessibility": "Universal Design",
     "Run it": "Running the Project",
-    "Limitations": "Limitations",
     "Wrap": "Project Summary",
     "Q & A — architecture & data": "Architecture Q&A",
     "Q & A — testing, design & process": "Testing and Design Q&A"
@@ -497,6 +571,23 @@
       if (config.preserve) {
         preserved = Array.prototype.slice.call(slide.querySelectorAll(config.preserve));
         if (config.preserveLimit) preserved = preserved.slice(0, config.preserveLimit);
+      }
+
+      if (config.notes) {
+        var notes = slide.querySelector(".notes-source");
+        if (!notes) {
+          notes = document.createElement("div");
+          notes.className = "notes-source";
+          slide.appendChild(notes);
+        }
+        notes.innerHTML = "";
+        var notesList = document.createElement("ul");
+        config.notes.forEach(function (note) {
+          var noteItem = document.createElement("li");
+          noteItem.textContent = note;
+          notesList.appendChild(noteItem);
+        });
+        notes.appendChild(notesList);
       }
       archiveRemovedDetail(slide, config, conciseTitle);
 
@@ -937,7 +1028,6 @@
     var presentationOrder = [
       "Title",
       "Introduction",
-      "Specification",
       "Scope",
       "API usage",
       "Run it",
@@ -950,13 +1040,12 @@
       "Albert — UML",
       "Dorothy - Tournament demo",
       "Dorothy - Interactor",
-      "Dorothy - UML",
-      "Dorothy - Class UML",
+      "Dorothy - Tournament architecture",
+      "Dorothy - Tournament design",
       "Cindy — Create Pokémon",
       "Cindy — Code",
       "Edison — Custom Pokémon",
       "Edison — Class UML",
-      "Architecture primer",
       "Clean Architecture",
       "SOLID",
       "Design patterns",
@@ -964,7 +1053,6 @@
       "Code quality",
       "Testing",
       "Accessibility",
-      "Limitations",
       "Wrap",
       "Q & A — architecture & data",
       "Q & A — testing, design & process"

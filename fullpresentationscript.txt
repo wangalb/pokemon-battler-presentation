@@ -1,0 +1,402 @@
+POKEMON BATTLER - FULL TEAM PRESENTATION SCRIPT
+Target length from requested section timings: about 23 minutes 45 seconds
+Presenters: Will Xu, Aman Shah, Albert Wang, Dorothy Zheng, Cindy Liu, Edison Cai
+
+TIMING NOTE
+
+The requested seven-minute opening, six one-to-two-minute individual sections, and eight separate
+one-minute group sections total more than 20 minutes. This script preserves those requested times.
+If the presentation has a strict 20-minute cap, shorten the project video or combine group sections
+before presenting. Do not silently rush the one-minute sections.
+
+IMPORTANT
+
+Rehearse the ideas, but do not read this script during the presentation. The individual rubric caps
+the verbal category at 3 out of 5 when notes are read. Use the slide as a prompt and speak to the
+audience.
+
+PRE-PRESENTATION CHECKLIST
+
+1. Test assets/project-demo.mp4 from slide 3.
+2. Confirm all three tournament screenshots are visible on slide 13.
+3. Run the application once from a clean clone.
+4. Keep the root README, /api/health, both coverage reports, and the pull request from slide 25 open.
+5. Run scripts/verify.ps1 on the exact commit being presented.
+6. Start the timer on slide 1. If a live artifact stalls, state what should appear and continue.
+
+
+SLIDE 1 OF 30 - POKEMON BATTLE SIMULATOR
+Speaker: Will
+Target: 0:00-0:15
+
+SAY:
+
+"We built Pokemon Battler. We are Will, Aman, Albert, Dorothy, Cindy, and Edison. Each person owns a
+different user story, and those stories connect into one application."
+
+
+SLIDE 2 OF 30 - WHAT WE BUILT
+Speaker: Will
+Target: 0:15-2:15
+
+SAY:
+
+"Our team user story is: As a Pokemon fan, I want to explore official and custom Pokemon through
+battles and tournaments, so I can compare them in one app.
+
+"The product is for someone who wants to answer a familiar question: which Pokemon would win? A
+player can browse real Pokemon data, save favourites, create a Pokemon, choose competitors, play a
+single battle, or run an eight-entry tournament. Accounts keep each trainer's collection separate,
+and custom Pokemon can join the same battles and tournaments as official Pokemon.
+
+"The result is one connected experience. You can discover a Pokemon, save it, compare it in battle,
+then place it in a tournament. Or you can invent a Pokemon first and use it in those same workflows.
+The app shows the selections, health, battle messages, winners, and final champion. That is the
+product we set out to make. We will explain how it is designed later. For now, the important point
+is what a player can do."
+
+
+SLIDE 3 OF 30 - OUR USE CASES
+Speaker: Will
+Target: 2:15-7:15
+
+ACTION: Introduce the owners, then play assets/project-demo.mp4. The video is about three minutes.
+Do not narrate implementation details over it.
+
+SAY BEFORE THE VIDEO:
+
+"We divided that team story into seven use cases. I own accounts and the Trainer Panel. Aman owns
+the Pokedex. Albert owns Single Battle. Dorothy owns Tournament. Cindy owns Build a Pokemon. Edison
+owns battling with custom Pokemon.
+
+"The walkthrough shows those use cases as a player sees them. Watch for the main menu, real Pokemon
+data, the trainer collection, battle selection and results, tournament progression, and a custom
+Pokemon entering the same game."
+
+SAY AFTER THE VIDEO:
+
+"That is the complete user path. The features are separate enough for six people to own, but they
+work together: accounts identify the trainer, the Pokedex and creation flow supply competitors,
+and battle and tournament use them. The next sections explain each story and its architecture."
+
+
+SLIDE 4 OF 30 - POKEAPI
+Speaker: Aman
+Target: 7:15-8:15
+
+SAY:
+
+"We use PokeAPI for official Pokemon data. I will show two endpoints.
+
+"GET slash pokemon slash name-or-id gives us a Pokemon's HP, attack, defense, speed, weight, types,
+move pool, and sprites. Those fields support the Pokedex, selection screens, battles, and random
+tournament slots.
+
+"GET slash move slash name-or-id gives us a move's power, type, and accuracy. Those are the values
+the battle rules need when a turn is resolved.
+
+"PokeAPI is public and requires no API key. These two requests provide the official data needed by
+the user-visible features we just demonstrated."
+
+
+SLIDE 5 OF 30 - RUNNING THE PROJECT
+Speaker: Edison
+Target: 8:15-8:45
+
+SAY:
+
+"The repository documents one path from a clean clone to a running app. Java 17 or newer runs the
+executable Spring Boot JAR, Node 22 runs the frontend, and the Maven Wrapper is committed. The
+backend health endpoint confirms the API is ready before the frontend is opened."
+
+
+SLIDES 6-7 OF 30 - WILL: ACCOUNTS AND TRAINER PANEL
+Speaker: Will
+Target for both slides: 8:45-9:45
+
+SAY ON SLIDE 6:
+
+"My user story is: As a returning trainer, I want an account and profile so that my identity and
+collection persist. Before login there is no personal collection. After login, the menu reflects
+the user's role and the Trainer Panel shows Pokemon saved by that trainer."
+
+SAY ON SLIDE 7:
+
+"This follows Clean Architecture. The View sends input to a Controller, which calls an Input
+Boundary. The Interactor applies the account or library policy and depends on a repository
+interface. A Presenter turns Output Data into a View Model. The use case does not depend on React,
+local storage, or a concrete repository. The diagram and boundaries are the key evidence; I do not
+need to walk through the code line by line."
+
+
+SLIDES 8-10 OF 30 - AMAN: POKEDEX
+Speaker: Aman
+Target for all three slides: 9:45-11:00
+
+SAY ON SLIDE 8:
+
+"My user story is: As a trainer, I want to browse available Pokemon and save favourites so that I
+can make informed battle selections. The before view is the catalog. The after view is a searched
+or filtered result with a detail card, and the selected Pokemon can be saved to the trainer's
+library."
+
+SAY ON SLIDES 9-10:
+
+"The search, filtering, sorting, and weakness calculations are application rules in plain
+TypeScript use-case functions. React components render the result, hooks coordinate screen state,
+domain types hold the core data, and services isolate PokeAPI and browser details. Dependencies
+point from those outer details toward the domain and use cases. Architecture tests reject imports
+that point the wrong way. That is how this user story becomes a use case without tying its rules to
+React or fetch."
+
+
+SLIDES 11-12 OF 30 - ALBERT: SINGLE BATTLE
+Speaker: Albert
+Target for both slides: 11:00-12:00
+
+SAY ON SLIDE 11:
+
+"My user story is: As a player, I want to choose two Pokemon and run one battle so that I can
+compare them. The setup screen is the before view. The battle screen shows both Pokemon at full HP,
+then each turn updates health and the battle log until one winner remains."
+
+SAY ON SLIDE 12:
+
+"The UML shows the Clean Architecture path. The View calls the web Controller, the Controller calls
+ResolveTurnInputBoundary, and ResolveTurnInteractor applies the application rule using Battle,
+Pokemon, Move, and Bag entities. Output returns through the boundary to the View Model. Move
+selection and randomness are injected behind interfaces, so tests can control them. Runtime
+control crosses layers, while source dependencies still point inward."
+
+
+SLIDES 13-16 OF 30 - DOROTHY: TOURNAMENT
+Speaker: Dorothy
+Target for all four slides: 12:00-13:45
+
+SAY ON SLIDE 13:
+
+"My user story is: As a player, I want to run an eight-entrant knockout tournament so that I can
+see one champion. These screenshots show the before, during, and after views. The player chooses or
+randomizes entrants, four quarterfinals run together, and winners advance through eight, four, two,
+and one."
+
+SAY ON SLIDE 14:
+
+"RunTournamentRoundInteractor is the Use Case Interactor. Its responsibility is to coordinate one
+round: load the tournament, pair entrants, ask a match runner for each result, record the winners,
+save, and present. The Tournament entity protects bracket order and valid progression. I am using
+the code only to identify the Interactor's role, not to walk through each line."
+
+SAY ON SLIDE 15:
+
+"The UML maps the use case to the four Clean Architecture layers. React, HTTP, Spring, and the
+Executor are Frameworks and Drivers. Controllers and the Presenter are Interface Adapters. The
+Interactor is an Application Business Rule. Tournament, TournamentRound, and TournamentMatch are
+Entities. The Interactor depends on interfaces owned by its use-case layer, so dependencies point
+inward."
+
+SAY ON SLIDE 16:
+
+"TournamentMatchRunner is a Strategy. RandomBattleRunner is the production implementation, and
+tests replace it with a fixed runner. RandomBattleRunner calls Albert's ResolveTurnInputBoundary,
+so tournament reuses the existing single-battle rules rather than copying them. A new Battle is
+created for each matchup, resetting HP, and an injected Executor lets matches in one round run in
+parallel."
+
+
+SLIDES 17-18 OF 30 - CINDY: BUILD A POKEMON
+Speaker: Cindy
+Target for both slides: 13:45-14:45
+
+SAY ON SLIDE 17:
+
+"My user story is: As a creative player, I want to build a valid custom Pokemon so that I can use my
+own competitor. The before view is an empty form. Invalid values stay visible with an explanation.
+The after view is a saved Pokemon with the chosen name, stats, types, moves, and artwork in the
+trainer's collection."
+
+SAY ON SLIDE 18:
+
+"The View gives Input Data to a Controller and Input Boundary. CreatePokemonInteractor validates
+the application request and depends on repository interfaces for metadata and images. The
+Presenter reports success or failure through a View Model. Construction happens in an outer-layer
+factory. The creation rule therefore stays independent of React, HTTP, and file storage."
+
+
+SLIDES 19-20 OF 30 - EDISON: CUSTOM POKEMON BATTLES
+Speaker: Edison
+Target for both slides: 14:45-15:45
+
+SAY ON SLIDE 19:
+
+"My user story is: As a custom-Pokemon creator, I want my creations in battles and tournaments so
+that creating one changes the playable experience. Before this use case, the Pokemon is only saved
+in its owner's collection. Afterward, it appears in selection, keeps its custom data and sprite,
+and can fight or advance through a tournament."
+
+SAY ON SLIDE 20:
+
+"The UML shows that custom Pokemon reuse the ordinary Pokemon and Battle entities. There is no
+second combat model. Interactors depend on CustomPokemonRepository and ImageRepository interfaces,
+while file-backed adapters implement those interfaces outside the use-case layer. The sprite
+loader checks ownership before returning data. This keeps the user story inside the same Clean
+Architecture boundaries as official Pokemon."
+
+
+SLIDE 21 OF 30 - CLEAN ARCHITECTURE
+Speaker: Aman
+Target: 15:45-16:45
+
+SAY:
+
+"We can use the team user story to trace the architecture of the whole program. A player acts in a
+View. A Controller translates that action into Input Data and calls an Input Boundary. An
+Interactor coordinates the application rule. Entities protect rules shared across screens, such
+as battle state, tournament progression, Pokemon data, and account policy. Gateways implement the
+data-access interfaces owned by the use cases. Results return through an Output Boundary and
+Presenter to a View Model.
+
+"The SVG shows representative classes from all major features in those four layers. The Dependency
+Rule is that source-code dependencies point inward. Five Java ArchUnit rules and three TypeScript
+import rules enforce that rule in CI."
+
+
+SLIDE 22 OF 30 - SOLID PRINCIPLES
+Speaker: Dorothy
+Target: 16:45-17:45
+
+SAY:
+
+"We will discuss two SOLID principles using tournament.
+
+"First is Single Responsibility. RunTournamentRoundInteractor coordinates one round. Tournament
+validates bracket progression. RandomBattleRunner simulates one match. The Presenter formats the
+result. A change to bracket validity does not require a presentation change, because those classes
+have different reasons to change.
+
+"Second is Dependency Inversion. The high-level Interactor depends on TournamentMatchRunner and
+repository interfaces owned by the use-case layer. RandomBattleRunner and concrete repositories
+implement those abstractions outside it. This keeps framework details out of the policy and lets
+tests replace production collaborators without editing the Interactor."
+
+
+SLIDE 23 OF 30 - DESIGN PATTERNS
+Speaker: Edison
+Target: 17:45-18:45
+
+SAY:
+
+"One pattern our team introduced is Strategy for tournament matches. TournamentMatchRunner defines
+one operation: run a matchup and return a winner. RandomBattleRunner is the production Strategy and
+uses the single-battle engine. A test can inject a fixed winner Strategy instead.
+
+"The Interactor does not ask which concrete runner it received. Because it depends on the Strategy
+interface, we can add a smarter AI, a deterministic seeded runner, or another match policy without
+changing tournament coordination. The same seam also makes tests fast and repeatable."
+
+
+SLIDE 24 OF 30 - CODE ORGANIZATION
+Speaker: Will
+Target: 18:45-19:45
+
+SAY:
+
+"Our packaging is hybrid. At the top, backend packages represent Clean Architecture layers:
+entity, use_case, interface_adapter, data_access, and app. Inside use_case, every application
+action has its own package, such as resolve_turn, tournament, create_pokemon, or signup. Each action
+keeps its boundary, request and response data, and Interactor together.
+
+"The frontend uses domain, usecases, services, hooks, and components. The file tree shows both
+stacks. Layer roots make dependency direction visible, while action folders make responsibilities
+easy to find. Shared contracts remain in one place so features do not duplicate battle or Pokemon
+policies."
+
+
+SLIDE 25 OF 30 - CODE QUALITY
+Speaker: Albert
+Target: 19:45-20:45
+
+SAY:
+
+"We maintained code quality through feature branches, pull requests, automated checks, and review
+context. The screenshots show a stacked pull request documenting which change must merge first,
+why it temporarily targets another branch, and how it will retarget. The timeline shows the
+dependent work merging after both checks passed.
+
+"CI runs Checkstyle for Java conventions and Oxlint for the frontend. It also runs tests, coverage
+gates, production builds, dependency checks, and architecture rules. A failed job means the change
+is not ready to merge. Pull requests keep the reason for a change and its verification visible to
+the whole team."
+
+
+SLIDE 26 OF 30 - TESTING
+Speaker: Cindy
+Target: 20:45-21:45
+
+SAY:
+
+"This slide is our proof of testing coverage. The final verification passed 309 Java tests and 325
+TypeScript tests, for 634 total. JaCoCo reports 90.00 percent backend line coverage, and Vitest
+reports 89.79 percent frontend line coverage. The use-case layers are above 94 percent in both
+stacks.
+
+"Those reports are generated in CI and uploaded as artifacts, so the numbers can be checked.
+Randomness, repositories, and external data are injected or mocked, which keeps Interactor tests
+deterministic. The documented gaps are visual CSS placement, live PokeAPI outages, screen-reader
+sessions, and timing-sensitive concurrency."
+
+
+SLIDE 27 OF 30 - UNIVERSAL DESIGN
+Speaker: Aman
+Target: 21:45-22:45
+
+SAY:
+
+"Two Universal Design principles are especially visible. Flexibility in Use appears when players
+choose official, custom, or random Pokemon and when they search or type-filter the catalog.
+Tolerance for Error appears in editable selections, preserved form values, disabled impossible
+actions, server-side validation, and Struggle as a fallback when no damaging move is available.
+
+"Our target audience is Pokemon fans, students, families, friend groups, and coding clubs. Some
+people may not be able to use the program as easily because it is English-only, assumes familiarity
+with Pokemon terms, needs a modern device, and sometimes needs reliable internet. Those are
+barriers created by our design and access choices, not deficiencies in those groups."
+
+
+SLIDE 28 OF 30 - PROJECT SUMMARY
+Speaker: Will
+Target: 22:45-23:45
+
+SAY:
+
+"Pokemon Battler now has seven connected use cases. Players can manage an account and collection,
+browse official Pokemon, create custom Pokemon, play battles, and run parallel knockout
+tournaments. Official and custom competitors use the same tested battle rules. The repository has
+a runnable backend JAR, documented setup, automated quality gates, and Clean Architecture checks
+in both languages.
+
+"Our next priorities are to persist active battles and tournaments across restarts, route the
+Pokedex through the backend cache, localize the interface, and improve screen-reader support. The
+team user story is fulfilled today: a Pokemon fan can explore official and custom Pokemon through
+battles and tournaments in one app. Thank you."
+
+
+SLIDES 29-30 - Q&A BACKUP
+Do not present these unless a question needs them.
+
+Q&A RULES
+
+1. The owner of the relevant user story answers first.
+2. Answer in one sentence, then add evidence if requested.
+3. Use course terms precisely: Entity, Interactor, Input Boundary, Output Boundary, Presenter,
+   View Model, Data Access Interface, Dependency Rule, Strategy, SRP, and DIP.
+4. State limitations honestly and identify the boundary that would support a replacement.
+5. For verification, say: "The final checkout passed scripts/verify.ps1 with 634 tests, both
+   coverage gates, Checkstyle, Oxlint, production builds, and architecture checks."
+
+
+DOROTHY'S DELIVERY REMINDER
+
+Dorothy's use-case evidence is on slides 13 through 16. State the user story, point to the three
+views, identify the Interactor's responsibility, trace the four layers on the UML, and finish with
+Strategy plus single-battle reuse. Keep the full section under two minutes and do not read it.

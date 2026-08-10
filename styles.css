@@ -1613,6 +1613,64 @@ kbd {
   color: var(--text);
 }
 
+/* ------------------------------------------------ specification: big verbs */
+
+/* The Specification rubric rewards a slide a non-programmer reads at a glance,
+   so the whole "what a user can do" list is set as headline text with the
+   numbering doing the ordering rather than prose. */
+/* Three phases, left to right, in the deck's accent colours: the colour is the
+   only structure the slide needs — no boxes, no sub-bullets. */
+.spec-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.4rem 2.2rem;
+  margin-top: 1.7rem;
+  align-items: start;
+}
+.spec-phase {
+  border-top: 0.3rem solid var(--accent-tape);
+  padding-top: 0.9rem;
+}
+.spec-phase.accent-red   { --accent-ink: var(--red);   --accent-tape: var(--red-bright); }
+.spec-phase.accent-gold  { --accent-ink: var(--gold);  --accent-tape: var(--gold-bright); }
+.spec-phase.accent-blue  { --accent-ink: var(--blue);  --accent-tape: var(--blue-bright); }
+.spec-phase.accent-green { --accent-ink: var(--green); --accent-tape: var(--green-bright); }
+
+.spec-phase-label {
+  margin: 0 0 0.7rem;
+  font-family: var(--mono);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.spec-verbs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+.spec-verbs > li {
+  font-size: clamp(1.5rem, 2.7vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text);
+}
+.spec-out {
+  margin: 2rem 0 0;
+  padding-top: 1rem;
+  border-top: 0.125rem solid var(--line);
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+@media (max-width: 60rem) {
+  .spec-flow { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* -------------------------------------------------------------------- print */
 
 @media print {

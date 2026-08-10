@@ -81,53 +81,45 @@
   <p class="eyebrow">Specification</p>
   <h2>What the program does</h2>
 
-  <blockquote class="quote">
-    A user signs in, browses every Pokémon and saves favourites to a personal library, optionally
-    invents a Pokémon of their own, then puts any two of them into a turn-based battle, or seeds
-    eight into a knockout bracket and watches it play down to a champion.
-  </blockquote>
-
-  <div class="cols two">
-    <div class="card accent-green">
-      <h3>What a user can do</h3>
-      <ul class="check tight">
-        <li>Create an account and sign in; some areas are reserved for trainers, admins and developers</li>
-        <li>Browse and search every Pokémon, and read its stats, types and moves</li>
-        <li>Save Pokémon to a personal library that is theirs alone</li>
-        <li>Invent a custom Pokémon with its own name, stats, moves and artwork</li>
-        <li>Fight a turn-based battle: attack or use an item</li>
-        <li>Run an eight-entrant knockout tournament, hand-picked or randomly filled</li>
-        <li>See who won, and why — damage, type effectiveness, critical hits</li>
+  <div class="spec-flow">
+    <div class="spec-phase accent-blue">
+      <p class="spec-phase-label">Get set up</p>
+      <ul class="spec-verbs">
+        <li>Sign in</li>
+        <li>Browse</li>
+        <li>Save favourites</li>
       </ul>
     </div>
-
-    <div class="stack">
-      <div class="card accent-red">
-        <h3>Deliberately out of scope</h3>
-        <p style="color:var(--muted); margin-bottom:0.4rem">Named up front, in the blueprint, before
-        we wrote any code:</p>
-        <ul class="tight" style="color:var(--muted); margin-bottom:0">
-          <li>Status conditions, stat stages and move-specific effects</li>
-          <li>Levels, EVs, IVs, abilities and held items</li>
-          <li>Catching Pokémon: every battle is trainer versus trainer</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="color:var(--gold)">Note the absence</h3>
-        <p style="color:var(--muted); margin-bottom:0">
-          Nothing on this slide says <em>how</em> it works: there are no classes on it, no endpoints
-          and no frameworks. If you have never written a line of code, you still know exactly what
-          the app does, and that is the bar we were aiming at.
-        </p>
-      </div>
+    <div class="spec-phase accent-gold">
+      <p class="spec-phase-label">Make it yours</p>
+      <ul class="spec-verbs">
+        <li>Invent a Pokémon</li>
+      </ul>
+    </div>
+    <div class="spec-phase accent-red">
+      <p class="spec-phase-label">Play</p>
+      <ul class="spec-verbs">
+        <li>Battle</li>
+        <li>Run a tournament</li>
+        <li>See who won</li>
+      </ul>
     </div>
   </div>
 
+  <p class="spec-out">Out of scope, on purpose: status conditions · levels, EVs, IVs, abilities ·
+  catching</p>
+
   <div class="notes-source">
     <ul>
-      <li><strong>Say the "note the absence" point out loud.</strong> The Specification rubric's top
-        band is literally "clearly focuses on what the program will do without mention of how it does
-        it" and "a non-programmer can easily understand the purpose".</li>
+      <li>Walk the seven verbs in order and put one sentence on each: sign in (roles for trainers,
+        admins and developers), browse (all 1,300+ with stats, types and moves), save favourites (a
+        personal library), invent (name, stats, moves, artwork), battle (turn-based: attack or item),
+        tournament (eight entrants, hand-picked or random), see who won (damage, type effectiveness,
+        crits).</li>
+      <li><strong>Say the absence out loud:</strong> nothing here is a class, an endpoint or a
+        framework. The rubric's top band is literally "clearly focuses on what the program will do
+        without mention of how it does it" and "a non-programmer can easily understand the
+        purpose".</li>
       <li>Saying we scoped things out <em>on purpose, in advance</em> reads as judgment. Staying quiet
         about them reads as failure.</li>
     </ul>

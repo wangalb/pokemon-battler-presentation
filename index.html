@@ -858,62 +858,19 @@ components/  <span class="cm">humble views            (outermost)</span></code><
   </div>
 </section>
 
-<!-- ================================================== 17. CINDY — STORY -->
-<section class="slide" data-section="Cindy — Create Pokémon">
-  <div class="speaker-tag"><span class="avatar a3">CL</span> Cindy Liu</div>
-  <p class="eyebrow">Use case 6 of 7 — Build a Pokémon</p>
-  <h2>Invent a Pokémon that never existed</h2>
+<!-- ================================================== 17. CINDY — UseCase -->
 
-  <blockquote class="quote">"As a user, I want to be able to create my own Pokémon with custom stats and appearances."</blockquote>
+  <section class="slide" data-section="Cindy — Create Pokémon">
+    <div class="speaker-tag"><span class="avatar a3">CL</span> Cindy Liu</div>
+    <p class="eyebrow">Use case 6 of 7 — Build a Pokémon</p>
+    <h2>Invent a Pokémon that never existed</h2>
 
-  <div class="cols side">
-    <div class="stack">
-      <div class="card accent-purple">
-        <h3>What the use case does</h3>
-        <ul class="tight" style="margin-bottom:0">
-          <li>Name it, set HP, weight, attack, defense and speed</li>
-          <li>Pick real moves from the move catalog, not free-text strings</li>
-          <li>Upload artwork, stored through an <code>ImageRepository</code></li>
-          <li>Rejects a blank name or a non-positive stat, with the reason</li>
-          <li>On success it lands in your library automatically, ready to battle</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>Terminology worth landing</h3>
-        <p style="margin-bottom:0"><span class="pill">Repository pattern</span>
-        <span class="pill">Presenter / output boundary</span>
-        <span class="pill">Use case composition</span>
-        <span class="pill">Validation in the interactor</span></p>
-      </div>
-    </div>
+    <blockquote class="quote">"As a user, I want to be able to create my own Pokémon with custom stats and appearances."</blockquote>
 
-    <div>
-      <div class="card accent-purple">
-        <h3>Demonstration path</h3>
-        <p style="margin-bottom:0">Reject an invalid form, create a Pokemon, then open it from the trainer library.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="notes-source">
-    <ul>
-      <li>The project walkthrough creates a Pokemon and then takes it into a battle. That proves it
-        is a real domain entity, not a row in a list.</li>
-      <li>Show one rejection too, a blank name, so validation is visible, not claimed.</li>
-    </ul>
-  </div>
-</section>
-
-<!-- =================================================== 18. CINDY — CODE -->
-<section class="slide" data-section="Cindy — Code">
-  <div class="speaker-tag"><span class="avatar a3">CL</span> Cindy Liu</div>
-  <p class="eyebrow">Interactor &amp; class diagram</p>
-  <h2>One use case calling another, through a boundary</h2>
-
-  <div class="cols side">
-    <div>
-      <div class="code-label">backend/src/main/java/use_case/create_pokemon/CreatePokemonInteractor.java</div>
-      <pre><code><span class="kw">public class</span> <span class="typ">CreatePokemonInteractor</span> <span class="kw">implements</span> <span class="typ">CreatePokemonInputBoundary</span> {
+    <div class="cols side">
+      <div>
+        <div class="code-label">backend/src/main/java/use_case/create_pokemon/CreatePokemonInteractor.java</div>
+        <pre><code><span class="kw">public class</span> <span class="typ">CreatePokemonInteractor</span> <span class="kw">implements</span> <span class="typ">CreatePokemonInputBoundary</span> {
     <span class="kw">private final</span> <span class="typ">CreatePokemonOutputBoundary</span> presenter;
     <span class="kw">private final</span> <span class="typ">CustomPokemonRepository</span> custompokemonRepository;
     <span class="kw">private final</span> <span class="typ">ImageRepository</span> imageRepository;
@@ -943,52 +900,62 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
         custompokemonRepository.<span class="fn">savePokemon</span>(pokemon);
 
-<span class="hl">        addToLibraryInteractor.<span class="fn">add</span>(<span class="kw">new</span> <span class="typ">AddToLibraryInputData</span>(
+       addToLibraryInteractor.<span class="fn">add</span>(<span class="kw">new</span> <span class="typ">AddToLibraryInputData</span>(
                 inputData.<span class="fn">getUsername</span>(), inputData.<span class="fn">getUsername</span>(), pokemon));</span>
 
-        presenter.<span class="fn">prepareSuccessView</span>(<span class="kw">new</span> <span class="typ">CreatePokemonOutputData</span>(
+          presenter.<span class="fn">prepareSuccessView</span>(<span class="kw">new</span> <span class="typ">CreatePokemonOutputData</span>(
                 <span class="str">"Pokemon created successfully"</span>, pokemon, <span class="kw">true</span>));
     }
 }</code></pre>
+      </div>
 
-      <div class="card accent-green" style="margin-top:0.8rem">
-        <h3>Why the highlighted call is the interesting one</h3>
-        <p style="margin-bottom:0">
-          Creating a Pokémon also puts it in your library, but this interactor does not touch the
-          library store. It depends on <code>AddToLibraryInputBoundary</code>, Will's use case, as an
-          <em>interface</em>. Two features composed with zero coupling between their implementations.
-        </p>
+      <div class="stack">
+        <div class="card">
+          <h3>Full use case, layer by layer</h3>
+          <div class="ca-flow" style="margin-top:0.55rem">
+            <div class="ca-node l-view"><span class="n-layer">View</span><span class="n-name">CreatePokemonScreen<br>PokemonForm</span></div>
+            <div class="ca-arrow">→</div>
+            <div class="ca-node l-adapter"><span class="n-layer">Adapter</span><span class="n-name">CreatePokemonRestController<br>CreatePokemonController</span></div>
+            <div class="ca-arrow">→</div>
+            <div class="ca-node l-usecase"><span class="n-layer">Boundary</span><span class="n-name">CreatePokemon<br>InputBoundary</span></div>
+          </div>
+          <div class="ca-flow" style="margin-top:0.4rem">
+            <div class="ca-node l-usecase"><span class="n-layer">Interactor</span><span class="n-name">CreatePokemonInteractor</span></div>
+            <div class="ca-arrow">→</div>
+            <div class="ca-node l-usecase"><span class="n-layer">Output boundary</span><span class="n-name">CreatePokemonOutputBoundary</span></div>
+          </div>
+          <div class="ca-flow" style="margin-top:0.4rem">
+            <div class="ca-node l-adapter"><span class="n-layer">Presenter</span><span class="n-name">CreatePokemonPresenter</span></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="stack">
-      <div class="card">
-        <h3>Full use case, layer by layer</h3>
-        <div class="ca-flow" style="margin-top:0.55rem">
-          <div class="ca-node l-view"><span class="n-layer">View</span><span class="n-name">CreatePokemonScreen<br>PokemonForm</span></div>
-          <div class="ca-arrow">→</div>
-          <div class="ca-node l-adapter"><span class="n-layer">Adapter</span><span class="n-name">CreatePokemonRestController<br>CreatePokemonController</span></div>
-          <div class="ca-arrow">→</div>
-          <div class="ca-node l-usecase"><span class="n-layer">Boundary</span><span class="n-name">CreatePokemon<br>InputBoundary</span></div>
-        </div>
-        <div class="ca-flow" style="margin-top:0.4rem">
-          <div class="ca-node l-usecase"><span class="n-layer">Interactor</span><span class="n-name">CreatePokemonInteractor</span></div>
-          <div class="ca-arrow">→</div>
-          <div class="ca-node l-entity"><span class="n-layer">Entity</span><span class="n-name">Pokemon · Move</span></div>
-          <div class="ca-arrow">→</div>
-          <div class="ca-node l-usecase"><span class="n-layer">Output boundary</span><span class="n-name">CreatePokemonOutputBoundary</span></div>
-        </div>
-        <div class="ca-flow" style="margin-top:0.4rem">
-          <div class="ca-node l-adapter"><span class="n-layer">Presenter</span><span class="n-name">CreatePokemonPresenter</span></div>
-          <div class="ca-arrow">→</div>
-          <div class="ca-node l-usecase"><span class="n-layer">Repositories (interfaces)</span><span class="n-name">CustomPokemonRepository · ImageRepository</span></div>
-          <div class="ca-arrow">↑</div>
-          <div class="ca-node l-data"><span class="n-layer">Implements</span><span class="n-name">InMemoryCustomPokemonRepository<br>LocalImageRepository</span></div>
-        </div>
-      </div>
-
+    <div class="notes-source">
+      <ul>
+        <li>Lead with the composition point; it is the most sophisticated thing on this slide and it is
+          genuine Clean Architecture, not decoration.</li>
+        <li>Presenter is a real output boundary: the interactor returns <code>void</code> and pushes
+          through <code>prepareSuccessView</code> / <code>prepareFailView</code>. Name that pattern.</li>
+        <li>If asked about <code>InMemoryCustomPokemonRepository</code>: yes, it is in memory, and it is
+          behind an interface precisely so it can stop being.</li>
+      </ul>
     </div>
-  </div>
+  </section>
+
+<!-- =================================================== 18. CINDY — Full Diagram -->
+  <section class="slide" data-section="Cindy — Create Pokémon">
+    <div class="speaker-tag"><span class="avatar a3">CL</span> Cindy Liu</div>
+    <p class="eyebrow">Use case 6 of 7 — Build a Pokémon</p>
+    <h2>Invent a Pokémon that never existed--UML Diagram</h2>
+
+    <figure class="dorothy-uml-figure">
+      <img
+              src="assets/cindy-uml.png"
+              alt="Detailed conventional UML class diagram showing Pokemon, Move, Battle, StoredImage, custom Pokemon use-case interactors, input boundaries, repository interfaces, web controller, and file-backed storage implementations for battling with custom Pokemon"
+      >
+    </figure>
+
 
   <div class="notes-source">
     <ul>

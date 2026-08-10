@@ -120,48 +120,37 @@
     "Albert — Battle": {
       lead: "As a player, I want to choose two Pokémon and run one battle so that I can compare them.",
       bullets: [
-        "Choose two Pokémon",
-        "Select moves each turn",
-        "Track HP and battle logs",
-        "Apply speed and type rules",
-        "Finish with one winner"
+        "Before: choose two Pokémon",
+        "During: select moves each turn",
+        "Speed and type rules decide the damage",
+        "After: a faint names the winner",
+        "Every turn is a real backend call"
       ],
+      preserve: ".battle-demo-stills",
+      preserveLimit: 1,
+      visual: "wide",
       notes: [
-        "State Albert's user story and identify the battle's before and after states.",
+        "State Albert's user story and point to the before, during, and after screenshots.",
         "Use both battle slides in about one minute total."
       ]
     },
     "Albert — Interactor": {
       bullets: [
         "Reject a finished battle",
-        "Find the player's chosen move",
-        "Ask the Strategy for the opponent's",
+        "Ask the Strategy for the opponent's move",
         "Order the turn by speed",
         "Skip a fainted attacker's answer",
-        "Return one TurnResult"
+        "Entities own accuracy, crits and damage",
+        "Dependencies point in, control travels out"
       ],
-      preserve: "pre",
-      preserveLimit: 1,
+      preserve: "pre, figure",
+      preserveLimit: 2,
       visual: "side",
       notes: [
         "Describe the Interactor's responsibility in one sentence: order the turn and let the entities do the arithmetic.",
+        "Use the diagram to trace View, Controller, Input Boundary, Interactor, and Entities.",
         "Name Dependency Inversion once, precisely, instead of listing several principles.",
         "Do not walk through the turn algorithm line by line."
-      ]
-    },
-    "Albert — UML": {
-      bullets: [
-        "Battle owns combat state",
-        "Interactor resolves complete turns",
-        "Strategies isolate move selection",
-        "Dependencies point toward entities",
-        "Interfaces enable deterministic tests"
-      ],
-      preserve: "figure",
-      visual: "wide",
-      notes: [
-        "Use the UML to trace View, Controller, Input Boundary, Interactor, Entities, Output Boundary, and Presenter.",
-        "Explain dependency direction without walking through source code."
       ]
     },
     "Dorothy - Tournament demo": {
@@ -475,8 +464,7 @@
     "Aman — Code": "Pokédex Logic",
     "Aman — Frontend architecture": "Frontend Architecture",
     "Albert — Battle": "Single Battle",
-    "Albert — Interactor": "Battle Interactor",
-    "Albert — UML": "Battle UML",
+    "Albert — Interactor": "Battle Interactor and UML",
     "Dorothy - Tournament demo": "Tournament",
     "Dorothy - Interactor": "Tournament Interactor",
     "Dorothy - Tournament architecture": "Tournament Architecture",
@@ -696,7 +684,7 @@
     var scripts = window.SLIDE_SCRIPTS;
 
     if (!Array.isArray(scripts) || scripts.length !== orderedSlides.length) {
-      throw new Error("Speaker scripts must match the 31-slide presentation order.");
+      throw new Error("Speaker scripts must match the 30-slide presentation order.");
     }
 
     orderedSlides.forEach(function (slide, index) {
@@ -1059,7 +1047,6 @@
       "Aman — Frontend architecture",
       "Albert — Battle",
       "Albert — Interactor",
-      "Albert — UML",
       "Dorothy - Tournament demo",
       "Dorothy - Interactor",
       "Dorothy - Tournament architecture",

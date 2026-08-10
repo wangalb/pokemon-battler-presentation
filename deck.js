@@ -131,6 +131,24 @@
         "Use both battle slides in about one minute total."
       ]
     },
+    "Albert — Interactor": {
+      bullets: [
+        "Reject a finished battle",
+        "Find the player's chosen move",
+        "Ask the Strategy for the opponent's",
+        "Order the turn by speed",
+        "Skip a fainted attacker's answer",
+        "Return one TurnResult"
+      ],
+      preserve: "pre",
+      preserveLimit: 1,
+      visual: "side",
+      notes: [
+        "Describe the Interactor's responsibility in one sentence: order the turn and let the entities do the arithmetic.",
+        "Name Dependency Inversion once, precisely, instead of listing several principles.",
+        "Do not walk through the turn algorithm line by line."
+      ]
+    },
     "Albert — UML": {
       bullets: [
         "Battle owns combat state",
@@ -457,6 +475,7 @@
     "Aman — Code": "Pokédex Logic",
     "Aman — Frontend architecture": "Frontend Architecture",
     "Albert — Battle": "Single Battle",
+    "Albert — Interactor": "Battle Interactor",
     "Albert — UML": "Battle UML",
     "Dorothy - Tournament demo": "Tournament",
     "Dorothy - Interactor": "Tournament Interactor",
@@ -677,7 +696,7 @@
     var scripts = window.SLIDE_SCRIPTS;
 
     if (!Array.isArray(scripts) || scripts.length !== orderedSlides.length) {
-      throw new Error("Speaker scripts must match the 30-slide presentation order.");
+      throw new Error("Speaker scripts must match the 31-slide presentation order.");
     }
 
     orderedSlides.forEach(function (slide, index) {
@@ -1039,6 +1058,7 @@
       "Aman — Code",
       "Aman — Frontend architecture",
       "Albert — Battle",
+      "Albert — Interactor",
       "Albert — UML",
       "Dorothy - Tournament demo",
       "Dorothy - Interactor",

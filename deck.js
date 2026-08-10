@@ -19,6 +19,483 @@
   var btnNotes   = document.getElementById("btn-notes");
   var btnOverview = document.getElementById("btn-overview");
 
+  /* Projected slides stay intentionally terse. The authored detail remains in
+     index.html and is copied into speaker notes before the concise view is
+     built, so nothing is lost when presenters need the deeper explanation. */
+  var conciseSlides = {
+    "Architecture primer": {
+      bullets: [
+        "Entities contain enterprise rules",
+        "Use cases contain application rules",
+        "Adapters translate between formats",
+        "Frameworks remain outer details",
+        "Dependencies point toward business rules",
+        "Both languages follow matching layers"
+      ],
+      preserve: ".layers",
+      visual: "side"
+    },
+    "Will — Accounts & Panel": {
+      bullets: [
+        "Register or log in",
+        "Access role-specific controls",
+        "Open the Trainer Panel",
+        "Save favourite Pokémon",
+        "Remove saved Pokémon",
+        "Log out safely"
+      ],
+      preserve: ".media-slot",
+      visual: "side"
+    },
+    "Will — Code": {
+      bullets: [
+        "Controller creates use-case Input Data",
+        "Interactor applies library policy",
+        "Repository boundary protects dependency direction",
+        "Presenter creates the View Model",
+        "Authorization stays outside the View"
+      ],
+      preserve: "pre",
+      preserveLimit: 1,
+      visual: "side"
+    },
+    "Aman — Pokédex": {
+      bullets: [
+        "Browse every available Pokémon",
+        "Search by name",
+        "Filter by Pokémon type",
+        "Inspect stats, moves, and sprites",
+        "Open detailed Pokémon cards"
+      ],
+      preserve: ".media-slot",
+      visual: "side"
+    },
+    "Aman — Code": {
+      bullets: [
+        "Pure functions transform API data",
+        "Use cases avoid React dependencies",
+        "Errors become explicit result states",
+        "Tests inject recorded Pokémon data"
+      ],
+      preserve: "pre",
+      preserveLimit: 1,
+      visual: "side"
+    },
+    "Aman — Frontend architecture": {
+      bullets: [
+        "Components render View Models",
+        "Hooks coordinate application state",
+        "Use cases enforce frontend rules",
+        "Services isolate external APIs",
+        "Domain types remain framework-independent"
+      ],
+      preserve: "pre",
+      preserveLimit: 1,
+      visual: "side"
+    },
+    "Albert — Battle": {
+      bullets: [
+        "Choose two Pokémon",
+        "Select moves each turn",
+        "Track HP and battle logs",
+        "Apply speed and type rules",
+        "Finish with one winner"
+      ],
+      preserve: ".media-slot",
+      visual: "side"
+    },
+    "Albert — UML": {
+      bullets: [
+        "Battle owns combat state",
+        "Interactor resolves complete turns",
+        "Strategies isolate move selection",
+        "Dependencies point toward entities",
+        "Interfaces enable deterministic tests"
+      ],
+      preserve: "figure",
+      visual: "wide"
+    },
+    "Dorothy - Tournament demo": {
+      bullets: [
+        "Choose eight tournament entrants",
+        "Fill open slots randomly",
+        "Run four quarterfinals concurrently",
+        "Advance two semifinal winners",
+        "Crown one final champion",
+        "Reset HP between matches"
+      ],
+      preserve: ".media-slot",
+      visual: "side"
+    },
+    "Dorothy - Interactor": {
+      bullets: [
+        "Load or create the tournament",
+        "Pair entrants in bracket order",
+        "Submit every matchup concurrently",
+        "Join every completed match",
+        "Record and save the round",
+        "Present winners or failures"
+      ],
+      preserve: "pre",
+      preserveLimit: 1,
+      visual: "side"
+    },
+    "Dorothy - UML": {
+      bullets: [
+        "Runtime control crosses outer layers",
+        "Source dependencies point inward",
+        "Use-case boundaries invert dependencies"
+      ],
+      preserve: "figure",
+      visual: "wide"
+    },
+    "Dorothy - Class UML": {
+      bullets: [
+        "Composition enforces bracket ownership",
+        "Interfaces provide replaceable Strategies",
+        "No tournament inheritance exists"
+      ],
+      preserve: "figure",
+      visual: "wide"
+    },
+    "Cindy — Create Pokémon": {
+      bullets: [
+        "Choose a Pokémon name",
+        "Set battle statistics",
+        "Choose types and moves",
+        "Upload a custom sprite",
+        "Save to your collection"
+      ],
+      preserve: ".media-slot",
+      visual: "side"
+    },
+    "Cindy — Code": {
+      bullets: [
+        "Factory assembles the use-case objects",
+        "Interactor validates custom Pokémon data",
+        "Repositories persist metadata and sprites",
+        "Presenter reports success or failure",
+        "Creation reuses move-loading boundaries"
+      ],
+      preserve: "pre",
+      preserveLimit: 1,
+      visual: "side"
+    },
+    "Edison — Custom Pokémon": {
+      bullets: [
+        "Select your saved custom Pokémon",
+        "Load owner-scoped battle data",
+        "Display uploaded sprites",
+        "Use normal battle rules",
+        "Enter single battles and tournaments"
+      ],
+      preserve: ".media-slot",
+      visual: "side"
+    },
+    "Edison — Class UML": {
+      bullets: [
+        "Custom Pokémon reuse standard entities",
+        "Owner scope protects saved data",
+        "Interfaces isolate storage details",
+        "Battles accept official or custom entrants",
+        "Sprites load through dedicated boundaries"
+      ],
+      preserve: "figure",
+      visual: "wide"
+    },
+    "Clean Architecture": {
+      bullets: [
+        "Entities import no outer packages",
+        "Use cases own their boundaries",
+        "Controllers cannot access repositories directly",
+        "Presenters implement output boundaries",
+        "Architecture tests enforce dependency direction",
+        "Known outer-layer debt remains documented"
+      ],
+      preserve: "pre",
+      preserveLimit: 1,
+      visual: "side"
+    },
+    "SOLID": {
+      bullets: [
+        "SRP separates orchestration from domain rules",
+        "OCP supports new Strategy implementations",
+        "LSP enables deterministic test doubles",
+        "ISP keeps boundaries client-specific",
+        "DIP points dependencies toward interfaces"
+      ]
+    },
+    "Design patterns": {
+      bullets: [
+        "Strategy swaps battle policies",
+        "Factory hides use-case construction",
+        "Dependency Injection supplies collaborators",
+        "Adapter unifies Pokémon data sources",
+        "Cache-aside avoids repeated API calls",
+        "Immutable values prevent accidental mutation"
+      ]
+    },
+    "Code organization": {
+      bullets: [
+        "Top folders represent architecture layers",
+        "Each use case has one folder",
+        "Frontend folders separate responsibilities",
+        "Shared contracts prevent duplicated policies",
+        "Names reveal architectural intent"
+      ],
+      preserve: "pre",
+      preserveLimit: 1,
+      visual: "side"
+    },
+    "Code quality": {
+      bullets: [
+        "Feature branches isolate changes",
+        "Pull requests support review",
+        "Checkstyle enforces Java conventions",
+        "oxlint enforces frontend conventions",
+        "CI blocks failing changes",
+        "Verification reproduces every quality gate"
+      ],
+      preserve: "pre",
+      preserveLimit: 1,
+      visual: "side"
+    },
+    "Testing": {
+      bullets: [
+        "634 automated tests",
+        "90.05% backend line coverage",
+        "89.79% frontend line coverage",
+        "94%+ use-case line coverage",
+        "Randomness is injected",
+        "Tests require no external server"
+      ],
+      preserve: "pre",
+      preserveLimit: 1,
+      visual: "side"
+    },
+    "Accessibility": {
+      bullets: [
+        "Consistent navigation reduces learning effort",
+        "Keyboard controls support every main action",
+        "Redundant labels avoid colour-only meaning",
+        "Random selection offers flexible use",
+        "Errors preserve items and turns",
+        "Language and connectivity remain barriers",
+        "Accessibility limitations remain documented"
+      ]
+    },
+    "Run it": {
+      bullets: [
+        "Install Java 17 and Node 22",
+        "Clone the repository",
+        "Start the backend JAR",
+        "Start the Vite frontend",
+        "Open the local web address",
+        "Verify backend health"
+      ],
+      preserve: "pre",
+      preserveLimit: 1,
+      visual: "side"
+    },
+    "Limitations": {
+      bullets: [
+        "Tournament state resets with backend restarts",
+        "Battle state resets with browser refreshes",
+        "Some authentication remains locally trusted",
+        "Pokédex bypasses backend caching",
+        "Live API calls require connectivity",
+        "Screen-reader testing remains manual"
+      ]
+    },
+    "Wrap": {
+      bullets: [
+        "Seven complete use cases",
+        "Official and custom Pokémon",
+        "Interactive battles",
+        "Parallel knockout tournaments",
+        "Clean Architecture across two languages",
+        "634 automated tests",
+        "Runnable backend JAR"
+      ]
+    },
+    "Q & A — architecture & data": {
+      bullets: [
+        "Dependency direction",
+        "Interactor responsibilities",
+        "Persistence locations",
+        "PokéAPI caching",
+        "Custom Pokémon ownership",
+        "Tournament concurrency",
+        "Known architecture debt"
+      ]
+    },
+    "Q & A — testing, design & process": {
+      bullets: [
+        "Testing evidence",
+        "Coverage thresholds",
+        "SOLID examples",
+        "Strategy pattern",
+        "Randomness control",
+        "Code review process",
+        "Universal Design",
+        "Future improvements"
+      ]
+    }
+  };
+
+  var conciseTitles = {
+    "Title": "Pokémon Battle Simulator",
+    "Introduction": "What We Built",
+    "Specification": "Features",
+    "Scope": "Our Use Cases",
+    "Architecture primer": "Architecture Overview",
+    "Will — Accounts & Panel": "Accounts and Trainer Panel",
+    "Will — Code": "Account Architecture",
+    "Aman — Pokédex": "Pokédex",
+    "Aman — Code": "Pokédex Logic",
+    "Aman — Frontend architecture": "Frontend Architecture",
+    "Albert — Battle": "Single Battle",
+    "Albert — UML": "Battle UML",
+    "Dorothy - Tournament demo": "Tournament",
+    "Dorothy - Interactor": "Tournament Interactor",
+    "Dorothy - UML": "Tournament Architecture",
+    "Dorothy - Class UML": "Tournament Class UML",
+    "Cindy — Create Pokémon": "Build a Pokémon",
+    "Cindy — Code": "Pokémon Creation Logic",
+    "Edison — Custom Pokémon": "Custom Pokémon Battles",
+    "Edison — Class UML": "Custom Battle Class UML",
+    "API usage": "PokeAPI",
+    "Clean Architecture": "Clean Architecture",
+    "SOLID": "SOLID Principles",
+    "Design patterns": "Design Patterns",
+    "Code organization": "Code Organization",
+    "Code quality": "Code Quality",
+    "Testing": "Testing",
+    "Accessibility": "Universal Design",
+    "Run it": "Running the Project",
+    "Limitations": "Limitations",
+    "Wrap": "Project Summary",
+    "Q & A — architecture & data": "Architecture Q&A",
+    "Q & A — testing, design & process": "Testing and Design Q&A"
+  };
+
+  function wordCount(text) {
+    return (text.trim().match(/\S+/g) || []).length;
+  }
+
+  function validateConciseSlides() {
+    Object.keys(conciseSlides).forEach(function (section) {
+      var bullets = conciseSlides[section].bullets || [];
+      if (!conciseTitles[section]) {
+        throw new Error(section + " has no concise title.");
+      }
+      if (bullets.length > 10) {
+        throw new Error(section + " has more than 10 bullets.");
+      }
+      bullets.forEach(function (bullet) {
+        if (wordCount(bullet) >= 10) {
+          throw new Error(section + " has a bullet of 10 or more words: " + bullet);
+        }
+      });
+    });
+  }
+
+  function archiveRemovedDetail(slide, config, conciseTitle) {
+    var heading = slide.querySelector("h1, h2");
+    var originalTitle = heading ? heading.textContent.replace(/\s+/g, " ").trim() : "";
+    var clone = slide.cloneNode(true);
+    clone.querySelectorAll(".notes-source, h1, h2, .speaker-tag, .eyebrow, .pokeball")
+      .forEach(function (node) { node.remove(); });
+    if (config.preserve) {
+      clone.querySelectorAll(config.preserve).forEach(function (node) { node.remove(); });
+    }
+
+    var detail = clone.textContent.replace(/\s+/g, " ").trim();
+    if (originalTitle && originalTitle !== conciseTitle) {
+      detail = "Previous slide title: " + originalTitle + ". " + detail;
+    }
+    if (!detail) return;
+
+    var notes = slide.querySelector(".notes-source");
+    if (!notes) {
+      notes = document.createElement("div");
+      notes.className = "notes-source";
+      slide.appendChild(notes);
+    }
+    var archive = document.createElement("div");
+    archive.className = "notes-detail-archive";
+    archive.innerHTML = "<h5>Detailed slide content</h5>";
+    var paragraph = document.createElement("p");
+    paragraph.textContent = detail;
+    archive.appendChild(paragraph);
+    notes.appendChild(archive);
+  }
+
+  function applyConciseSlides() {
+    validateConciseSlides();
+
+    document.querySelectorAll("#deck > .slide").forEach(function (slide) {
+      if (slide.dataset.conciseApplied === "true") return;
+
+      var section = sectionName(slide);
+      var config = conciseSlides[section];
+      var conciseTitle = conciseTitles[section];
+      // The opening overview slides keep the markup they were authored with, so a
+      // section absent from the map is a deliberate opt-out rather than an error.
+      if (!config) return;
+
+      var preserved = [];
+      if (config.preserve) {
+        preserved = Array.prototype.slice.call(slide.querySelectorAll(config.preserve));
+        if (config.preserveLimit) preserved = preserved.slice(0, config.preserveLimit);
+      }
+      archiveRemovedDetail(slide, config, conciseTitle);
+
+      var heading = slide.querySelector("h1, h2");
+      if (heading) heading.textContent = conciseTitle;
+
+      Array.prototype.slice.call(slide.children).forEach(function (node) {
+        if (node.matches("h1, h2, .speaker-tag, .eyebrow, .pokeball, .notes-source")) return;
+        node.remove();
+      });
+
+      var layout = document.createElement("div");
+      layout.className = "concise-layout";
+      if (preserved.length) {
+        layout.classList.add("has-visual", "visual-" + (config.visual || "side"));
+      }
+
+      var summary = document.createElement("div");
+      summary.className = "concise-summary";
+      if (config.lead) {
+        var lead = document.createElement("p");
+        lead.className = "concise-lead";
+        lead.textContent = config.lead;
+        summary.appendChild(lead);
+      }
+
+      var list = document.createElement("ul");
+      list.className = "concise-bullets";
+      config.bullets.forEach(function (bullet) {
+        var item = document.createElement("li");
+        item.textContent = bullet;
+        list.appendChild(item);
+      });
+      summary.appendChild(list);
+      layout.appendChild(summary);
+
+      if (preserved.length) {
+        var visual = document.createElement("div");
+        visual.className = "concise-visual";
+        preserved.forEach(function (node) { visual.appendChild(node); });
+        layout.appendChild(visual);
+      }
+
+      slide.insertBefore(layout, slide.querySelector(".notes-source"));
+      slide.dataset.conciseApplied = "true";
+    });
+  }
+
   /* ------------------------------------------------------------ navigation */
 
   function sectionName(slide) {
@@ -454,6 +931,7 @@
       })
       .forEach(function (slide) { deckElement.appendChild(slide); });
 
+    applyConciseSlides();
     slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
     if (!slides.length) return;
 

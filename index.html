@@ -15,7 +15,7 @@
 <section class="slide title-slide" data-section="Title">
   <div class="pokeball" aria-hidden="true"></div>
   <h1>Pokémon Battle Simulator</h1>
-  <p class="subtitle">Choose. Build. Battle. Crown a champion. · CSC207 Team&nbsp;4</p>
+  <p class="subtitle">Choose, create, or randomize Pokemon and test your battling skills. CSC207 Team&nbsp;4</p>
 
   <div class="roster">
     <div class="member">Will Xu <span>accounts &amp; trainer panel</span></div>
@@ -28,7 +28,7 @@
 
   <p class="repo-line">
     <a href="https://github.com/aman-a-shah/pokemon-battler" target="_blank" rel="noopener">github.com/aman-a-shah/pokemon-battler</a>
-    &nbsp;·&nbsp; Java 17 + Spring Boot &nbsp;·&nbsp; React 19 + TypeScript
+    &nbsp;·&nbsp; (Backend) Java 17 + Spring Boot &nbsp;·&nbsp; (Frontend) React 19 + TypeScript
   </p>
 
   <div class="notes-source">
@@ -43,104 +43,38 @@
 <!-- ===================================================== 2. INTRODUCTION -->
 <section class="slide" data-section="Introduction">
   <p class="eyebrow">Introduction</p>
-  <h2>What we built</h2>
+  <h2>Welcome to our project: Pokemon Battle Simulator!</h2>
 
-  <p class="lede">
-    A web app where you pick Pokémon, battle them, and run knockout tournaments — using the real
-    stats, types, moves and sprites of every Pokémon that exists.
-  </p>
-
-  <div class="cols three">
-    <div class="card accent-gold">
-      <h3>Real data, not made up</h3>
-      <p>Every Pokémon, move and type multiplier comes from PokéAPI — 1,300+ Pokémon, their actual
-      HP, attack, defense, speed and move pools.</p>
-    </div>
-    <div class="card accent-blue">
-      <h3>Battles you play</h3>
-      <p>Turn by turn: choose a move or use an item. Speed decides who
-      strikes first; type matchups decide how much it hurts.</p>
-    </div>
-    <div class="card accent-green">
-      <h3>Tournaments that resolve</h3>
-      <p>Seed eight Pokémon into a bracket and watch four quarterfinals, two semifinals and a final
-      produce a champion.</p>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:1.1rem">
-    <h3>Why this was worth building</h3>
-    <p style="color:var(--muted); margin-bottom:0">
-      "Who would win?" is a question every Pokémon fan has argued about and nobody can settle,
-      because playing it out means owning the games and grinding the levels. We made the argument
-      answerable in about fifteen seconds, and then made it repeatable eight Pokémon at a time.
-    </p>
-  </div>
-
-  <div class="notes-source">
-    <ul>
-      <li>Keep this to <strong>45 seconds</strong>. The audience does not need the tech stack yet.</li>
-      <li>The "who would win" framing is what makes a non-programmer understand the point — the
-        Specification rubric explicitly rewards that.</li>
-      <li>Do not say "simple" or "just a course project". Say what it does.</li>
-    </ul>
-  </div>
-</section>
-
-<!-- ==================================================== 3. SPECIFICATION -->
-<section class="slide" data-section="Specification">
-  <p class="eyebrow">Specification</p>
-  <h2>What the program does</h2>
-
-  <blockquote class="quote">
-    A user signs in, browses every Pokémon and saves favourites to a personal library, optionally
-    invents a Pokémon of their own, then puts any two of them into a turn-based battle, or seeds
-    eight into a knockout bracket and watches it play down to a champion.
+  <blockquote class="quote intro-team-story">
+    Team user story: As a Pokémon fan, I want to explore official and custom Pokémon through
+    battles and tournaments, so I can compare them in one app.
   </blockquote>
 
-  <div class="cols two">
-    <div class="card accent-green">
-      <h3>What a user can do</h3>
-      <ul class="check tight">
-        <li>Create an account and sign in; some areas are reserved for trainers, admins and developers</li>
-        <li>Browse and search every Pokémon, and read its stats, types and moves</li>
-        <li>Save Pokémon to a personal library that is theirs alone</li>
-        <li>Invent a custom Pokémon with its own name, stats, moves and artwork</li>
-        <li>Fight a turn-based battle: attack or use an item</li>
-        <li>Run an eight-entrant knockout tournament, hand-picked or randomly filled</li>
-        <li>See who won, and why — damage, type effectiveness, critical hits</li>
-      </ul>
+  <div class="intro-grid">
+    <div class="card accent-gold">
+      <h3>Data from PokéAPI</h3>
+      <p>Every Pokémon, move, stats, and sprites comes from PokéAPI (1,300+ Pokémon)</p>
     </div>
-
-    <div class="stack">
-      <div class="card accent-red">
-        <h3>Deliberately out of scope</h3>
-        <p style="color:var(--muted); margin-bottom:0.4rem">Named up front, in the blueprint, before
-        we wrote any code:</p>
-        <ul class="tight" style="color:var(--muted); margin-bottom:0">
-          <li>Status conditions, stat stages and move-specific effects</li>
-          <li>Levels, EVs, IVs, abilities and held items</li>
-          <li>Catching Pokémon: every battle is trainer versus trainer</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="color:var(--gold)">Note the absence</h3>
-        <p style="color:var(--muted); margin-bottom:0">
-          Nothing on this slide says <em>how</em> it works: there are no classes on it, no endpoints
-          and no frameworks. If you have never written a line of code, you still know exactly what
-          the app does, and that is the bar we were aiming at.
-        </p>
-      </div>
+    <div class="card accent-blue">
+      <h3>Playable Battles</h3>
+      <p>Turn by turn: choose a move or use an item. Speed decides who
+      goes first and damage is based off of real formulae.</p>
+    </div>
+    <div class="card accent-green">
+      <h3>Tournaments Style Brackets</h3>
+      <p>Seed eight Pokémon into a bracket and watch four quarterfinals, two semifinals and a final
+      crown a champion.</p>
+    </div>
+    <div class="card accent-red">
+      <h3>Why we chose this idea</h3>
+      <p>WE LOVE POKEMON!!</p>
     </div>
   </div>
 
   <div class="notes-source">
     <ul>
-      <li><strong>Say the "note the absence" point out loud.</strong> The Specification rubric's top
-        band is literally "clearly focuses on what the program will do without mention of how it does
-        it" and "a non-programmer can easily understand the purpose".</li>
-      <li>Saying we scoped things out <em>on purpose, in advance</em> reads as judgment. Staying quiet
-        about them reads as failure.</li>
+      <li>Spend two minutes here. State the team user story, target user, and user-visible outcome.</li>
+      <li>Focus only on what the product lets people do. Save APIs, classes, and frameworks for later slides.</li>
     </ul>
   </div>
 </section>
@@ -208,8 +142,18 @@
     </p>
   </div>
 
+  <div class="media-slot project-demo-slot" data-src="assets/project-demo.mp4"
+       aria-label="Complete Pokemon Battler project demonstration">
+    <div class="placeholder"><span class="ph-icon">&#9654;</span>Complete project demonstration
+      <span class="ph-file">assets/project-demo.mp4</span></div>
+  </div>
+
   <div class="notes-source">
     <ul>
+      <li>Play the complete project walkthrough on this slide. It runs for about three minutes and
+        covers the connected workflows before the individual architecture sections begin.</li>
+      <li>The video is stored at <code>assets/project-demo.mp4</code>, so playback does not depend on
+        Google Drive or a laptop-specific path.</li>
       <li>This slide is the <strong>Project Scope Cap</strong> slide. The cap is applied after the
         rubric subtotal, so this table is worth more than any single category.</li>
       <li>Point at the distinctness: roles &amp; access control, catalog &amp; caching, creation,
@@ -219,80 +163,6 @@
       <li>Owners confirmed by the team on 2026-08-08, and they match <code>PROJECT.md</code>. The two
         story sentences without a blueprint quote — Trainer Panel and Battling with Custom Pokémon —
         were written to match the shipped behaviour.</li>
-    </ul>
-  </div>
-</section>
-
-<!-- ================================================ 5. ARCHITECTURE PRIMER -->
-<section class="slide" data-section="Architecture primer">
-  <p class="eyebrow">Clean Architecture · shared map</p>
-  <h2>One architecture, two languages</h2>
-
-  <p class="lede">
-    Every use case we demonstrated follows the same Dependency Rule: source-code dependencies point
-    <strong>inward</strong>, even when runtime control returns to a Presenter or gateway.
-  </p>
-
-  <div class="layers">
-    <div class="layer-row entity">
-      <div class="l-title">Entities</div>
-      <div class="l-side">Java &nbsp;<code>entity/</code></div>
-      <div class="l-side">TS &nbsp;<code>domain/</code></div>
-    </div>
-    <div class="layer-row usecase">
-      <div class="l-title">Use cases</div>
-      <div class="l-side">Java &nbsp;<code>use_case/</code></div>
-      <div class="l-side">TS &nbsp;<code>usecases/</code> — <code>ports.ts</code> is the boundary</div>
-    </div>
-    <div class="layer-row adapter">
-      <div class="l-title">Adapters</div>
-      <div class="l-side">Java &nbsp;<code>interface_adapter/</code>, <code>app/web/</code></div>
-      <div class="l-side">TS &nbsp;<code>services/</code>, <code>hooks/</code></div>
-    </div>
-    <div class="layer-row frame">
-      <div class="l-title">Frameworks</div>
-      <div class="l-side">Java &nbsp;<code>data_access/</code>, Spring, PokéAPI</div>
-      <div class="l-side">TS &nbsp;<code>components/</code>, <code>App.tsx</code> (composition root)</div>
-    </div>
-  </div>
-
-  <p class="dep-rule">▲ &nbsp; dependencies point up this list, never down &nbsp; ▲</p>
-
-  <div class="cols two" style="margin-top:0.4rem">
-    <div class="card accent-green">
-      <h3>The claim, in one sentence</h3>
-      <p style="margin-bottom:0">
-        No Spring annotation appears anywhere in <code>entity</code> or <code>use_case</code>, and
-        <code>usecases/</code> has no idea a turn is resolved over HTTP. That is exactly what lets
-        both sides be tested with stubs and no running server.
-      </p>
-    </div>
-    <div class="card accent-blue">
-      <h3>The shape every use case has</h3>
-      <div class="ca-flow" style="margin-top:0.5rem">
-        <div class="ca-node l-view"><span class="n-layer">View</span><span class="n-name">Screen</span></div>
-        <div class="ca-arrow">→</div>
-        <div class="ca-node l-adapter"><span class="n-layer">Adapter</span><span class="n-name">Controller</span></div>
-        <div class="ca-arrow">→</div>
-        <div class="ca-node l-usecase"><span class="n-layer">Boundary</span><span class="n-name">InputBoundary</span></div>
-        <div class="ca-arrow">→</div>
-        <div class="ca-node l-usecase"><span class="n-layer">Use case</span><span class="n-name">Interactor</span></div>
-        <div class="ca-arrow">→</div>
-        <div class="ca-node l-entity"><span class="n-layer">Entity</span><span class="n-name">domain rules</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="notes-source">
-    <ul>
-      <li>Reconnect the six individual sections to one shared structure. The course defines a
-        dependency as importing, naming, or using another type, not as runtime call direction.</li>
-      <li>The colour key holds all deck long: <span style="color:var(--gold)">gold = entity</span>,
-        <span style="color:var(--green)">green = use case</span>,
-        <span style="color:var(--blue)">blue = adapter</span>,
-        <span style="color:var(--purple)">purple = view</span>,
-        <span style="color:var(--cyan)">cyan = data access</span>.</li>
-      <li>The next slide shows the executable proof. Keep this shared map to 45 seconds.</li>
     </ul>
   </div>
 </section>
@@ -328,10 +198,7 @@
 
     <div>
       <div class="demo">
-        <div class="ba-label">Recorded demo · ~45s</div>
-        <div class="media-slot" data-src="assets/will-demo.mp4">
-          <div class="placeholder"><span class="ph-icon">▶</span>Sign up, sign in, role-gated menu, trainer panel<span class="ph-file">assets/will-demo.mp4</span></div>
-        </div>
+        <div class="ba-label">Demonstration path</div>
         <ol class="demo-beats">
           <li>Sign up as a plain <code>PLAYER</code></li>
           <li>Menu shows only the panels that role can reach</li>
@@ -478,10 +345,7 @@
 
     <div>
       <div class="demo">
-        <div class="ba-label">Recorded demo · ~45s</div>
-        <div class="media-slot" data-src="assets/aman-demo.mp4">
-          <div class="placeholder"><span class="ph-icon">▶</span>Search the Pokédex, open a detail view, save to library<span class="ph-file">assets/aman-demo.mp4</span></div>
-        </div>
+        <div class="ba-label">Demonstration path</div>
         <ol class="demo-beats">
           <li>Open the Pokédex from the menu</li>
           <li>Search and filter by type</li>
@@ -736,10 +600,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
     <div>
       <div class="demo">
-        <div class="ba-label">Recorded demo · ~1 min · narrated at 2×</div>
-        <div class="media-slot" data-src="assets/albert-demo.mp4">
-          <div class="placeholder"><span class="ph-icon">▶</span>A turn resolved by the Java engine, start to faint<span class="ph-file">assets/albert-demo.mp4</span></div>
-        </div>
+        <div class="ba-label">Demonstration path</div>
         <ol class="demo-beats">
           <li>Setup — Weedle vs Caterpie, both at full HP</li>
           <li>Speed decides who moves first</li>
@@ -753,20 +614,14 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
   <div class="notes-source">
     <ul>
-      <li>The clip is <strong>narrated, with audio, and runs at 2×</strong> — about a minute. Play it
-        with sound up and don't talk over it; it already walks through speed, the damage formula,
-        accuracy, critical hits, an item and the faint.</li>
-      <li><strong>Watch it once at presentation volume before the day.</strong> The narration is
-        double-speed, so if any of the numbers are hard to catch, pause on that beat and say the figure
-        yourself rather than letting it slide past.</li>
-      <li>Every turn in the clip is a <strong>real round trip to the Java backend</strong>. Worth
-        restating once it finishes — it is the one moment the backend is visible to the audience.</li>
-      <li>Weedle and Caterpie are both Bug, so <strong>there is no super-effective hit</strong> in this
-        clip. Type effectiveness is covered by the formula on this slide, not on screen.</li>
+      <li>The project walkthrough on slide 3 shows the battle workflow. Use this slide to explain the
+        rules and architecture instead of replaying the same workflow.</li>
+      <li>Every turn shown there is a <strong>real round trip to the Java backend</strong>. State this
+        once so the audience understands the backend's role.</li>
       <li>If asked to see a <strong>refused item</strong> live: it cannot be shown. The interactor
         refuses without consuming, and that is tested, but the bag disables the only valid target for a
         stat booster, so the action can never be submitted from the UI.</li>
-      <li><strong>Do not narrate switching.</strong> The clip is a 1v1 and the screen cannot show it.
+      <li><strong>Do not narrate switching.</strong> The shipped screen is a 1v1 and cannot show it.
         If it comes up in Q&amp;A: the party model and the switch use case exist and are tested, the
         setup screen just never builds a party bigger than one.</li>
     </ul>
@@ -812,47 +667,30 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
   <blockquote class="quote">"As a Pokemon player, I want to run an eight-Pokemon knockout tournament so that I can watch four quarterfinals, two semifinals, and one final produce a champion."</blockquote>
 
-  <div class="cols side dorothy-demo-layout">
-    <div class="stack dorothy-view-evidence">
-      <div class="card accent-purple dorothy-stage-card">
-        <p class="dorothy-stage-label">Before view</p>
-        <h3>Create the bracket</h3>
-        <p>Choose official or custom Pokemon in any of eight bracket slots. Any open slot is resolved randomly when the player starts.</p>
-      </div>
-      <div class="card accent-blue dorothy-stage-card">
-        <p class="dorothy-stage-label">During the use case</p>
-        <h3>Run one round in parallel</h3>
-        <p>Show four, then two, then one battle panel. Every match is one fresh <code>Battle</code>, so HP and battle state reset.</p>
-      </div>
-      <div class="card accent-green dorothy-stage-card">
-        <p class="dorothy-stage-label">After view</p>
-        <h3>Populate winners and champion</h3>
-        <p>A round is recorded only after all matches finish. Winners advance through the 4-2-1 knockout bracket to one champion.</p>
-      </div>
-    </div>
-
-    <div>
-      <div class="demo">
-        <div class="ba-label">Recorded demo - before, during, and after</div>
-        <div class="media-slot" data-src="assets/dorothy-demo.mp4">
-          <div class="placeholder"><span class="ph-icon">&#9654;</span>Eight entrants down to one champion<span class="ph-file">assets/dorothy-demo.mp4</span></div>
-        </div>
-        <ol class="demo-beats">
-          <li><strong>Before:</strong> selected, custom, and random slots</li>
-          <li><strong>During:</strong> four matches run together</li>
-          <li><strong>After:</strong> winners fill the bracket</li>
-          <li><strong>Complete:</strong> one champion remains</li>
-        </ol>
-      </div>
-    </div>
+  <div class="tournament-demo-stills" aria-label="Tournament before, during, and after views">
+    <figure>
+      <img src="assets/tournament-before.png"
+           alt="Tournament setup bracket with selected Pokemon and random question-mark slots">
+      <figcaption>Before: build the bracket</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/tournament-during.png"
+           alt="Four tournament battles being simulated concurrently">
+      <figcaption>During: run four battles</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/tournament-after.png"
+           alt="Completed tournament bracket with Pidgeot shown as champion">
+      <figcaption>After: populate the champion</figcaption>
+    </figure>
   </div>
 
   <div class="notes-source">
     <ul>
       <li>Use the rubric's words out loud: identify the <strong>before view</strong>, the four-panel
         <strong>during view</strong>, and the populated <strong>after view</strong>.</li>
-      <li>Point out that the player controls bracket order, while open slots are random. The demo
-        should also include at least one custom Pokemon to prove the final PR's integration.</li>
+      <li>Point out that the player controls bracket order, while open slots are random. The three
+        screenshots show setup, concurrent quarterfinals, and the completed bracket.</li>
       <li>Let the populated bracket and champion remain visible long enough for the grader to see
         the complete 8-4-2-1 progression.</li>
     </ul>
@@ -944,58 +782,78 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 </section>
 
 <!-- ============================================= 15. DOROTHY - FULL UML -->
-<section class="slide dorothy-uml-slide" data-section="Dorothy - UML">
+<section class="slide dorothy-uml-slide" data-section="Dorothy - Tournament architecture">
   <div class="speaker-tag"><span class="avatar a4">DZ</span> Dorothy Zheng</div>
-  <p class="eyebrow">Full use-case class diagram and Dependency Rule</p>
-  <h2>Runtime control travels out. Source-code dependencies point in.</h2>
-
-  <figure class="dorothy-uml-figure">
-    <img
-      src="assets/dorothy-tournament-uml.svg"
-      alt="Full UML class diagram for the tournament use case, including the view, controllers, input and output boundaries, interactor, presenter, repositories, match strategy, executor, and tournament entities"
-    >
-  </figure>
-
-  <div class="notes-source">
-    <ul>
-      <li>Define dependency as the course does: a source file imports, names, or uses another type.
-        This is not the same thing as runtime flow of control.</li>
-      <li>Trace only the main path: View, web Controller, interface-adapter Controller, Input
-        Boundary, Interactor, Entity, Output Boundary, Presenter, View Model.</li>
-      <li>Then point to one inverted dependency: the Interactor names
-        <code>TournamentDataAccessInterface</code>; <code>InMemoryTournamentDataAccess</code>
-        implements it from the outer layer.</li>
-    </ul>
-  </div>
-</section>
-
-<!-- ======================================= 16. DOROTHY - DETAILED CLASS UML -->
-<section class="slide dorothy-uml-slide dorothy-class-uml-slide" data-section="Dorothy - Class UML">
-  <div class="speaker-tag"><span class="avatar a4">DZ</span> Dorothy Zheng</div>
-  <p class="eyebrow">Detailed UML class diagram</p>
-  <h2>The classes expose the rules. The interfaces expose the seams.</h2>
+  <p class="eyebrow">Clean Architecture and SOLID</p>
+  <h2>Tournament Architecture</h2>
 
   <figure class="dorothy-uml-figure">
     <img
       src="assets/dorothy-tournament-class-uml.svg"
-      alt="Detailed conventional UML class diagram showing Tournament, TournamentRound, TournamentMatch, and Pokemon fields and operations; composition multiplicities; and dashed realization arrows from tournament implementations to use-case interfaces"
+      alt="Tournament class UML showing entities, use-case interfaces, implementations, composition, and dependency relationships"
     >
   </figure>
 
   <div class="notes-source">
     <ul>
-      <li>This complements the previous architecture map. Here, each class uses standard UML
-        compartments: <strong>name, fields, then operations</strong>; minus means private and plus
-        means public.</li>
-      <li>Trace the aggregate first: one <code>Tournament</code> composes zero to three completed
-        rounds, and each <code>TournamentRound</code> composes four, two, or one match. A match
-        references two participants and exactly one winner.</li>
-      <li>The dashed hollow-triangle arrows match the sample notation for implementation:
-        <code>RandomBattleRunner</code> realizes <code>TournamentMatchRunner</code>, while the
-        Interactor, Presenter, and repository realize their use-case-owned interfaces.</li>
-      <li>There is intentionally no solid inheritance arrow. No tournament class extends a base
-        class; inventing one would misrepresent the code. Polymorphism comes from interfaces and
-        composition instead.</li>
+      <li>Use the course summary: <strong>four layers, one rule</strong>. From outside inward, the
+        tournament uses Frameworks and Drivers, Interface Adapters, Application Business Rules,
+        and Entities. Source-code dependencies point inward.</li>
+      <li>Frameworks include React, HTTP, Spring configuration, and the Java <code>Executor</code>.
+        Interface Adapters include the tournament controllers, Presenter, and View Models.</li>
+      <li><code>RunTournamentRoundInteractor</code> is an Application Business Rule.
+        <code>Tournament</code>, <code>TournamentRound</code>, and <code>TournamentMatch</code> are
+        Entities that enforce bracket order and valid winners.</li>
+      <li><strong>Single Responsibility:</strong> the Interactor coordinates one round, the Entity
+        validates tournament state, and <code>RandomBattleRunner</code> runs one match.</li>
+      <li><strong>Dependency Inversion:</strong> the Interactor names use-case interfaces such as
+        <code>TournamentMatchRunner</code> and <code>TournamentDataAccessInterface</code>. Outer-layer
+        implementations are injected by <code>TournamentConfiguration</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================================= 16. DOROTHY - TOURNAMENT DESIGN -->
+<section class="slide dorothy-uml-slide dorothy-class-uml-slide" data-section="Dorothy - Tournament design">
+  <div class="speaker-tag"><span class="avatar a4">DZ</span> Dorothy Zheng</div>
+  <p class="eyebrow">Design patterns and package structure</p>
+  <h2>Tournament Design</h2>
+
+  <pre class="tournament-file-tree" aria-label="Tournament file structure"><code>backend/src/main/java/
+├── app/config/
+│   └── TournamentConfiguration.java
+├── app/web/
+│   └── TournamentController.java
+├── interface_adapter/tournament/
+│   ├── TournamentRoundController.java
+│   └── TournamentRoundPresenter.java
+├── use_case/tournament/
+│   ├── RunTournamentRoundInteractor.java
+│   ├── TournamentMatchRunner.java
+│   └── RandomBattleRunner.java
+├── use_case/resolve_turn/
+│   └── ResolveTurnInputBoundary.java
+├── entity/
+│   ├── Tournament.java
+│   ├── TournamentRound.java
+│   ├── TournamentMatch.java
+│   └── Battle.java
+└── data_access/
+    ├── InMemoryTournamentDataAccess.java
+    └── TournamentPokemonDataAccess.java</code></pre>
+
+  <div class="notes-source">
+    <ul>
+      <li><strong>Strategy:</strong> <code>TournamentMatchRunner</code> defines how one matchup runs.
+        <code>RandomBattleRunner</code> is the production Strategy, while tests can substitute a
+        deterministic runner without changing the Interactor.</li>
+      <li><strong>Dependency Injection:</strong> <code>TournamentConfiguration</code> supplies the
+        match runner, repositories, Presenter, and four-thread <code>ExecutorService</code>.</li>
+      <li><code>RandomBattleRunner</code> calls Albert's <code>ResolveTurnInputBoundary</code> instead
+        of copying battle rules. It creates a fresh <code>Battle</code> per matchup, which resets HP
+        and battle state between tournament rounds.</li>
+      <li>The Interactor submits match Strategies with <code>CompletableFuture.supplyAsync</code> and
+        joins every result before recording the round.</li>
     </ul>
   </div>
 </section>
@@ -1164,10 +1022,9 @@ components/  <span class="cm">humble views            (outermost)</span></code><
     </div>
 
     <div style="justify-self:stretch; text-align:left">
-      <div class="demo">
-        <div class="media-slot" data-src="assets/edison-demo.mp4">
-          <div class="placeholder"><span class="ph-icon">▶</span>A custom Pokémon taken into battle<span class="ph-file">assets/edison-demo.mp4</span></div>
-        </div>
+      <div class="card accent-green">
+        <h3>Demonstration path</h3>
+        <p style="margin-bottom:0">Select an owner-scoped custom Pokemon and use its uploaded sprite in battle.</p>
       </div>
     </div>
   </div>
@@ -1223,7 +1080,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 <!-- ====================================================== 21. API USAGE -->
 <section class="slide" data-section="API usage">
   <p class="eyebrow">Remote API</p>
-  <h2>PokéAPI: three endpoints, two delivery paths</h2>
+  <h2>PokéAPI: two endpoints</h2>
 
   <p class="lede">
     Base URL <code>https://pokeapi.co/api/v2</code> — used directly by the browser for browsing and
@@ -1233,7 +1090,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
   <div class="cols two">
     <div class="stack">
       <div class="card accent-cyan">
-        <h3>The two endpoints doing the work</h3>
+        <h3>The two endpoints we present</h3>
         <table style="margin-top:0.5rem">
           <thead><tr><th>Request</th><th>What we take from it</th></tr></thead>
           <tbody>
@@ -1246,10 +1103,6 @@ components/  <span class="cm">humble views            (outermost)</span></code><
               <td><code>GET /move/{name&nbsp;or&nbsp;id}</code></td>
               <td>Power, type and accuracy — the three numbers the damage formula needs</td>
             </tr>
-            <tr>
-              <td><code>GET /pokemon?limit=&amp;offset=</code></td>
-              <td>Catalog paging, and the total <code>count</code> that makes random brackets possible</td>
-            </tr>
           </tbody>
         </table>
       </div>
@@ -1257,10 +1110,8 @@ components/  <span class="cm">humble views            (outermost)</span></code><
       <div class="card">
         <h3>Why these and not more</h3>
         <p style="margin-bottom:0">
-          We wrote an endpoint plan first and cut it to the minimum: species, evolution chains,
-          abilities, forms, berries, encounters and contests were all evaluated and rejected because
-          nothing in our specification needs them. Type effectiveness ships as a table rather than a
-          fourth round trip.
+          These two requests provide the official Pokémon and move data used by the visible battle,
+          tournament, and Pokédex workflows. Other PokéAPI resources are outside this presentation.
         </p>
       </div>
     </div>
@@ -1302,8 +1153,7 @@ components/  <span class="cm">humble views            (outermost)</span></code><
 
   <div class="notes-source">
     <ul>
-      <li>The rubric's top band wants <strong>two specific endpoints named on a slide</strong>. We name
-        three, with the exact fields we consume. Read at least two aloud.</li>
+      <li>Name exactly <strong>two specific endpoints</strong> and the fields the product uses from each.</li>
       <li>Use the course term <strong>Adapter</strong>: the gateway presents the use case's interface
         while translating PokeAPI JSON. Cache-aside is extra gateway behaviour, not a classic Proxy.</li>
       <li>Volunteering the duplicate browser/backend API paths reads as design judgment; migrating
@@ -1381,6 +1231,12 @@ components/  <span class="cm">humble views            (outermost)</span></code><
     </div>
   </div>
 
+  <figure class="program-architecture-figure">
+    <img
+      src="assets/program-clean-architecture.svg"
+      alt="Program-wide Clean Architecture diagram showing five representative groups in each of four layers">
+  </figure>
+
   <div class="notes-source">
     <ul>
       <li>The rubric's 5/5 band is "no violations of the Dependency Rule are evident" <em>and</em>
@@ -1388,6 +1244,22 @@ components/  <span class="cm">humble views            (outermost)</span></code><
         strongest form of convincing available.</li>
       <li>Describe the browser account authority and direct Pokédex route as outer-layer tradeoffs,
         not Dependency Rule violations. The executable checks show that neither leaks inward.</li>
+      <li>The map is intentionally representative rather than exhaustive. It caps each layer
+        at five groups while covering every major slice: battle, tournament, Pokémon data, library
+        and custom Pokémon, and accounts.</li>
+      <li>The blue arrows connect the outer layer bands to the inner ones. The dashed red callout
+        summarizes the Dependency Rule: concrete outer code implements interfaces owned by the
+        application business rules.</li>
+      <li>Packaging is a hybrid of the lecture's package-by-layer and package-by-feature options.
+        The backend starts with <code>entity</code>, <code>use_case</code>,
+        <code>interface_adapter</code>, <code>data_access</code>, and <code>app</code>; application
+        actions then receive their own packages such as <code>tournament</code>,
+        <code>resolve_turn</code>, and <code>signup</code>. The frontend similarly separates
+        <code>domain</code>, <code>usecases</code>, <code>hooks</code>, <code>services</code>, and
+        <code>components</code>, with feature folders beneath the UI layer.</li>
+      <li>This is not pure package-by-component. The layer roots make the Dependency Rule easy to
+        verify, while the named use-case packages make the program's application actions visible.
+        Java subpackages provide organization, not inherited package-private access.</li>
     </ul>
   </div>
 </section>
@@ -1673,6 +1545,19 @@ backend:   ./mvnw -B clean verify</code></pre>
     </div>
   </div>
 
+  <figure class="pr-evidence" aria-label="Pull request workflow examples">
+    <div class="pr-evidence-frame">
+      <img
+        src="assets/pull-request-stacked-dependency.png"
+        alt="Merged pull request with a comment documenting its stacked dependency, target branch, and retargeting plan">
+    </div>
+    <div class="pr-evidence-frame compact">
+      <img
+        src="assets/pull-request-ci-merge.png"
+        alt="GitHub pull request timeline showing a merged dependent pull request and two passing checks">
+    </div>
+  </figure>
+
   <div class="notes-source">
     <ul>
       <li><strong>Checkstyle is required for 4/5 or above on Code Quality</strong>, and it now runs on
@@ -1682,6 +1567,12 @@ backend:   ./mvnw -B clean verify</code></pre>
         it was always there.</li>
       <li>The 5/5 band wants <strong>a pull request example</strong> — PR #37 is a genuinely good one
         because it is a real bug with a real fix and a regression test. Have it open in a tab.</li>
+      <li>The screenshots show how the team handled dependent work. PR #32 states which pull request
+        must land first, explains why its temporary base is not <code>main</code>, and records the
+        retargeting plan instead of leaving that context in chat.</li>
+      <li>The timeline then shows the dependent pull request being merged with both automated checks
+        passing. Describe this as evidence of documented merge order and CI gating; do not claim the
+        screenshots show an approval, because this example records no reviewer approval.</li>
     </ul>
   </div>
 </section>
@@ -1914,64 +1805,6 @@ npm run dev</code></pre>
   </div>
 </section>
 
-<!-- ================================================== 30. LIMITATIONS -->
-<section class="slide" data-section="Limitations">
-  <p class="eyebrow">Limitations</p>
-  <h2>What we know we did not do</h2>
-
-  <div class="cols two">
-    <div class="card accent-red">
-      <h3>Scope we chose not to model</h3>
-      <ul class="tight" style="margin-bottom:0; color:var(--muted)">
-        <li>No status conditions, stat stages or move-specific effects. This is exactly why stat-boost
-          items and Full Restore are <strong>refused rather than silently ignored</strong> — the item is
-          modelled, the effect is out of scope, and refusing costs the player neither the item nor the turn</li>
-        <li>Damage has no random roll and no level scaling. That simplification was in the blueprint from
-          day one</li>
-        <li>Opponent AI picks a legal move at random, with no strategy behind the choice</li>
-        <li>Poké Balls are refused, a trainer's Pokémon cannot be caught</li>
-        <li>Both parties are always one Pokémon, so switching never surfaces — <code>Battle</code> and
-          <code>SwitchPokemon</code> support it, the setup screen is what we scoped</li>
-        <li>PP is tracked by the client; the backend does not model it</li>
-      </ul>
-    </div>
-
-    <div class="stack">
-      <div class="card accent-gold">
-        <h3>Debt we would pay first</h3>
-        <ol class="tight" style="margin-bottom:0; color:var(--muted)">
-          <li><strong>Move accounts behind HTTP endpoints.</strong> The ports are there; what sits
-            behind them is still the browser, so accounts do not survive a different device</li>
-          <li><strong>Point the Pokédex at our own endpoint</strong> and delete the direct PokéAPI calls</li>
-          <li><strong>Replace the development identity model</strong> — library calls decode an
-            unverified bearer value, while custom-Pokémon and tournament owner values are not
-            authenticated at their endpoints</li>
-          <li><strong>Then</strong> add status conditions, which makes several already-modelled items do
-            what their descriptions promise</li>
-        </ol>
-      </div>
-
-      <div class="card accent-blue">
-        <h3>Why that order</h3>
-        <p style="margin-bottom:0; color:var(--muted)">
-          The library mirror was top of this list until last week, and paying it off <em>deleted</em>
-          code rather than adding it. Same logic for what is left: converge duplicated paths first, add
-          new surface second.
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <div class="notes-source">
-    <ul>
-      <li>Say all of this <strong>ourselves, in our framing</strong>, before Q&amp;A does it for us. A
-        limitation you volunteer reads as judgment; the same one extracted from you reads as a gap.</li>
-      <li>The refused-item design is genuinely good; it is a deliberate choice, not a missing feature.
-        Frame it that way.</li>
-    </ul>
-  </div>
-</section>
-
 <!-- ========================================================= 31. WRAP -->
 <section class="slide" data-section="Wrap">
   <p class="eyebrow">Wrap</p>
@@ -1998,10 +1831,12 @@ npm run dev</code></pre>
       </div>
 
       <div class="card accent-gold">
-        <p style="margin:0; font-size:var(--text-base)">
-          Six people, six distinct slices, one dependency rule — enforced in both a Java backend and a
-          React frontend, and <strong>a red build in either one if anybody breaks it</strong>.
-        </p>
+        <h3>Future work</h3>
+        <ul class="tight" style="margin-bottom:0">
+          <li>Persist active battles and tournaments across restarts</li>
+          <li>Route the Pokédex through the backend cache</li>
+          <li>Add localization and stronger screen-reader support</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -2012,8 +1847,8 @@ npm run dev</code></pre>
 
   <div class="notes-source">
     <ul>
-      <li>One slide, 30 seconds, then straight into Q&amp;A. Do not summarise the whole deck again.</li>
-      <li>End on the last line; it is the sentence you want the graders holding when they score.</li>
+      <li>Spend one minute summarizing the connected product and naming the next work in priority order.</li>
+      <li>End by returning to the team user story, then move directly into Q&amp;A.</li>
     </ul>
   </div>
 </section>

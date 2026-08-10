@@ -297,6 +297,50 @@ th,
 .cols.fill > .stack { display: flex; flex-direction: column; }
 .cols.fill > .stack > .card { flex: 1; }
 
+/* Albert's introduction uses four equal product claims below the team story. */
+.intro-team-story {
+  margin: 0.4rem 0 0.75rem;
+  padding: 0.65rem 1rem;
+  font-size: var(--text-md);
+  line-height: 1.35;
+}
+
+.intro-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1rem;
+}
+
+.intro-grid > .card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.2rem 1.5rem;
+}
+
+.intro-grid > .card h3 {
+  font-size: var(--text-xl);
+  line-height: 1.1;
+  margin: 0 0 0.55rem;
+}
+
+.intro-grid > .card p {
+  font-size: var(--text-md);
+  line-height: 1.3;
+  color: var(--muted);
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .intro-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, auto);
+  }
+}
+
 /* --------------------------------------------------------------------- cards */
 
 /* The app's window-in-a-window: lit cream on cream, squared, with the chunky
@@ -1294,6 +1338,260 @@ a:focus-visible {
 #notes strong { color: var(--text); }
 
 .notes-source { display: none; }
+
+/* --------------------------------------------------------- concise slides */
+
+.concise-layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.concise-summary {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.concise-lead {
+  max-width: 58ch;
+  margin: 0 auto 1.25rem;
+  color: var(--text);
+  font-size: var(--text-lg);
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.concise-bullets {
+  list-style: none;
+  width: 100%;
+  max-width: 58rem;
+  margin: 0 auto;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+
+.concise-bullets li {
+  min-height: 0;
+  margin: 0;
+  padding: 0.62rem 0.85rem;
+  display: flex;
+  align-items: center;
+  background: var(--panel-2);
+  border: 0.1875rem solid var(--line);
+  box-shadow: 0.25rem 0.25rem 0 var(--drop);
+  color: var(--text);
+  font-size: var(--text-base);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.concise-bullets li::before {
+  content: "▶";
+  flex: 0 0 auto;
+  margin-right: 0.7rem;
+  color: var(--red);
+  font-family: var(--arcade);
+  font-size: var(--arcade-xs);
+}
+
+.concise-layout.has-visual.visual-side {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.82fr) minmax(0, 1.18fr);
+  gap: 1.1rem;
+}
+
+.visual-side .concise-bullets {
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+
+.visual-side .concise-bullets li {
+  min-height: 0;
+  padding: 0.62rem 0.75rem;
+  font-size: var(--text-base);
+}
+
+.concise-visual {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.concise-visual > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.concise-visual .media-slot {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.concise-visual pre {
+  width: 100%;
+  max-height: 55vh !important;
+  margin: 0;
+  overflow: hidden;
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.concise-visual .layers {
+  width: 100%;
+}
+
+.concise-layout.visual-wide {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.34fr) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.visual-wide .concise-summary {
+  width: 100%;
+  justify-content: center;
+}
+
+.visual-wide .concise-bullets {
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.visual-wide .concise-bullets li {
+  min-height: 0;
+  padding: 0.55rem 0.7rem;
+  font-size: var(--text-sm);
+}
+
+.visual-wide .concise-visual {
+  min-height: 0;
+}
+
+.concise-visual figure {
+  width: 100%;
+  margin: 0;
+}
+
+.pr-evidence {
+  display: grid;
+  gap: 0.65rem;
+  width: 100%;
+  margin: 0;
+}
+
+.pr-evidence-frame {
+  margin: 0;
+  padding: 0.3rem;
+  overflow: hidden;
+  background: #0d1117;
+  border: 0.1875rem solid var(--line);
+  box-shadow: 0.25rem 0.25rem 0 var(--drop);
+}
+
+.pr-evidence-frame img {
+  display: block;
+  width: 100%;
+  max-height: 29vh;
+  object-fit: contain;
+}
+
+.pr-evidence-frame.compact img {
+  max-height: 18vh;
+}
+
+.visual-wide figure img {
+  width: 100%;
+  max-height: 57vh;
+  object-fit: contain;
+}
+
+.slide[data-section="Clean Architecture"] .concise-layout.visual-wide {
+  grid-template-columns: minmax(11rem, 0.22fr) minmax(0, 1fr);
+  gap: 0.8rem;
+}
+
+.program-architecture-figure {
+  width: 100%;
+  margin: 0;
+}
+
+.program-architecture-figure img,
+.visual-wide .program-architecture-figure img {
+  display: block;
+  width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  background: var(--panel-2);
+  border: 0.1875rem solid var(--line);
+  box-shadow: 0.25rem 0.25rem 0 var(--drop);
+}
+
+.title-slide .concise-bullets {
+  max-width: 32rem;
+}
+
+.notes-detail-archive {
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 0.125rem solid var(--line-soft);
+}
+
+.notes-detail-archive h5 {
+  margin: 0 0 0.45rem;
+  color: var(--gold);
+  font-family: var(--arcade);
+  font-size: var(--arcade-xs);
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.tournament-demo-stills {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.tournament-demo-stills figure {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  background: #10141b;
+  border: 0.1875rem solid var(--line);
+  box-shadow: 0.2rem 0.2rem 0 var(--drop);
+}
+
+.tournament-demo-stills img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: #10141b;
+}
+
+.tournament-demo-stills figcaption {
+  padding: 0.45rem 0.35rem 0.4rem;
+  color: #ffffff;
+  background: #1a2028;
+  font-family: var(--arcade);
+  font-size: var(--arcade-2xs);
+  line-height: 1.35;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.notes-detail-archive p {
+  margin: 0 0 0.7rem;
+  white-space: pre-line;
+}
 
 /* ------------------------------------------------------------------ overview */
 

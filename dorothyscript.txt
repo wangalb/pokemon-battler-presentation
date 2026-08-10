@@ -1,68 +1,40 @@
 DOROTHY TOURNAMENT PRESENTATION SCRIPT
-Target time: about 3 minutes, including narration over the recorded demo.
+Target time: about 1 minute 45 seconds.
 
-Important: Rehearse this exact wording, but do not read it during the presentation. The rubric caps
-the verbal category at 3 out of 5 when notes are read. Use each slide as the prompt for its section.
-
-
-SLIDE 14 OF 33 - A COMPLETE TOURNAMENT, FROM SETUP TO CHAMPION
-
-"Eight Pokemon enter, and one becomes the champion. My user story is: As a Pokemon player, I want
-to run an eight-Pokemon knockout tournament so that a four-two-one bracket produces a champion.
-
-This is the before view. The player places official or custom Pokemon in any slot, while question
-marks are resolved randomly when the tournament starts.
-
-Watch the question marks as I start the demo. In the during view, four quarterfinal battles are
-submitted in parallel. Each match reuses the single-battle rules and creates a fresh Battle, so HP
-and battle state reset.
-
-This is the after view. Only after every match finishes do the winners populate the bracket. The
-process repeats with two semifinals and one final."
+Rehearse the ideas, but do not read this script during the presentation. The individual rubric caps
+the verbal category at 3 out of 5 when notes are read. Use each slide as a prompt and speak to the
+audience.
 
 
-SLIDE 15 OF 33 - ONE INTERACTOR COORDINATES A ROUND
+SLIDE 13 OF 30 - TOURNAMENT
 
-"This is RunTournamentRoundInteractor, my Use Case Interactor. It loads the tournament, runs the
-matchups, records the round, saves the aggregate, and sends Output Data through the Output Boundary.
-
-The Interactor coordinates application steps, while the Tournament aggregate entity enforces eight
-entrants, four-two-one round sizes, bracket order, and one champion. That separation applies the
-Single Responsibility Principle.
-
-The highlighted CompletableFuture call submits one task per matchup. The Executor and
-TournamentMatchRunner Strategy are injected, and every future joins before recording. Production
-is parallel, while tests use deterministic fakes and a same-thread Executor."
+"My user story is: As a player, I want to run an eight-entrant knockout tournament so that I can
+see one champion. These screenshots show the before, during, and after views. The player chooses or
+randomizes entrants, four quarterfinals run together, and winners advance through eight, four, two,
+and one."
 
 
-SLIDE 16 OF 33 - FULL USE-CASE ARCHITECTURE DIAGRAM AND DEPENDENCY RULE
+SLIDE 14 OF 30 - TOURNAMENT INTERACTOR
 
-"This is the full class diagram. Runtime control crosses the View and Controllers, enters through
-the Input Boundary, reaches the Interactor and Entities, then leaves through the Output Boundary.
-The Presenter implements that boundary and creates the View Model.
-
-Runtime control and source-code dependency are not the same. The Interactor owns abstractions such
-as TournamentDataAccessInterface and TournamentMatchRunner. Outer repositories, gateways, and the
-Presenter implement those interfaces, so source-code dependencies point inward.
-
-TournamentMatchRunner is the Strategy pattern. A different runner can be added without modifying
-the Interactor, entities, repository, Presenter, or View, demonstrating Open-Closed and Dependency
-Inversion. RandomBattleRunner also calls Albert's ResolveTurnInputBoundary, reusing battle rules
-instead of duplicating them."
+"RunTournamentRoundInteractor is the Use Case Interactor. Its responsibility is to coordinate one
+round: load the tournament, pair entrants, ask a match runner for each result, record the winners,
+save, and present. The Tournament entity protects bracket order and valid progression. I am using
+the code only to identify the Interactor's role, not to walk through each line."
 
 
-SLIDE 17 OF 33 - DETAILED UML CLASS DIAGRAM
+SLIDE 15 OF 30 - TOURNAMENT UML
 
-"This second diagram uses conventional UML class notation. Each box separates the class name,
-private fields, and public operations. The filled diamonds show composition: one Tournament owns
-up to three completed TournamentRounds, and each round owns four, two, or one TournamentMatch.
-The multiplicities encode the eight-four-two-one bracket directly.
+"The UML maps the use case to the four Clean Architecture layers. React, HTTP, Spring, and the
+Executor are Frameworks and Drivers. Controllers and the Presenter are Interface Adapters. The
+Interactor is an Application Business Rule. Tournament, TournamentRound, and TournamentMatch are
+Entities. The Interactor depends on interfaces owned by its use-case layer, so dependencies point
+inward."
 
-The dashed hollow-triangle arrows mean implements, just like in the sample UML. The Interactor
-implements its Input Boundary, RandomBattleRunner implements the TournamentMatchRunner Strategy,
-the Presenter implements the Output Boundary, and InMemoryTournamentDataAccess implements both
-the repository and ID-generator interfaces.
 
-There is intentionally no solid inheritance arrow because no tournament class extends a base
-class. Our polymorphism comes from interfaces, and our domain structure comes from composition;
-adding inheritance just to resemble an example would make the diagram less accurate." 
+SLIDE 16 OF 30 - TOURNAMENT DESIGN
+
+"TournamentMatchRunner is a Strategy. RandomBattleRunner is the production implementation, and
+tests replace it with a fixed runner. RandomBattleRunner calls Albert's ResolveTurnInputBoundary,
+so tournament reuses the existing single-battle rules rather than copying them. A new Battle is
+created for each matchup, resetting HP, and an injected Executor lets matches in one round run in
+parallel."

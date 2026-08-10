@@ -11,8 +11,10 @@ No build step, no dependencies, no server needed. The three typefaces are self-h
 `assets/fonts/`, so the deck looks the same on a projector with no internet.
 
 ```bash
-start index.html
+open index.html
 ```
+
+On Windows, use `start index.html` instead.
 
 If you prefer a local server (needed only if a browser blocks `file://` video playback):
 

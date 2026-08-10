@@ -633,29 +633,13 @@
 
   <div class="notes-source">
     <ul>
-      <li>Three highlights, in this order: the <strong>injected fields</strong>, the <strong>speed
-        tie coin flip</strong>, and the <strong>skipped action</strong> when the second attacker has
-        already fainted.</li>
-      <li><strong>Say the Dependency Inversion line as written on the card</strong> — it is one
-        sentence and it is the easiest principle to prove from this file. Do not try to claim four
-        principles; one, stated precisely, scores better than a list.</li>
-      <li>Both attacks always produce a <code>TurnAction</code>, one possibly skipped. That is why
-        the frontend can narrate a turn from the actions alone without knowing the rules.</li>
-      <li>If asked why randomness is injected: <strong>do not say "a seed."</strong> A test passes a
-        <code>Random</code> subclass that returns exactly the values it wants, in order, and throws
-        if the simulator asks for more than expected.</li>
-      <li>The code on the slide is condensed for reading — helper calls stand in for the full method
-        bodies. Say so if a grader asks; the real file is
-        <code>use_case/resolve_turn/</code> (renamed from <code>use_case/battle</code> in PR #47).</li>
-      <li>On the diagram, define dependency the way the course does: one source file imports, names
-        or uses another type. That is not the same as the runtime flow of control.</li>
-      <li>Trace only the main path, left to right then down: arena, web gateway, HTTP controller,
-        input boundary, interactor, entities. Then name the inverted arrow on the card.</li>
-      <li>The two bottom-band boxes are the point of the diagram. <code>OpponentMoveSelector</code>
-        is a Strategy and <code>java.util.Random</code> is handed in, so a test can decide the crit
-        roll, the accuracy roll and the opponent's choice.</li>
-      <li>Ready for "why stateless?" — cost is a battle lost on refresh; benefit is a restart-safe API
-        and a tournament that needs no server-side battle state.</li>
+      <li>Highlights in order: <strong>injected fields</strong>, <strong>speed tie coin flip</strong>,
+        <strong>skipped action</strong>. One sentence each.</li>
+      <li>Trace the diagram left to right, then say the Dependency Inversion line on the card. One
+        principle, stated precisely — do not list four.</li>
+      <li>Q&amp;A: randomness is injected, <strong>not a seed</strong>. Stateless costs a battle on
+        refresh, buys a restart-safe API. Code is condensed; the file is
+        <code>use_case/resolve_turn/</code>.</li>
     </ul>
   </div>
 </section>

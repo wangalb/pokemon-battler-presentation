@@ -1,40 +1,32 @@
-DOROTHY TOURNAMENT PRESENTATION SCRIPT
-Target time: about 1 minute 45 seconds.
+﻿DOROTHY TOURNAMENT PRESENTATION SCRIPT
+Expanded rehearsal version.
 
 Rehearse the ideas, but do not read this script during the presentation. The individual rubric caps
-the verbal category at 3 out of 5 when notes are read. Use each slide as a prompt and speak to the
-audience.
-
+the verbal category at 3 out of 5 when notes are read. Use each slide as a prompt and speak to the audience.
 
 SLIDE 13 OF 30 - TOURNAMENT
 
-"My user story is: As a player, I want to run an eight-entrant knockout tournament so that I can
-see one champion. These screenshots show the before, during, and after views. The player chooses or
-randomizes entrants, four quarterfinals run together, and winners advance through eight, four, two,
-and one."
+"My user story is: As a player, I want to run an eight-entrant knockout tournament so that I can see one champion. These screenshots show the before, during, and after views. The player chooses entrants or leaves slots random, then four quarterfinals run together. Winners return to the bracket, advance through eight, four, two, and one, and the final view names the champion.
+
+"Each matchup is one complete battle. HP and battle state reset before the next round because every matchup receives a fresh Battle entity. The bracket keeps the user-selected ordering, so placement determines the opening matchups rather than silently reshuffling them."
 
 
 SLIDE 14 OF 30 - TOURNAMENT INTERACTOR
 
-"RunTournamentRoundInteractor is the Use Case Interactor. Its responsibility is to coordinate one
-round: load the tournament, pair entrants, ask a match runner for each result, record the winners,
-save, and present. The Tournament entity protects bracket order and valid progression. I am using
-the code only to identify the Interactor's role, not to walk through each line."
+"RunTournamentRoundInteractor is the Use Case Interactor. Its responsibility is to coordinate one round: load or create the tournament, read the current entrants, pair adjacent Pokemon, submit each matchup to a match runner, join the completed results, record the winners, save the aggregate, and prepare output.
+
+"The Tournament entity protects bracket order and valid progression. TournamentRound checks the required match count for the round, and TournamentMatch ensures its winner was actually one of its two participants. Persistence and display formatting stay outside those entities. The code on the slide identifies the Interactor and its collaborators; the architectural point is that orchestration and validation are separate responsibilities."
 
 
 SLIDE 15 OF 30 - TOURNAMENT UML
 
-"The UML maps the use case to the four Clean Architecture layers. React, HTTP, Spring, and the
-Executor are Frameworks and Drivers. Controllers and the Presenter are Interface Adapters. The
-Interactor is an Application Business Rule. Tournament, TournamentRound, and TournamentMatch are
-Entities. The Interactor depends on interfaces owned by its use-case layer, so dependencies point
-inward."
+"The UML maps the tournament use case to four Clean Architecture layers. React, HTTP, Spring configuration, and the Executor are Frameworks and Drivers. The web Controller and TournamentRoundPresenter are Interface Adapters. RunTournamentRoundInteractor and its boundaries are Application Business Rules. Tournament, TournamentRound, TournamentMatch, and Pokemon are Entities.
+
+"The Interactor depends on interfaces owned by its use-case layer: TournamentMatchRunner, data-access ports, an ID generator, and an Output Boundary. Concrete runners, repositories, and presenters point back toward those abstractions. That is the Dependency Rule in source code. The diagram also shows composition: a Tournament owns its completed rounds, and each round owns its matches, so bracket consistency is protected by the aggregate rather than reconstructed in the View."
 
 
 SLIDE 16 OF 30 - TOURNAMENT DESIGN
 
-"TournamentMatchRunner is a Strategy. RandomBattleRunner is the production implementation, and
-tests replace it with a fixed runner. RandomBattleRunner calls Albert's ResolveTurnInputBoundary,
-so tournament reuses the existing single-battle rules rather than copying them. A new Battle is
-created for each matchup, resetting HP, and an injected Executor lets matches in one round run in
-parallel."
+"TournamentMatchRunner is a Strategy. It defines the result the tournament needs without deciding how a match is simulated. RandomBattleRunner is the production implementation, while tests replace it with a fixed runner that returns known winners. The Interactor does not branch on which implementation it receives.
+
+"RandomBattleRunner calls Albert's ResolveTurnInputBoundary, so tournament reuses the existing single-battle logic rather than copying speed, damage, accuracy, or fainting rules. It selects available moves until the battle ends and returns a TournamentMatch. A new Battle is created for every matchup, which resets HP and temporary state between rounds. Finally, an injected Executor lets the four or two independent matches in one round run concurrently while the Interactor still records the results in bracket order."

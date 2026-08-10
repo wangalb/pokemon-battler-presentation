@@ -193,7 +193,6 @@
         "Interface adapters: controllers, presenter, view models",
         "Business rules: Interactor coordinates each round",
         "Entities: Tournament validates bracket progression",
-        "Dependency Rule: source dependencies point inward",
         "SRP: classes keep separate responsibilities",
         "DIP: Interactor depends on use-case interfaces"
       ],
@@ -288,26 +287,31 @@
       bullets: [
         "SRP: Tournament validates bracket progression",
         "SRP: Interactor coordinates one round",
-        "DIP: Interactor depends on TournamentMatchRunner",
-        "DIP: Adapters implement use-case boundaries"
+        "SRP: Pokedex rules stay outside React hooks",
+        "DIP: Interactors depend on owned boundaries",
+        "DIP: Adapters implement repository interfaces",
+        "ISP: PokeAPI clients use narrow ports",
+        "OCP: New selectors need no Interactor edits"
       ],
       notes: [
         "Spend one minute on two principles in depth: Single Responsibility and Dependency Inversion.",
-        "Use tournament coordination versus validation for SRP, then the use-case-owned TournamentMatchRunner interface for DIP.",
-        "Explain the concrete benefit of each principle instead of defining all five letters."
+        "Use tournament and Pokedex responsibility splits for SRP, then battle, tournament, and repository boundaries for DIP.",
+        "Briefly connect Interface Segregation and Open/Closed to the same concrete seams."
       ]
     },
     "Design patterns": {
       bullets: [
-        "Strategy: TournamentMatchRunner defines one matchup",
-        "RandomBattleRunner is the production Strategy",
-        "Fixed runners make tests deterministic",
-        "New match policies need no Interactor changes"
+        "Strategy: MoveSelector chooses battle moves",
+        "Strategy: TournamentMatchRunner runs one matchup",
+        "Fixed Strategies make tests deterministic",
+        "Factory: CreatePokemonFactory assembles the use case",
+        "Cache-aside avoids repeated PokeAPI calls",
+        "Patterns keep policies independent from wiring"
       ],
       notes: [
-        "Spend one minute on the Strategy pattern introduced for tournament matches.",
-        "Name the interface, production implementation, test substitute, and the extension benefit.",
-        "Do not list every pattern in the repository."
+        "Explain Strategy using both battle move selection and tournament match execution.",
+        "Then show how CreatePokemonFactory hides Presenter, Interactor, and Controller assembly.",
+        "Mention cache-aside briefly as the data-access example; focus on why each pattern exists."
       ]
     },
     "Code organization": {
